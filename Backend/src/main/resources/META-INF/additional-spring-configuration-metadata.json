@@ -1,0 +1,42 @@
+{"properties": [
+  {
+    "name": "spring.application.base-url",
+    "type": "java.lang.String",
+    "description": "Base API URL to access this service"
+  },
+  {
+    "name": "spring.application.auth-domain",
+    "type": "java.lang.String",
+    "description": "Domain for authentication, authorization and CORS configuration"
+  },
+  {
+    "name": "jwt.public-key",
+    "type": "java.lang.String",
+    "description": "Public RSA(RS256) for JWT token verification, this key will be generated from private key of Auth service"
+  },
+  {
+    "name": "jwt.private-key",
+    "type": "java.lang.String",
+    "description": "Private RSA(RS256) for JWT token generation, this key will be generated from private key of Auth service"
+  },
+  {
+    "name": "jwt.issuer",
+    "type": "java.lang.String",
+    "description": "Token Issuance Platform"
+  },
+  {
+    "name": "jwt.expiration",
+    "type": "java.lang.String",
+    "description": "Expiration for access token"
+  },
+  {
+    "name": "jwt.refresh-token-expiration",
+    "type": "java.lang.String",
+    "description": "Expiration for refresh token"
+  },
+  {
+    "name": "application.frontend.base-url",
+    "type": "java.lang.String",
+    "description": "Base URL for frontend application"
+  }
+]}

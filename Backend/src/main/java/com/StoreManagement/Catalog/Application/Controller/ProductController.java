@@ -1,0 +1,93 @@
+package com.StoreManagement.Catalog.Application.Controller;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Requests.Product.CreateProductRequest;
+import com.StoreManagement.Catalog.Application.DTO.Requests.Product.UpdateProductRequest;
+import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
+import com.StoreManagement.Catalog.Domain.Contract.IProductService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+    @Autowired
+    private IProductService productService;
+
+    @GetMapping
+    public ResponseEntity<HashMap<String,Object>> getAll() {        
+        List<ProductResponse> products = productService.getAllProducts();
+
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data",  products);
+        
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PreAuthorize("hasAuthority('Admin')")
+    @PostMapping
+    public ResponseEntity<HashMap<String, Object>> create(@Valid @ModelAttribute CreateProductRequest request) throws IOException {
+        CreateProductCommand command = CreateProductCommand.fromRequest(request);
+
+        ProductResponse productRes = productService.createProduct(command);
+
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", productRes);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<HashMap<String, Object>> details(@PathVariable UUID productId) {
+        ProductResponse product = productService.getProduct(productId);
+        
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", product);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+    
+    @PreAuthorize("hasAuthority('Admin')")
+    @PutMapping("/{productId}")
+    public ResponseEntity<HashMap<String, Object>> update(@PathVariable UUID productId, @Valid @ModelAttribute UpdateProductRequest request) {
+        UpdateProductCommand command = UpdateProductCommand.fromRequest(request);
+        ProductResponse updated = productService.updateProduct(productId, command);
+        
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", updated);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PreAuthorize("hasAuthority('Admin')")
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<HashMap<String, Object>> delete(@PathVariable UUID productId) {
+        productService.deleteProduct(productId);
+        
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "Product deleted successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+}

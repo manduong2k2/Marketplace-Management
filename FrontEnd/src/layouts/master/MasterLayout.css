@@ -1,0 +1,18 @@
+.master-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #bfc0c2, #696869);
+}
+
+.layout-body {
+  display: flex;
+  flex: 1;
+  padding-top: 60px;
+}
+
+.layout-main {
+  flex: 1;
+  padding: 0px 20px;
+  transition: margin-left 0.3s ease;
+}

@@ -1,0 +1,89 @@
+package com.StoreManagement.Catalog.Application.Controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.CreateBrandRequest;
+import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.UpdateBrandRequest;
+import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
+import com.StoreManagement.Catalog.Domain.Contract.IBrandService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/brands")
+public class BrandController {
+    @Autowired
+    private IBrandService brandService;
+
+    @GetMapping
+    public ResponseEntity<HashMap<String,Object>> getAll() {
+        List<BrandResponse> brands = brandService.getAllBrands();
+
+        HashMap<String,Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", brands);
+        
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PreAuthorize("hasAuthority('Admin')")
+    @PostMapping
+    public ResponseEntity<HashMap<String,Object>> create(@Valid @ModelAttribute CreateBrandRequest request) {
+        BrandResponse brand = brandService.createBrand(request);
+        
+        HashMap<String,Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", brand);
+        
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PreAuthorize("hasAuthority('Admin')")
+    @GetMapping("/{brandId}")
+    public ResponseEntity<HashMap<String,Object>> details(@PathVariable UUID brandId) {
+        BrandResponse brand = brandService.getBrand(brandId);
+        
+        HashMap<String,Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", brand);
+        
+        return ResponseEntity.ok().body(response);
+    }
+    
+    @PreAuthorize("hasAuthority('Admin')")
+    @PutMapping("/{brandId}")
+    public ResponseEntity<HashMap<String,Object>> update(@PathVariable UUID brandId, @Valid @ModelAttribute UpdateBrandRequest request) {
+        BrandResponse brand = brandService.updateBrand(brandId, request);
+        
+        HashMap<String,Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", brand);
+        
+        return ResponseEntity.ok().body(response);
+    }
+    
+    @PreAuthorize("hasAuthority('Admin')")
+    @DeleteMapping("/{brandId}")
+    public ResponseEntity<HashMap<String,Object>> delete(@PathVariable UUID brandId) {
+        brandService.deleteBrand(brandId);
+        
+        HashMap<String,Object> response = new HashMap<>();
+        response.put("success", true);
+        
+        return ResponseEntity.ok().body(response);
+    }
+}

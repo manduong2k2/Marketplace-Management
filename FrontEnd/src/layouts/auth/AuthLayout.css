@@ -1,0 +1,22 @@
+.auth-layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* vùng giữa navbar và footer */
+.auth-layout-page {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px 20px 40px 20px;
+}
+
+/* card login/register */
+.auth-layout-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 0;
+  border-radius: 10px;
+}

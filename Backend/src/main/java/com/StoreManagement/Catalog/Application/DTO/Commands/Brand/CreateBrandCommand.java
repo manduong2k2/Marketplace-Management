@@ -1,0 +1,24 @@
+package com.StoreManagement.Catalog.Application.DTO.Commands.Brand;
+
+import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.CreateBrandRequest;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateBrandCommand {
+    private String name;
+    private String image;
+    private String description;
+    
+    public static CreateBrandCommand fromRequest(CreateBrandRequest request) {
+        return new CreateBrandCommand(
+            request.getName(),
+            request.getImage(),
+            request.getDescription()
+        );
+    }
+}

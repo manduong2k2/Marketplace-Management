@@ -1,0 +1,51 @@
+services:
+  store-management-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: store-management-backend
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/store_management_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATA_REDIS_HOST=host.docker.internal
+      - SPRING_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=host.docker.internal
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+    networks:
+      - store-management-network
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    container_name: db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=store_management_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - store-management-network
+  
+  store-management-redis:
+    image: redis:7-alpine
+    container_name: store-management-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - store-management-network
+
+volumes:
+  db_data:
+
+networks:
+  store-management-network:
+    driver: bridge
