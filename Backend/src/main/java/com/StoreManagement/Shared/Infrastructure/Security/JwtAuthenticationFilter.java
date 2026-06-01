@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.StoreManagement.Auth.Domain.Constants.Message;
-
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -43,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Claims claims = jwtService.verifyToken(token);
         if (claims == null || claims.getSubject() == null) {
-            throw new AuthenticationException(Message.UNAUTHENTICATED) {};
+            filterChain.doFilter(request, response);
+            return;
         }
 
         Object rolesObj = claims.get("roles");

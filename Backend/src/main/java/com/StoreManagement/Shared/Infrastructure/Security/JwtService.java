@@ -109,12 +109,21 @@ public class JwtService {
                     .parseClaimsJws(token);
 
             String jti = claims.getBody().getId();
-            if (Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + jti))) {
-                throw new AuthenticationException(Message.TOKEN_BLACKLISTED) {
-                };
+
+            try {
+                if (Boolean.TRUE.equals(
+                        redisTemplate.hasKey(BLACKLIST_PREFIX + jti))) {
+                    throw new AuthenticationException(
+                            Message.TOKEN_BLACKLISTED) {
+                    };
+                }
+            } catch (Exception e) {
+                System.out.println("Redis unavailable: " + e.getMessage());
+                return null;
             }
 
             return claims.getBody();
+
         } catch (JwtException e) {
             return null;
         }
@@ -122,15 +131,21 @@ public class JwtService {
 
     public void invalidateToken(String token) {
         Claims claims = verifyToken(token);
-        String jti = claims.getId();
-        long ttl = claims.getExpiration().getTime() - System.currentTimeMillis();
 
-        if (ttl > 0) {
-            redisTemplate.opsForValue().set(
-                    BLACKLIST_PREFIX + jti,
-                    "1",
-                    ttl,
-                    TimeUnit.MILLISECONDS);
+        try {
+            String jti = claims.getId();
+            long ttl = claims.getExpiration().getTime()
+                    - System.currentTimeMillis();
+
+            if (ttl > 0) {
+                redisTemplate.opsForValue().set(
+                        BLACKLIST_PREFIX + jti,
+                        "1",
+                        ttl,
+                        TimeUnit.MILLISECONDS);
+            }
+        } catch (Exception e) {
+            System.out.println("Redis unavailable: " + e.getMessage());
         }
     }
 }
