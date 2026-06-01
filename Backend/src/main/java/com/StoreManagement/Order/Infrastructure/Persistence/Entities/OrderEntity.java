@@ -31,6 +31,18 @@ public class OrderEntity extends JpaEntity {
     @Column(name = "status", nullable = false, length = 20)
     private String status;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "phone", nullable = false)
+    private String phone;
+
+    @Column(name = "address", nullable = false)
+    private String address;
+
+    @Column(name = "note", nullable = true)
+    private String note;
+
     @OneToMany(
         mappedBy = "order",
         cascade = CascadeType.ALL,

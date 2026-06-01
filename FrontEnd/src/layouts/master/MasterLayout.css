@@ -3,19 +3,44 @@
   flex-direction: column;
   min-height: 100vh;
   background: linear-gradient(135deg, #bfc0c2, #696869);
+  width: 100%;
 }
 
 .layout-body {
   display: flex;
   flex: 1;
   padding-top: 60px;
+  min-width: 0;
 }
 
 .layout-main {
   flex: 1;
-  padding: 0px 20px;
+  padding: 0 20px;
   transition: margin-left 0.3s ease;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* ── Tablet ── */
+@media (max-width: 1024px) {
+  .layout-main {
+    padding: 0 16px;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .layout-main {
+    padding: 0 10px;
+    margin-left: 0 !important; /* override inline sidebar margin */
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-main {
+    padding: 0 8px;
+  }
 }

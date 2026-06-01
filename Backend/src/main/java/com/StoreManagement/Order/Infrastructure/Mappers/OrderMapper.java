@@ -20,6 +20,10 @@ public class OrderMapper implements IMapper<Order, OrderEntity>{
         entity.setId(order.getId());
         entity.setUserId(order.getUserId());
         entity.setStatus(order.getStatus().getValue());
+        entity.setName(order.getName());
+        entity.setPhone(order.getPhone());
+        entity.setAddress(order.getAddress());
+        entity.setNote(order.getNote());
 
         List<OrderItemEntity> itemEntities = order.getItems().stream()
                 .map(item -> toItemJpa(item, entity))
@@ -65,7 +69,11 @@ public class OrderMapper implements IMapper<Order, OrderEntity>{
                 entity.getId(),
                 entity.getUserId(),
                 OrderStatusEnum.valueOf(entity.getStatus()),
-                items
+                items,
+                entity.getName(),
+                entity.getPhone(),
+                entity.getAddress(),
+                entity.getNote()
         );
     }
 

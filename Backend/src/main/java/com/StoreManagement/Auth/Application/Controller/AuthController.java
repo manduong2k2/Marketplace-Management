@@ -82,6 +82,20 @@ public class AuthController {
                 .body(response);
     }
 
+    @PostMapping("/admin/login")
+    public ResponseEntity<HashMap<String, Object>> loginAdmin(@Valid @RequestBody(required = true) LoginRequest req) {
+        LoginCommand command = LoginCommand.fromRequest(req);
+        AuthResponse authRes = auth.loginAdmin(command);
+        HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
+
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("message", authRes.getMessage());
+
+        return ResponseEntity.ok()
+                .headers(cookies)
+                .body(response);
+    }
+
     @PostMapping("/refresh-token")
     public ResponseEntity<HashMap<String, Object>> refreshToken(
             @Valid @RequestBody(required = true) RefreshTokenRequest req) {

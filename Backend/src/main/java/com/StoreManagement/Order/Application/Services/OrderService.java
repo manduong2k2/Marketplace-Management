@@ -36,7 +36,7 @@ public class OrderService {
     }
 
     public void create(CreateOrderCommand command) {
-        Order order = new Order(null, command.getUserId(), OrderStatusEnum.PENDING, command.getItems());
+        Order order = new Order(null, command.getUserId(), OrderStatusEnum.PENDING, command.getItems(), command.getName(), command.getPhone(), command.getAddress(), command.getNote());
         repository.create(order);
     }
 

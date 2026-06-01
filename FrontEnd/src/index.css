@@ -1,15 +1,24 @@
-#root {
-  display: flex;
-  justify-content: center;
-  width: 100vw;
-  margin: 0;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
 }
 
 body {
   width: 100%;
   margin: 0;
-  display: flex;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
   background: linear-gradient(135deg, #bfc0c2, #696869);
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
 }

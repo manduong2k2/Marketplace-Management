@@ -17,6 +17,10 @@ public class OrderResponse {
     private List<OrderItemResponse> items;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String name;
+    private String phone;
+    private String address;
+    private String note;
 
     public static OrderResponse from(Order order) {
         OrderResponse r = new OrderResponse();
@@ -27,6 +31,10 @@ public class OrderResponse {
         r.items     = order.getItems().stream().map(OrderItemResponse::from).toList();
         r.createdAt = order.getCreatedAt();
         r.updatedAt = order.getUpdatedAt();
+        r.name      = order.getName();
+        r.phone     = order.getPhone();
+        r.address   = order.getAddress();
+        r.note      = order.getNote();
         return r;
     }
 }

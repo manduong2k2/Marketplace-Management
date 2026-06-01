@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../../contexts/CartContext';
 import { cartService } from '../../services/cartService';
 import { showSuccess, showError } from '../../components/master/popup';
 import './CartPage.css';
 
 function CartPage() {
+  const navigate = useNavigate();
   const { cart, loading, setCart } = useContext(CartContext);
   const [quantities, setQuantities] = useState({});
 
@@ -69,8 +71,7 @@ function CartPage() {
   };
 
   const handleCheckout = () => {
-    // TODO: Implement checkout endpoint
-    console.log('Checkout');
+    navigate('/checkout');
   };
 
   if (loading) {

@@ -41,15 +41,21 @@ export default function BrandList() {
     }
   };
 
+  const getScrollAmount = () => {
+    const carousel = carouselRef.current;
+    if (!carousel) return 0;
+    return carousel.offsetWidth;
+  };
+
   const scrollLeft = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -170, behavior: 'smooth' });
+      carouselRef.current.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: 170, behavior: 'smooth' });
+      carouselRef.current.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
     }
   };
 
@@ -76,7 +82,7 @@ export default function BrandList() {
         </div>
       ) : (
         <div className="brand-carousel-wrapper">
-          <button 
+          <button
             className={`scroll-button scroll-left ${!canScrollLeft ? 'disabled' : ''}`}
             onClick={scrollLeft}
             disabled={!canScrollLeft}
@@ -91,7 +97,7 @@ export default function BrandList() {
               />
             ))}
           </div>
-          <button 
+          <button
             className={`scroll-button scroll-right ${!canScrollRight ? 'disabled' : ''}`}
             onClick={scrollRight}
             disabled={!canScrollRight}

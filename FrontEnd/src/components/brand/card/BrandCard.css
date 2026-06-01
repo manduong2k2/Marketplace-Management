@@ -2,7 +2,6 @@
 .brand-card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
   border: 1px solid #e1e5e9;
@@ -16,14 +15,15 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
+/* Fixed size inside carousel — carousel handles overflow */
 .brand-card.user-view {
-  width: 150px;
-  max-width: 150px;
+  width: 10.23%;
+  flex-shrink: 0;
 }
 
 .brand-image-container {
-  width: 150px;
-  height: 150px;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   position: relative;
   background: #f8f9fa;
@@ -41,12 +41,12 @@
 }
 
 .brand-info {
-  padding: 15px;
+  padding: 10px 12px;
   text-align: center;
 }
 
 .brand-name {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
   color: #333;
   margin: 0;
@@ -56,48 +56,33 @@
   text-overflow: ellipsis;
 }
 
-/* Responsive design */
+/* ── Mobile: slightly smaller cards ── */
 @media (max-width: 768px) {
-  .brand-card {
-    margin-bottom: 20px;
+  .brand-card.user-view {
+    width: 110px;
   }
-  
+
   .brand-image-container {
-    height: 150px;
+    width: 110px;
+    height: 110px;
   }
-  
-  .brand-info {
-    padding: 15px;
-  }
-  
+
   .brand-name {
-    font-size: 16px;
-  }
-  
-  .brand-actions {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .btn {
-    padding: 10px;
+    font-size: 12px;
   }
 }
 
 @media (max-width: 480px) {
+  .brand-card.user-view {
+    width: 95px;
+  }
+
   .brand-image-container {
-    height: 120px;
+    width: 95px;
+    height: 95px;
   }
-  
+
   .brand-info {
-    padding: 12px;
-  }
-  
-  .brand-name {
-    font-size: 15px;
-  }
-  
-  .brand-description {
-    font-size: 13px;
+    padding: 8px;
   }
 }

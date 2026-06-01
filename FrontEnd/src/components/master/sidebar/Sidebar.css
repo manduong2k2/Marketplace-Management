@@ -51,3 +51,12 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     transform: scale(1.1);
 }
+
+/* On mobile, sidebar overlays content instead of pushing it */
+@media (max-width: 768px) {
+    .sidebar.expanded {
+        width: 200px;
+        z-index: 1001;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+}

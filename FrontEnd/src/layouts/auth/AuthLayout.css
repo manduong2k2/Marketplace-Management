@@ -2,21 +2,37 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
 }
 
-/* vùng giữa navbar và footer */
+/* Area between navbar and footer */
 .auth-layout-page {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 100px 20px 40px 20px;
+  padding: 80px 20px 40px;
+  box-sizing: border-box;
 }
 
-/* card login/register */
+/* Card that wraps login / register / forgot forms */
 .auth-layout-card {
   width: 100%;
   max-width: 480px;
   padding: 0;
   border-radius: 10px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .auth-layout-page {
+    padding: 80px 14px 30px;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-layout-page {
+    padding: 74px 10px 24px;
+  }
 }

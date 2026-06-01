@@ -11,16 +11,24 @@ public class Order extends AggregateRoot<UUID> {
     private UUID userId;
     private OrderStatus status;
     private List<OrderItem> items;
+    private String name;
+    private String phone;
+    private String address;
+    private String note;
 
     public Order(){
         super(null);
     }
 
-    public Order(UUID id, UUID userId, OrderStatusEnum status, List<OrderItem> items) {
+    public Order(UUID id, UUID userId, OrderStatusEnum status, List<OrderItem> items, String name, String phone, String address, String note) {
         super(id);
         this.userId = userId;
         this.status = new OrderStatus(status);
         this.items = items;
+        this.name = name;
+        this.phone = phone;
+        this.address = address;
+        this.note = note;
     }
 
     //Business methods;
@@ -44,5 +52,37 @@ public class Order extends AggregateRoot<UUID> {
 
     public OrderStatus getStatus() {
         return status;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

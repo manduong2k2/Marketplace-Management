@@ -18,6 +18,7 @@ public interface IAuthService {
     RegisterResponse register(RegisterCommand command) throws MessagingException;
     AuthResponse activeUser(ActivateUserCommand command);
     AuthResponse login(LoginCommand command);
+    AuthResponse loginAdmin(LoginCommand command);
     AuthResponse refreshToken(RefreshTokenCommand command);
     boolean sendActivationEmail(String email) throws MessagingException;
     boolean sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException;

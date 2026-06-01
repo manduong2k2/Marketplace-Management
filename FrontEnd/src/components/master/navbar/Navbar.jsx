@@ -15,7 +15,7 @@ function CartIcon({ count }) {
   );
 }
 
-export default function Navbar({ onToggleSidebar }) {
+export default function Navbar() {
   const { user, setUser } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -60,9 +60,6 @@ export default function Navbar({ onToggleSidebar }) {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        {user ? <button className="toggle-btn" onClick={onToggleSidebar}>
-          ☰
-        </button> : null}
         <Link to="/home" className="navbar-logo-link">
           <img src={shopIcon} alt="Logo" className="navbar-icon" />
           <span className="navbar-logo">

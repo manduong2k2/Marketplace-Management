@@ -3,6 +3,7 @@ package com.StoreManagement.Auth.Domain.Constants;
 public final class Message {
     public static final String UNAUTHENTICATED = "Unauthenticated";
     public static final String CREDENTIALS = "Invalid credentials";
+    public static final String FORBIDDEN = "Access denied";
     public static final String ACTIVATION = "Account is not active";
     public static final String USER_NOT_FOUND = "User not found";
     public static final String ROLE_NOT_FOUND = "Role not found";

@@ -7,12 +7,14 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.StoreManagement.Auth.Application.Constants.UserRole;
 import com.StoreManagement.Auth.Application.DTO.Commands.ActivateUserCommand;
 import com.StoreManagement.Auth.Application.DTO.Commands.ForgotPasswordCommand;
 import com.StoreManagement.Auth.Application.DTO.Commands.LoginCommand;
@@ -101,6 +103,28 @@ public class AuthService implements IAuthService {
 
         if (!encoder.matches(command.getPassword(), user.getPassword())) {
             throw new AuthenticationException(Message.CREDENTIALS) {};
+        }
+
+        return new AuthResponse(
+                tokenService.generateAccessToken(user),
+                tokenService.generateRefreshToken(user),
+                Message.LOGIN_SUCCESS);
+    }
+    
+    public AuthResponse loginAdmin(LoginCommand command) {
+        var user = repo.findByEmail(command.getEmail())
+                .orElseThrow(() -> new AuthenticationException(Message.CREDENTIALS) {});
+
+        if (!user.getStatus().equals(UserStatus.ACTIVE)) {
+            throw new AuthenticationException(Message.ACTIVATION) {};
+        }
+
+        if (!encoder.matches(command.getPassword(), user.getPassword())) {
+            throw new AuthenticationException(Message.CREDENTIALS) {};
+        }
+        
+        if (!user.getRoles().stream().anyMatch(role -> role.getCode().equals(UserRole.ADMIN))) {
+            throw new AccessDeniedException(Message.FORBIDDEN) {};
         }
 
         return new AuthResponse(

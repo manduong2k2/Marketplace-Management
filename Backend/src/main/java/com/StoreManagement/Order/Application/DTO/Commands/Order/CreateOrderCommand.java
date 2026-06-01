@@ -12,4 +12,8 @@ public class CreateOrderCommand{
     private UUID cartId;
     private UUID userId;
     private List<OrderItem> items;
+    private String name;
+    private String phone;
+    private String address;
+    private String note;
 }
