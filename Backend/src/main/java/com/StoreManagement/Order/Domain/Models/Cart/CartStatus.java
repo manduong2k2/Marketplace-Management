@@ -12,8 +12,8 @@ public class CartStatus extends ValueObject {
 
     // Business methods
 
-    public boolean isActive() {
-        return "ACTIVE".equals(this.value);
+    public boolean isNew() {
+        return "NEW".equals(this.value);
     }
 
     public boolean isCheckedOut() {
@@ -29,11 +29,11 @@ public class CartStatus extends ValueObject {
     }
 
     public boolean canAddItems() {
-        return this.isActive();
+        return this.isNew();
     }
 
     public boolean canCheckout() {
-        return this.isActive();
+        return this.isNew();
     }
 
     public boolean canBeUpdatedTo(String newStatus) {
@@ -41,11 +41,11 @@ public class CartStatus extends ValueObject {
             return false;
         }
 
-        if (this.isActive() && newStatus.equals("CHECKED_OUT")) {
+        if (this.isNew() && newStatus.equals("CHECKED_OUT")) {
             return true;
         }
 
-        if (this.isActive() && newStatus.equals("ABANDONED")) {
+        if (this.isNew() && newStatus.equals("ABANDONED")) {
             return true;
         }
 
@@ -53,7 +53,7 @@ public class CartStatus extends ValueObject {
             return true;
         }
 
-        if (this.isActive() && newStatus.equals("EXPIRED")) {
+        if (this.isNew() && newStatus.equals("EXPIRED")) {
             return true;
         }
 

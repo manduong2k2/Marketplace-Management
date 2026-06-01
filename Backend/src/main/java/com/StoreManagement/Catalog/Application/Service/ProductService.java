@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
@@ -16,7 +18,10 @@ import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Catalog.Domain.Models.Product;
 import com.StoreManagement.Catalog.Domain.Models.ProductStatus;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
+import com.StoreManagement.Shared.Application.Contracts.IFileService;
+import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
+import com.StoreManagement.Shared.Domain.Contracts.IFileRepository;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;
 
@@ -28,20 +33,29 @@ public class ProductService implements IProductService {
     public IProductRepository productRepository;
 
     @Autowired
+    public IFileRepository fileRepository;
+
+    @Autowired
     public IEventPublisher eventPublisher;
+
+    @Autowired
+    public IFileService fileService;
 
     @Autowired
     public IMapper<Product, ProductEntity> productMapper;
 
+    @Value("${spring.application.base-url}")
+    private String baseUrl;
+
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll().stream()
-                .map(ProductResponse::new)
+                .map(product -> new ProductResponse(product, baseUrl))
                 .toList();
     }
 
     public ProductResponse getProduct(UUID ProductId) {
         return productRepository.findById(ProductId)
-                .map(ProductResponse::new)
+                .map(product -> new ProductResponse(product, baseUrl))
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
@@ -56,15 +70,24 @@ public class ProductService implements IProductService {
             command.getStock(),
             command.getBrandId(),
             new ProductStatus(),
-            command.getCategoryIds()
+            command.getCategoryIds(),
+            null
         );
         product.setStatus(command.getStatus());
 
         Product savedProduct = productRepository.save(product);
 
+        if(command.getImages() != null && !command.getImages().isEmpty()) {
+            for(MultipartFile image : command.getImages()) {
+                String imageUrl = fileService.uploadFile(image, "catalog/products/");
+                File file = new File(null, imageUrl, "Product", savedProduct.getId());
+                fileRepository.save(file);
+            }
+        }
+
         publishDomainEvents(savedProduct, "Product.created");
 
-        return new ProductResponse(savedProduct);
+        return new ProductResponse(savedProduct, baseUrl);
     }
 
     @Transactional
@@ -83,7 +106,7 @@ public class ProductService implements IProductService {
 
         publishDomainEvents(savedProduct, "Product.updated");
 
-        return new ProductResponse(savedProduct);
+        return new ProductResponse(savedProduct, baseUrl);
     }
 
     @Transactional

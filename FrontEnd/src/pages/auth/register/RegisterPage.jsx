@@ -100,7 +100,6 @@ export default function RegisterPage() {
         showError('Registration failed!' + (response.data.data.message ? ' - ' + response.data.data.message : ''), 'Please try again');
       }
     } catch (err) {
-      console.error('Registration error:', err);
       showError('Registration failed!', err.message || 'Please try again');
     } finally {
       setLoading(false);

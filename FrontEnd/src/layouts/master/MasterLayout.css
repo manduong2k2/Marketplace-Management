@@ -15,4 +15,7 @@
   flex: 1;
   padding: 0px 20px;
   transition: margin-left 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

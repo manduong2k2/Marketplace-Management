@@ -14,9 +14,11 @@ import lombok.NoArgsConstructor;
 public class CategoryResponse {
     private UUID id;
     private String name;
+    private String image;
 
-    public CategoryResponse(Category category) {
+    public CategoryResponse(Category category, String baseUrl) {
         this.id = category.getId();
         this.name = category.getName();
+        this.image = category.getImage() != null ? baseUrl + "/" + category.getImage() : null;
     }
 }

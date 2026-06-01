@@ -39,22 +39,22 @@ export const cartService = {
   getCart: () => request('/api/cart'),
 
   // Thêm sản phẩm vào giỏ hàng
-  addItem: (productVariantId, quantity = 1) =>
+  addItem: (productId, quantity = 1) =>
     request('/api/cart/items', {
       method: 'POST',
-      body: { productVariantId, quantity },
+      body: { productId, quantity },
     }),
 
   // Cập nhật số lượng sản phẩm trong giỏ
-  updateItem: (itemId, quantity) =>
-    request(`/api/cart/items/${itemId}`, {
+  updateItem: (productId, quantity) =>
+    request(`/api/cart/items/${productId}`, {
       method: 'PUT',
       body: { quantity },
     }),
 
   // Xóa 1 sản phẩm khỏi giỏ
-  removeItem: (itemId) =>
-    request(`/api/cart/items/${itemId}`, { method: 'DELETE' }),
+  removeItem: (productId) =>
+    request(`/api/cart/items/${productId}`, { method: 'DELETE' }),
 
   // Xóa toàn bộ giỏ hàng
   clearCart: () => request('/api/cart', { method: 'DELETE' }),

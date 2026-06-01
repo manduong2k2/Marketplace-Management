@@ -3,6 +3,8 @@ package com.StoreManagement.Catalog.Application.DTO.Requests.Product;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Distinct;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
@@ -50,5 +52,8 @@ public class CreateProductRequest {
     
     @In(enumClass = ProductStatusEnum.class, message = "Invalid product status")
     private String status;
+    
+    private List<MultipartFile> images;
 }
+
 

@@ -3,6 +3,8 @@ package com.StoreManagement.Catalog.Application.DTO.Commands.Product;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.CreateProductRequest;
 
 import lombok.AllArgsConstructor;
@@ -21,6 +23,7 @@ public class CreateProductCommand {
     private String description;
     private List<UUID> categoryIds;
     private String status;
+    private List<MultipartFile> images;
 
     public static CreateProductCommand fromRequest(CreateProductRequest request) {
         CreateProductCommand command = new CreateProductCommand();
@@ -32,6 +35,7 @@ public class CreateProductCommand {
         command.setDescription(request.getDescription());
         command.setCategoryIds(request.getCategoryIds());
         command.setStatus(request.getStatus());
+        command.setImages(request.getImages());
         return command;
     }
 }

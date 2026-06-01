@@ -78,7 +78,6 @@ export default function ProfilePage() {
         showError('Failed to update profile!' + (response.data.data.message ? ' - ' + response.data.data.message : ''), 'Error');
       }
     } catch (err) {
-      console.error('Profile update error:', err);
       showError('Failed to update profile!', err.message || 'Please try again');
     } finally {
       setLoading(false);

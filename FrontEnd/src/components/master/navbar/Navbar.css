@@ -68,6 +68,34 @@
     opacity: 0.8;
 }
 
+.navbar-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.navbar-center:focus-within {
+    border-color: white;
+}
+
+.navbar-center:hover {
+    border-color: white;
+}
+
+.search-input {
+    background: transparent;
+    font-size: 14px;
+    width: 400px;
+    border: none;
+    outline: none;
+}
+
 .navbar-right {
     display: flex;
     align-items: center;

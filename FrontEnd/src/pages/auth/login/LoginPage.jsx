@@ -30,7 +30,6 @@ export default function LoginPage() {
         showError(response.data.message || 'Login failed', 'Login Error');
       }
     } catch (err) {
-      console.log(err);
       showError('Login failed! Please try again.', 'Connection Error');
     }
   };

@@ -2,6 +2,8 @@ package com.StoreManagement.Catalog.Application.DTO.Requests.Category;
 
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -21,7 +23,7 @@ public class CreateCategoryRequest {
     private UUID parentId;
     
     @Nullable
-    private String image;
+    private MultipartFile image;
     
     @Nullable
     @Size(max = 500)

@@ -1,5 +1,7 @@
 package com.StoreManagement.Catalog.Application.DTO.Commands.Brand;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.CreateBrandRequest;
 
 import lombok.AllArgsConstructor;
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateBrandCommand {
     private String name;
-    private String image;
+    private MultipartFile image;
     private String description;
     
     public static CreateBrandCommand fromRequest(CreateBrandRequest request) {

@@ -1,5 +1,6 @@
 package com.StoreManagement.Catalog.Application.DTO.Response;
 
+import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -22,8 +23,9 @@ public class ProductResponse {
     private UUID brandId;
     private String description;
     private String status;
+    private List<String> images;
     
-    public ProductResponse(Product product) {
+    public ProductResponse(Product product, String baseUrl) {
         this.id = product.getId();
         this.name = product.getName();
         this.code = product.getCode();
@@ -32,5 +34,6 @@ public class ProductResponse {
         this.brandId = product.getBrandId();
         this.description = product.getDescription();
         this.status = product.getStatus();
+        this.images = product.getFiles().stream().map(file -> baseUrl + "/" + file.getUrl()).toList();
     }
 }

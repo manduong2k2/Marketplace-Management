@@ -2,6 +2,8 @@ package com.StoreManagement.Catalog.Application.DTO.Commands.Category;
 
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.StoreManagement.Catalog.Application.DTO.Requests.Category.CreateCategoryRequest;
 
 import lombok.AllArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class CreateCategoryCommand {
     private String name;
     private UUID parentId;
-    private String image;
+    private MultipartFile image;
     private String description;
 
     public static CreateCategoryCommand fromRequest(CreateCategoryRequest request) {

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Shared.Domain.AggregateRoot;
+import com.StoreManagement.Shared.Domain.File;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +18,16 @@ public class Product extends AggregateRoot<UUID> {
     private UUID brandId;
     private List<UUID> categoryIds;
     private ProductStatus status;
+    private List<File> files;
 
     public Product() {
         super(null);
         this.status = new ProductStatus();
         this.categoryIds = new ArrayList<>();
+        this.files = new ArrayList<>();
     }
 
-    public Product(UUID id, String name, String description, String code, double price, int stock, UUID brandId, ProductStatus status, List<UUID> categoryIds) {
+    public Product(UUID id, String name, String description, String code, double price, int stock, UUID brandId, ProductStatus status, List<UUID> categoryIds, List<File> files) {
         super(id);
         this.name = name;
         this.description = description;
@@ -34,6 +37,7 @@ public class Product extends AggregateRoot<UUID> {
         this.brandId = brandId;
         this.status = status;
         this.categoryIds = categoryIds;
+        this.files = files != null ? files : new ArrayList<>();
     }
 
     public String getName() {
@@ -112,5 +116,13 @@ public class Product extends AggregateRoot<UUID> {
 
     public void setStatus(String status) {
         this.status.setValue(ProductStatusEnum.valueOf(status));
+    }
+
+    public List<File> getFiles() {
+        return files;
+    }
+    
+    public void setFiles(List<File> files) {
+        this.files = files;
     }
 }

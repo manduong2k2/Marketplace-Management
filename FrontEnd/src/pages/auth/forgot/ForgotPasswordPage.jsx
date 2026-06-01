@@ -57,7 +57,6 @@ export default function ForgotPasswordPage() {
         setErrors({ email: 'Email not found in system' });
       }
     } catch (err) {
-      console.error('Forgot password error:', err);
       setErrors({ email: err.message || 'An error occurred, please try again' });
     } finally {
       setLoading(false);

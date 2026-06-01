@@ -1,11 +1,15 @@
 package com.StoreManagement.Order.Domain.Models.Cart;
 
+import java.util.List;
 import java.util.UUID;
 import com.StoreManagement.Shared.Domain.Entity;
 
 public class CartItem extends Entity<UUID> {
     private UUID productId;
     private Quantity quantity;
+    private String productName;
+    private double productPrice;
+    private List<String> productImage;
 
     public CartItem() {
         super(null);
@@ -57,5 +61,29 @@ public class CartItem extends Entity<UUID> {
 
     public void setQuantity(int quantity) {
         this.quantity.setValue(quantity);
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public double getProductPrice() {
+        return productPrice;
+    }
+
+    public void setProductPrice(double productPrice) {
+        this.productPrice = productPrice;
+    }
+
+    public List<String> getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(List<String> productImage) {
+        this.productImage = productImage;
     }
 }

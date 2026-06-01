@@ -1,5 +1,6 @@
 package com.StoreManagement.Catalog.Application.Controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -43,13 +44,21 @@ public class BrandController {
     @PreAuthorize("hasAuthority('Admin')")
     @PostMapping
     public ResponseEntity<HashMap<String,Object>> create(@Valid @ModelAttribute CreateBrandRequest request) {
-        BrandResponse brand = brandService.createBrand(request);
-        
-        HashMap<String,Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", brand);
-        
-        return ResponseEntity.ok().body(response);
+        try {
+            BrandResponse brand = brandService.createBrand(request);
+            
+            HashMap<String,Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", brand);
+            
+            return ResponseEntity.ok().body(response);
+        } catch (IOException e) {
+            HashMap<String,Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to upload image: " + e.getMessage());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
     }
 
     @PreAuthorize("hasAuthority('Admin')")

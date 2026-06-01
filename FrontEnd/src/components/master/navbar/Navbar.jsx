@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
+import { CartContext } from '../../../contexts/CartContext';
 import { authService } from '../../../services/authService';
 import './Navbar.css';
 import shopIcon from '../../../assets/shop-icon.png';
@@ -14,10 +15,14 @@ function CartIcon({ count }) {
   );
 }
 
-export default function Navbar({ onToggleSidebar, cartCount = 0 }) {
+export default function Navbar({ onToggleSidebar }) {
   const { user, setUser } = useContext(AuthContext);
+  const { cart } = useContext(CartContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  const cartCount = cart?.totalItemCount || 0;
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -25,7 +30,6 @@ export default function Navbar({ onToggleSidebar, cartCount = 0 }) {
       await setUser(null);
       window.location.href = '/login';
     } catch (err) {
-      console.error(err);
       alert('Logout failed!');
     }
   };
@@ -67,6 +71,13 @@ export default function Navbar({ onToggleSidebar, cartCount = 0 }) {
           </span>
         </Link>
       </div>
+
+      {location.pathname === '/home' && (
+        <div className="navbar-center">
+          <i className="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search products..." className="search-input" />
+        </div>
+      )}
 
       <div className="navbar-right">
         {user ? (

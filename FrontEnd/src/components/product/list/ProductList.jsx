@@ -14,9 +14,8 @@ function ProductList() {
       try {
         setLoading(true);
         const response = await productService.getAll();
-        setProducts(response.data.data || response);
+        setProducts(response.data.data);
       } catch (err) {
-        console.error('Error fetching products:', err);
         setError('Cannot load products');
       } finally {
         setLoading(false);
@@ -48,9 +47,9 @@ function ProductList() {
   }
 
   return (
-    <div className="product-list-container">
+    <div className="product-list-container user-view">
       <div className="list-header">
-        <h2>Product List</h2>
+        <h2>Products</h2>
       </div>
       
       {products.length === 0 ? (

@@ -1,5 +1,6 @@
 package com.StoreManagement.Catalog.Application.Controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -43,13 +44,21 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('Admin')")
     @PostMapping
     public ResponseEntity<HashMap<String,Object>> create(@Valid @ModelAttribute CreateCategoryRequest request) {
-        CategoryResponse category = categoryService.createCategory(request);
-        
-        HashMap<String,Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", category);
-        
-        return ResponseEntity.ok().body(response);
+        try {
+            CategoryResponse category = categoryService.createCategory(request);
+            
+            HashMap<String,Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", category);
+            
+            return ResponseEntity.ok().body(response);
+        } catch (IOException e) {
+            HashMap<String,Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to upload image: " + e.getMessage());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
     }
 
     @PreAuthorize("hasAuthority('Admin')")

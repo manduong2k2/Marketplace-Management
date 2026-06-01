@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
+import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Order.Application.Contracts.ICartService;
 import com.StoreManagement.Order.Application.DTO.Commands.Cart.AddToCartCommand;
 import com.StoreManagement.Order.Application.DTO.Commands.Cart.CheckoutCartCommand;
@@ -20,6 +22,9 @@ public class CartService implements ICartService {
 
     @Autowired
     private ICartRepository repository;
+
+    @Autowired
+    private IProductService productService;
 
     @Override
     public Cart addItem(AddToCartCommand command) {
@@ -69,8 +74,25 @@ public class CartService implements ICartService {
 
     @Override
     public Cart getByUserId(UUID userId) {
-        return repository.findByUserId(userId)
+        Cart cart = repository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for user: " + userId));
+        
+        // Load product details for each item in the cart
+        for (CartItem item : cart.getItems()) {
+            ProductResponse product = productService.getProduct(item.getProductId());
+            item.setProductName(product.getName());
+            item.setProductPrice(product.getPrice());
+            item.setProductImage(product.getImages());
+        }
+        
+        return cart;
+    }
+
+    @Override
+    public void clearCart(UUID userId) {
+        Cart cart = getByUserId(userId);
+        cart.clear();
+        repository.update(cart);
     }
 
     @Override

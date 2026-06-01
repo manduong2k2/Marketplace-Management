@@ -6,8 +6,9 @@ import java.util.UUID;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
+import org.hibernate.annotations.SQLRestriction;
 import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.Entity.FileEntity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -38,11 +39,7 @@ public class ProductEntity extends JpaEntity {
     private BrandEntity brand;
 
     @ManyToMany
-    @JoinTable(
-        name = "product_category",
-        joinColumns = @JoinColumn(name = "product_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @JoinTable(name = "product_category", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<CategoryEntity> categories;
 
@@ -53,9 +50,15 @@ public class ProductEntity extends JpaEntity {
     @Size(max = 500)
     @Nationalized
     private String description;
-    
-    public ProductEntity() {}
-    
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "entity_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @SQLRestriction("entity_type = 'Product'")
+    private List<FileEntity> files;
+
+    public ProductEntity() {
+    }
+
     public ProductEntity(UUID id, String name, String description) {
         this.setId(id);
         this.name = name;

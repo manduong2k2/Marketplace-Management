@@ -19,7 +19,6 @@ export default function CategoryList() {
       const response = await categoryService.getAll();
       setCategories(response.data.data || response);
     } catch (err) {
-      console.error('Error fetching categories:', err);
       setError('Cannot load categories');
     } finally {
       setLoading(false);
@@ -29,7 +28,7 @@ export default function CategoryList() {
   return (
     <div className="category-list-container user-view">
       <div className="list-header">
-        <h2>Product Categories</h2>
+        <h2>Categories</h2>
       </div>
 
       {loading ? (
@@ -48,7 +47,7 @@ export default function CategoryList() {
           <p>Please check back later</p>
         </div>
       ) : (
-        <div className="category-grid">
+        <div className="category-list">
           {categories.map(category => (
             <CategoryCard
               key={category.id}

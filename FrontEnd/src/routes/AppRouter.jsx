@@ -10,6 +10,7 @@ import RegisterPage from '../pages/auth/register/RegisterPage';
 import ForgotPasswordPage from '../pages/auth/forgot/ForgotPasswordPage';
 import ProfilePage from '../pages/auth/profile/ProfilePage';
 import HomePage from '../pages/home/HomePage';
+import CartPage from '../pages/cart/CartPage';
 
 import { AuthContext } from '../contexts/AuthContext';
 import '../index.css';
@@ -43,6 +44,7 @@ export default function AppRouter() {
         <Route element={<PublicRoute><MasterLayout /></PublicRoute>}>
           <Route path="/home" element={<HomePage />} />
           <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+          <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
         </Route>
 
         {/* Root redirect */}

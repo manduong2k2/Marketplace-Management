@@ -4,25 +4,20 @@ import './ProductCard.css';
 import defaultProductImage from '../../../assets/product.png';
 import { cartService } from '../../../services/cartService';
 import { AuthContext } from '../../../contexts/AuthContext';
+import { CartContext } from '../../../contexts/CartContext';
+import { showSuccess, showError } from '../../master/popup';
 
 function ProductCard({ product, onCartUpdate }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { name, price, files, variants = [] } = product;
-  const imageUrl = files && files.length > 0 ? files[0].url : defaultProductImage;
+  const { setCart } = useContext(CartContext);
+  const { name, price, images } = product;
+  const imageUrl = images && images.length > 0 ? images[0] : defaultProductImage;
 
-  const [selectedVariantId, setSelectedVariantId] = useState(
-    variants.length > 0 ? variants[0].id : null
-  );
   const [adding, setAdding] = useState(false);
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
-  };
-
-  const handleVariantChange = (e) => {
-    e.stopPropagation();
-    setSelectedVariantId(e.target.value);
   };
 
   const handleAddToCart = async (e) => {
@@ -37,15 +32,20 @@ function ProductCard({ product, onCartUpdate }) {
 
     setAdding(true);
     try {
-      const res = await cartService.addItem(selectedVariantId, 1);
+      const res = await cartService.addItem(product.id, 1);
       if (res.ok) {
+        // Refresh cart data
+        const cartData = await cartService.getCart();
+        if (cartData.data && cartData.data.cart) {
+          setCart(cartData.data.cart);
+        }
         onCartUpdate && onCartUpdate();
+        showSuccess('Added to cart!');
       } else {
-        alert('Thêm vào giỏ hàng thất bại!');
+        showError('Failed to add to cart!');
       }
     } catch (err) {
-      console.error(err);
-      alert('Có lỗi xảy ra, vui lòng thử lại!');
+      showError('Failed to add to cart!');
     } finally {
       setAdding(false);
     }
@@ -72,13 +72,13 @@ function ProductCard({ product, onCartUpdate }) {
           className={`add-to-cart-btn${adding ? ' loading' : ''}`}
           onClick={handleAddToCart}
           disabled={adding}
-          title="Thêm vào giỏ hàng"
+          title="Add to cart"
         >
           {adding
             ? <i className="fas fa-spinner fa-spin"></i>
             : <i className="fas fa-cart-plus"></i>
           }
-          <span>{adding ? 'Đang thêm...' : 'Thêm vào giỏ'}</span>
+          <span>{adding ? 'Adding...' : 'Add to cart'}</span>
         </button>
       </div>
     </div>

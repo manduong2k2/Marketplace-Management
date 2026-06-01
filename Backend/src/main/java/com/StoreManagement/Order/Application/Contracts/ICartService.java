@@ -15,4 +15,5 @@ public interface ICartService {
     Cart checkout(CheckoutCartCommand command);
     Cart getByUserId(UUID userId);
     Cart getById(UUID id);
+    void clearCart(UUID userId);
 }

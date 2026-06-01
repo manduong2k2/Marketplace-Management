@@ -1,0 +1,103 @@
+/* BrandCard.css */
+.brand-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e1e5e9;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.brand-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.brand-card.user-view {
+  width: 150px;
+  max-width: 150px;
+}
+
+.brand-image-container {
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  position: relative;
+  background: #f8f9fa;
+}
+
+.brand-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.brand-card:hover .brand-image {
+  transform: scale(1.05);
+}
+
+.brand-info {
+  padding: 15px;
+  text-align: center;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .brand-card {
+    margin-bottom: 20px;
+  }
+  
+  .brand-image-container {
+    height: 150px;
+  }
+  
+  .brand-info {
+    padding: 15px;
+  }
+  
+  .brand-name {
+    font-size: 16px;
+  }
+  
+  .brand-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-image-container {
+    height: 120px;
+  }
+  
+  .brand-info {
+    padding: 12px;
+  }
+  
+  .brand-name {
+    font-size: 15px;
+  }
+  
+  .brand-description {
+    font-size: 13px;
+  }
+}

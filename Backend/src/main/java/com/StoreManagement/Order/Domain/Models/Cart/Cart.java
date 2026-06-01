@@ -110,8 +110,8 @@ public class Cart extends AggregateRoot<UUID> {
         this.status.setValue(status);
     }
 
-    public int getTotalItemCount() {
-        return this.items.stream().mapToInt(CartItem::getQuantity).sum();
+    public long getTotalItemCount() {
+        return this.items.stream().count();
     }
 
     public boolean isEmpty() {
