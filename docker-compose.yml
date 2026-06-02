@@ -60,6 +60,10 @@ services:
       - SPRING_MAIL_PASSWORD=
       - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=false
       - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=false
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=admin
+      - SPRING_RABBITMQ_PASSWORD=admin
     networks:
       - store-network
     depends_on:
@@ -69,6 +73,23 @@ services:
         condition: service_started
       mailpit:
         condition: service_started
+      rabbitmq:
+        condition: service_started
+
+  rabbitmq:
+    image: rabbitmq:4.2.4-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - store-network
 
   # FrontEnd Service
   frontend:
@@ -92,6 +113,7 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  rabbitmq-data:
 
 networks:
   store-network:

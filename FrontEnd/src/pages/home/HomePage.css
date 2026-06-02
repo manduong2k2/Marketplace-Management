@@ -12,7 +12,6 @@
   flex-direction: column;
   gap: 15px;
   max-width: 1550px;
-  width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -20,16 +19,20 @@
 .homepage-title {
   font-size: 24px;
   font-weight: bold;
-  margin: 0;
-  padding: 20px;
+  margin: 5px;
+  padding: 5px;
+  align-self: flex-start;
+  border-radius: 8px;
 }
 
 /* ── Two-column layout: category sidebar + product main ── */
 .catalog-section {
   display: flex;
   flex-direction: row;
-  gap: 15px;
-  align-items: flex-start;
+  gap: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+  align-items: stretch;
 }
 
 .category-section {
@@ -37,12 +40,16 @@
   min-width: 0;
   padding: 20px;
   box-sizing: border-box;
+  background-color: #e0e0e0;
+  border-radius: 8px;
 }
 
 .product-section {
   flex: 1;
   min-width: 0;
   padding: 20px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
   box-sizing: border-box;
 }
 

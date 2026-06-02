@@ -68,7 +68,7 @@ public class ProductService implements IProductService {
     public ProductResponse getProduct(UUID ProductId) {
         return productRepository.findById(ProductId)
                 .map(product -> new ProductResponse(product, baseUrl))
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException("Product " + ProductId + " not found"));
     }
 
     @Transactional

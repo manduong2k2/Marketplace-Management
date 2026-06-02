@@ -122,8 +122,6 @@ public class AuthService implements IAuthService {
         if (!encoder.matches(command.getPassword(), user.getPassword())) {
             throw new AuthenticationException(Message.CREDENTIALS) {};
         }
-
-        System.out.println("User roles: " + user.getRoles());
         
         if (!user.getRoles().stream().anyMatch(role -> role.getCode().equals(UserRole.ADMIN))) {
             throw new AccessDeniedException(Message.FORBIDDEN) {};

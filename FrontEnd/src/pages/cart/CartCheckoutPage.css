@@ -25,19 +25,20 @@
 
 .btn-back-link {
   background: none;
-  border: none;
   color: #667eea;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  padding: 0;
+  padding: 10px;
   transition: color 0.2s;
   white-space: nowrap;
+  border: solid 1px #667eea;
+  border-radius: 10px;
 }
 
 .btn-back-link:hover {
-  color: #764ba2;
-  text-decoration: underline;
+  background-color: #667eea;
+  color: white;
 }
 
 /* ── Two-column body ── */
