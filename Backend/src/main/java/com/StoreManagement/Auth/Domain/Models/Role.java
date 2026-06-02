@@ -10,12 +10,13 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Role extends AggregateRoot<UUID> {
-    private String code;
     private String name;
+    private String code;
+    
 
-    public Role(UUID id, String code, String name) {
+    public Role(UUID id, String name, String code) {
         super(id);
-        this.code = code;
         this.name = name;
+        this.code = code;
     }
 }

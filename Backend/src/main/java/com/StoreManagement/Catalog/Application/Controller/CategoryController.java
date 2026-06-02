@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.StoreManagement.Catalog.Application.DTO.Commands.Category.CreateCategoryCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Category.UpdateCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Category.CreateCategoryRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Category.UpdateCategoryRequest;
 import com.StoreManagement.Catalog.Application.DTO.Response.CategoryResponse;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryService;
+import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
 import jakarta.validation.Valid;
 
@@ -41,11 +44,12 @@ public class CategoryController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping
     public ResponseEntity<HashMap<String,Object>> create(@Valid @ModelAttribute CreateCategoryRequest request) {
         try {
-            CategoryResponse category = categoryService.createCategory(request);
+            CreateCategoryCommand command = CreateCategoryCommand.fromRequest(request);
+            CategoryResponse category = categoryService.createCategory(command);
             
             HashMap<String,Object> response = new HashMap<>();
             response.put("success", true);
@@ -61,7 +65,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @GetMapping("/{categoryId}")
     public ResponseEntity<HashMap<String,Object>> details(@PathVariable UUID categoryId) {
         CategoryResponse category = categoryService.getCategory(categoryId);
@@ -73,10 +77,14 @@ public class CategoryController {
         return ResponseEntity.ok().body(response);
     }
     
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PutMapping("/{categoryId}")
-    public ResponseEntity<HashMap<String,Object>> update(@PathVariable UUID categoryId, @Valid @ModelAttribute UpdateCategoryRequest request) {
-        CategoryResponse category = categoryService.updateCategory(categoryId, request);
+    public ResponseEntity<HashMap<String,Object>> update(
+        @PathVariable UUID categoryId, 
+        @Valid @ModelAttribute UpdateCategoryRequest request
+    ) throws IOException {
+        UpdateCategoryCommand command = UpdateCategoryCommand.fromRequest(request);
+        CategoryResponse category = categoryService.updateCategory(categoryId, command);
         
         HashMap<String,Object> response = new HashMap<>();
         response.put("success", true);
@@ -85,7 +93,7 @@ public class CategoryController {
         return ResponseEntity.ok().body(response);
     }
     
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<HashMap<String,Object>> delete(@PathVariable UUID categoryId) {
         categoryService.deleteCategory(categoryId);

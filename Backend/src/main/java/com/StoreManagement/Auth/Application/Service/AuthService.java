@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.StoreManagement.Auth.Application.Constants.UserRole;
 import com.StoreManagement.Auth.Application.DTO.Commands.ActivateUserCommand;
 import com.StoreManagement.Auth.Application.DTO.Commands.ForgotPasswordCommand;
 import com.StoreManagement.Auth.Application.DTO.Commands.LoginCommand;
@@ -32,6 +31,7 @@ import com.StoreManagement.Auth.Domain.Contract.IUserRepository;
 import com.StoreManagement.Auth.Domain.Models.Role;
 import com.StoreManagement.Auth.Domain.Models.User;
 import com.StoreManagement.Auth.Infrastructure.Mapper.RoleMapper;
+import com.StoreManagement.Shared.Domain.Constants.UserRole;
 import com.StoreManagement.Shared.Infrastructure.Security.JwtService;
 
 @Service
@@ -122,6 +122,8 @@ public class AuthService implements IAuthService {
         if (!encoder.matches(command.getPassword(), user.getPassword())) {
             throw new AuthenticationException(Message.CREDENTIALS) {};
         }
+
+        System.out.println("User roles: " + user.getRoles());
         
         if (!user.getRoles().stream().anyMatch(role -> role.getCode().equals(UserRole.ADMIN))) {
             throw new AccessDeniedException(Message.FORBIDDEN) {};

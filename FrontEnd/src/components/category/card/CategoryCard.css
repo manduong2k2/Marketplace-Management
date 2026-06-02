@@ -1,35 +1,68 @@
 /* CategoryCard.css */
+
+/* ── Wrapper holds card + its children ── */
+.category-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Card row ── */
 .category-card {
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   border: 1px solid #e1e5e9;
   display: flex;
   flex-direction: row;
   align-items: center;
   cursor: pointer;
   width: 100%;
+  user-select: none;
+  box-sizing: border-box;
 }
 
 .category-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.13);
 }
 
-/* user-view: fill the container width */
+.category-card.has-children:hover {
+  border-color: #667eea;
+}
+
+.category-card.expanded {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
 .category-card.user-view {
   width: 100%;
   max-width: 100%;
 }
 
+/* ── Depth indent line (shown for depth > 0) ── */
+.depth-indicator {
+  display: block;
+  width: 3px;
+  align-self: stretch;
+  background: linear-gradient(to bottom, #667eea, #a29bfe);
+  flex-shrink: 0;
+  margin-right: 4px;
+  opacity: 0.5;
+}
+
+/* ── Image ── */
 .category-image-container {
-  width: 20%;
-  height: 20%;
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
   overflow: hidden;
-  position: relative;
   background: #f8f9fa;
 }
 
@@ -44,24 +77,83 @@
   transform: scale(1.05);
 }
 
+/* ── Info ── */
 .category-info {
-  padding: 10px 14px;
+  padding: 10px 12px;
   flex: 1;
   min-width: 0;
-  text-align: left;
 }
 
 .category-name {
   font-size: 14px;
   font-weight: 600;
   color: #333;
-  margin: 0;
-  line-height: 1.3;
+  margin: 0 0 2px 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.category-children-count {
+  font-size: 11px;
+  color: #95a5a6;
+}
+
+/* ── Chevron ── */
+.category-chevron {
+  padding: 0 14px;
+  font-size: 10px;
+  color: #95a5a6;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.category-card.expanded .category-chevron,
+.category-card.has-children:hover .category-chevron {
+  color: #667eea;
+}
+
+/* ── Children container — wraps recursive CategoryCard components ── */
+.category-children {
+  border: 1px solid #667eea;
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background: #f8f9ff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 6px 6px 6px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+/* Child wrappers inside the container get slightly smaller images */
+.category-children .category-image-container {
+  width: 42px;
+  height: 42px;
+}
+
+.category-children .category-name {
+  font-size: 13px;
+}
+
+/* Each nested level reduces image size a little more */
+.category-children .category-children .category-image-container {
+  width: 34px;
+  height: 34px;
+}
+
+.category-children .category-children .category-name {
+  font-size: 12px;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Mobile ── */
 @media (max-width: 480px) {
   .category-image-container {
     width: 44px;

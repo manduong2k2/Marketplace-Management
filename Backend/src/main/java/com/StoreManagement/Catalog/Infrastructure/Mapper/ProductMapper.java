@@ -6,6 +6,8 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.StoreManagement.Catalog.Domain.Models.Brand;
+import com.StoreManagement.Catalog.Domain.Models.Category;
 import com.StoreManagement.Catalog.Domain.Models.Product;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.BrandEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.CategoryEntity;
@@ -21,6 +23,13 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
 
     @Autowired
     public IMapper<File, FileEntity> fileMapper;
+    
+    @Autowired
+    public IMapper<Brand, BrandEntity> brandMapper;
+
+    @Autowired
+    public IMapper<Category, CategoryEntity> categoryMapper;
+    
 
     @Override
     public Product toDomain(ProductEntity entity) {
@@ -33,6 +42,9 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
         product.setStock(entity.getStock());
         product.setBrandId(entity.getBrand().getId());
         product.setStatus(entity.getStatus());
+        product.setBrand(brandMapper.toDomain(entity.getBrand()));
+        product.setCategories(entity.getCategories() != null ? entity.getCategories().stream().map(category -> categoryMapper.toDomain(category))
+                .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
         product.setCategoryIds(
                 entity.getCategories() != null ? entity.getCategories().stream().map(category -> category.getId())
                         .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
@@ -52,9 +64,6 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                 domain.getCategoryIds() != null ? domain.getCategoryIds().stream()
                         .map(categoryId -> entityManager.find(CategoryEntity.class, categoryId))
                         .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
-        entity.setFiles(domain.getFiles() != null ? domain.getFiles().stream()
-                .map(file -> entityManager.find(FileEntity.class, file.getId()))
-                .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
         entity.setStatus(domain.getStatus());
         entity.setCode(domain.getCode());
         entity.setPrice(domain.getPrice().getValue());

@@ -3,6 +3,8 @@ package com.StoreManagement.Catalog.Application.DTO.Requests.Product;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
 import com.StoreManagement.Shared.Application.Annotation.Rules.In;
@@ -39,5 +41,9 @@ public class UpdateProductRequest {
     
     @Nullable
     private List<@Exist(table = "categories", column = "id", message = "Category not found") UUID> categoryIds;
+
+    private List<String> imageUrls;
+
+    private List<MultipartFile> images;
 }
 

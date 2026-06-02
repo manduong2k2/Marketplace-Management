@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
+
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,6 +22,7 @@ public class CreateCategoryRequest {
     private String name;
     
     @Nullable
+    @Exist(table = "categories", column = "id")
     private UUID parentId;
     
     @Nullable

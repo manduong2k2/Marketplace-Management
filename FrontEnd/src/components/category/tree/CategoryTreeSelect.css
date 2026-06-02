@@ -1,0 +1,167 @@
+/* CategoryTreeSelect.css */
+.cat-tree-container {
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: #fafbfc;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.cat-tree-container:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ── Node wrapper ── */
+.cat-tree-node {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Row ── */
+.cat-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 10px;
+  cursor: default;
+  transition: background 0.15s;
+  border-radius: 4px;
+  margin: 1px 4px;
+}
+
+.cat-tree-row:hover {
+  background: rgba(102, 126, 234, 0.07);
+}
+
+.cat-tree-row.selected {
+  background: rgba(102, 126, 234, 0.12);
+}
+
+/* ── Indent spacer ── */
+.cat-tree-indent {
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.cat-tree-indent::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: -8px;
+  bottom: -8px;
+  width: 2px;
+  background: #d0d7e2;
+  border-radius: 1px;
+}
+
+/* ── Checkbox ── */
+.cat-tree-checkbox-label {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.cat-tree-checkbox-label input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #667eea;
+  /* reset inherited form styles */
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ── Name ── */
+.cat-tree-name {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-tree-name[role='button'] {
+  cursor: pointer;
+}
+
+.cat-tree-name[role='button']:hover {
+  color: #667eea;
+}
+
+/* Selected count badge */
+.cat-tree-selected-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #667eea;
+  color: white;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Chevron button ── */
+.cat-tree-chevron {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  font-size: 9px;
+  color: #95a5a6;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.cat-tree-chevron:hover {
+  color: #667eea;
+}
+
+/* ── Children container ── */
+.cat-tree-children {
+  display: flex;
+  flex-direction: column;
+  animation: treeSlideDown 0.15s ease;
+}
+
+@keyframes treeSlideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cat-tree-empty {
+  color: #95a5a6;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+/* Scrollbar styling */
+.cat-tree-container::-webkit-scrollbar {
+  width: 6px;
+}
+.cat-tree-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cat-tree-container::-webkit-scrollbar-thumb {
+  background: #d0d7e2;
+  border-radius: 3px;
+}
+.cat-tree-container::-webkit-scrollbar-thumb:hover {
+  background: #b0bac8;
+}

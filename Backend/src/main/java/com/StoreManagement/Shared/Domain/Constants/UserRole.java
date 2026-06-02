@@ -1,4 +1,4 @@
-package com.StoreManagement.Auth.Application.Constants;
+package com.StoreManagement.Shared.Domain.Constants;
 
 public final class UserRole {
     public static final String ADMIN = "ADMIN";

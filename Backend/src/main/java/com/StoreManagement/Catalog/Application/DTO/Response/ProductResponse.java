@@ -13,14 +13,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder({"id", "name", "code", "price", "stock", "brandId", "description"})
+@JsonPropertyOrder({"id", "name", "code", "price", "stock", "brand", "description", "status", "images"})
 public class ProductResponse {
     private UUID id;
     private String name;
     private String code;
     private double price;
     private int stock;
-    private UUID brandId;
+    private BrandResponse brand;
+    private List<CategoryResponse> categories;
     private String description;
     private String status;
     private List<String> images;
@@ -31,7 +32,8 @@ public class ProductResponse {
         this.code = product.getCode();
         this.price = product.getPrice().getValue();
         this.stock = product.getStock();
-        this.brandId = product.getBrandId();
+        this.brand = new BrandResponse(product.getBrand(), baseUrl);
+        this.categories = product.getCategories().stream().map(category -> new CategoryResponse(category, baseUrl)).toList();
         this.description = product.getDescription();
         this.status = product.getStatus();
         this.images = product.getFiles().stream().map(file -> baseUrl + "/" + file.getUrl()).toList();

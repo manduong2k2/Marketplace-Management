@@ -5,4 +5,5 @@ import com.StoreManagement.Shared.Domain.File;
 public interface IFileRepository {
     File save(File file);
     void delete(File file);
+    void delete(String url);
 }

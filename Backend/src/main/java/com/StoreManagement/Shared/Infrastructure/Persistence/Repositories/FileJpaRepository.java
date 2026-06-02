@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
 public interface FileJpaRepository extends JpaRepository<FileEntity, UUID> {
-    
+    void deleteByUrl(String url);
 }

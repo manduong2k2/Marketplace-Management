@@ -88,6 +88,10 @@
   display: none;
 }
 
+.image-input-hidden {
+  display: none;
+}
+
 .image-preview {
   position: relative;
   width: 200px;

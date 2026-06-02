@@ -7,19 +7,23 @@ import com.StoreManagement.Shared.Domain.AggregateRoot;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Category extends AggregateRoot<UUID> {
     private String name;
     private String image;
-    private UUID parentId;
     private String description;
+    private Category parent;
+    private List<Category> children;
 
-    public Category(UUID id, String name, UUID parentId, String image, String description) {
+    public Category(UUID id, String name, String image, String description, Category parent, List<Category> children) {
         super(id);
         this.name = name;
         this.image = image;
-        this.parentId = parentId;
         this.description = description;
+        this.parent = parent;
+        this.children = children;
     }
 }

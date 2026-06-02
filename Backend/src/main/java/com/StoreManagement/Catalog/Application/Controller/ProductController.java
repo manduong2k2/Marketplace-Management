@@ -24,6 +24,7 @@ import com.StoreManagement.Catalog.Application.DTO.Requests.Product.CreateProduc
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.UpdateProductRequest;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
+import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
 import jakarta.validation.Valid;
 
@@ -44,7 +45,18 @@ public class ProductController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PreAuthorize("hasAuthority('Admin')")
+    @GetMapping("/statuses")
+    public ResponseEntity<HashMap<String,Object>> getAllStatus() {        
+        List<String> statuses = productService.getAllStatus();
+
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data",  statuses);
+        
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping
     public ResponseEntity<HashMap<String, Object>> create(@Valid @ModelAttribute CreateProductRequest request) throws IOException {
         CreateProductCommand command = CreateProductCommand.fromRequest(request);
@@ -68,9 +80,12 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
     
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PutMapping("/{productId}")
-    public ResponseEntity<HashMap<String, Object>> update(@PathVariable UUID productId, @Valid @ModelAttribute UpdateProductRequest request) {
+    public ResponseEntity<HashMap<String, Object>> update(
+        @PathVariable UUID productId, 
+        @Valid @ModelAttribute UpdateProductRequest request
+    ) throws IOException {
         UpdateProductCommand command = UpdateProductCommand.fromRequest(request);
         ProductResponse updated = productService.updateProduct(productId, command);
         
@@ -80,7 +95,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @DeleteMapping("/{productId}")
     public ResponseEntity<HashMap<String, Object>> delete(@PathVariable UUID productId) {
         productService.deleteProduct(productId);

@@ -17,8 +17,11 @@ export default function CategoryList() {
     try {
       setLoading(true);
       const response = await categoryService.getAll();
-      setCategories(response.data.data || response);
-    } catch (err) {
+      const all = response.data?.data || [];
+      // Only keep root-level categories (parentId === null)
+      // Children are already embedded in each item's `children` array
+      setCategories(all.filter((c) => c.parentId === null));
+    } catch {
       setError('Cannot load categories');
     } finally {
       setLoading(false);
@@ -33,13 +36,11 @@ export default function CategoryList() {
 
       {loading ? (
         <div className="loading-container">
-          <div className="spinner"></div>
+          <div className="spinner" />
           <p>Loading categories...</p>
         </div>
       ) : error ? (
-        <div className="error-state">
-          <p>{error}</p>
-        </div>
+        <div className="error-state"><p>{error}</p></div>
       ) : categories.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📦</div>
@@ -48,11 +49,8 @@ export default function CategoryList() {
         </div>
       ) : (
         <div className="category-list">
-          {categories.map(category => (
-            <CategoryCard
-              key={category.id}
-              category={category}
-            />
+          {categories.map((category) => (
+            <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       )}

@@ -1,0 +1,219 @@
+/* AdminLayout.css */
+:root {
+  --admin-sidebar-width: 220px;
+  --admin-sidebar-collapsed-width: 60px;
+  --admin-navbar-height: 60px;
+  --admin-primary: #2c3e50;
+  --admin-primary-dark: #1a252f;
+  --admin-accent: #3498db;
+  --admin-accent-hover: #2980b9;
+  --admin-bg: #f4f6f9;
+  --admin-white: #ffffff;
+  --admin-text: #2c3e50;
+  --admin-text-light: #7f8c8d;
+  --admin-border: #e0e0e0;
+  --admin-danger: #e74c3c;
+  --admin-danger-hover: #c0392b;
+  --admin-success: #27ae60;
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--admin-bg);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ── Sidebar ── */
+.admin-sidebar {
+  width: var(--admin-sidebar-width);
+  background: var(--admin-primary);
+  color: var(--admin-white);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  transition: width 0.25s ease;
+  overflow: hidden;
+}
+
+.admin-sidebar.collapsed {
+  width: var(--admin-sidebar-collapsed-width);
+}
+
+.admin-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: var(--admin-navbar-height);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.admin-logo {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.admin-logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.admin-nav {
+  flex: 1;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--admin-white);
+}
+
+.admin-nav-item.active {
+  background: rgba(52, 152, 219, 0.2);
+  color: var(--admin-white);
+  border-left-color: var(--admin-accent);
+}
+
+.nav-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.sidebar-toggle {
+  margin: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: var(--admin-white);
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-end;
+  line-height: 1;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Main area ── */
+.admin-main {
+  margin-left: var(--admin-sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.25s ease;
+}
+
+.admin-main.sidebar-collapsed {
+  margin-left: var(--admin-sidebar-collapsed-width);
+}
+
+/* ── Navbar ── */
+.admin-navbar {
+  height: var(--admin-navbar-height);
+  background: var(--admin-white);
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.admin-navbar-left h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0;
+}
+
+.admin-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-user-info {
+  font-size: 14px;
+  color: var(--admin-text-light);
+}
+
+.admin-logout-btn {
+  padding: 8px 18px;
+  background: var(--admin-danger);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.admin-logout-btn:hover {
+  background: var(--admin-danger-hover);
+}
+
+/* ── Content ── */
+.admin-content {
+  padding: 24px;
+  flex: 1;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: var(--admin-sidebar-collapsed-width);
+  }
+
+  .admin-sidebar .admin-logo-text,
+  .admin-sidebar .admin-nav-item span:not(.nav-icon) {
+    display: none;
+  }
+
+  .admin-main {
+    margin-left: var(--admin-sidebar-collapsed-width);
+  }
+
+  .admin-main.sidebar-collapsed {
+    margin-left: var(--admin-sidebar-collapsed-width);
+  }
+
+  .admin-content {
+    padding: 16px;
+  }
+}

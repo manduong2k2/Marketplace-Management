@@ -9,73 +9,54 @@ import java.util.UUID;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryRepository;
 import com.StoreManagement.Catalog.Domain.Models.Category;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.CategoryEntity;
+import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 
 @Repository
 public class CategoryRepository implements ICategoryRepository {
 
     private final CategoryJpaRepository jpaRepository;
+    private final IMapper<Category, CategoryEntity> mapper;
 
-    public CategoryRepository(CategoryJpaRepository jpaRepository) {
+    public CategoryRepository(CategoryJpaRepository jpaRepository, IMapper<Category, CategoryEntity> mapper) {
         this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
     }
 
     @Override
     public List<Category> findAll() {
         return jpaRepository.findAll().stream()
-                .map(this::toDomain)
+                .map(mapper::toDomain)
                 .toList();
     }
 
     @Override
-    public Category save(Category Category) {
-        CategoryEntity entity = toEntity(Category);
+    public Category save(Category category) {
+        CategoryEntity entity = mapper.toEntity(category);
         CategoryEntity saved = jpaRepository.save(entity);
-        return toDomain(saved);
+        return mapper.toDomain(saved);
     }
 
     @Override
     public Optional<Category> findById(UUID id) {
         return jpaRepository.findById(id)
-                .map(this::toDomain);
+                .map(mapper::toDomain);
     }
 
     @Override
     public Optional<Category> findByName(String name) {
         return jpaRepository.findByName(name)
-                .map(this::toDomain);
+                .map(mapper::toDomain);
     }
     
     @Override
     public Category update(Category Category) {
-        CategoryEntity entity = toEntity(Category);
+        CategoryEntity entity = mapper.toEntity(Category);
         CategoryEntity updated = jpaRepository.save(entity);
-        return toDomain(updated);
+        return mapper.toDomain(updated);
     }
     
     @Override
     public void delete(UUID id) {
         jpaRepository.deleteById(id);
-    }
-
-    // ===== mapping =====
-
-    private Category toDomain(CategoryEntity entity) {
-        return new Category(
-                entity.getId(),
-                entity.getName(),
-                entity.getParentId(),
-                entity.getImage(),
-                entity.getDescription()
-        );
-    }
-
-    private CategoryEntity toEntity(Category Category) {
-        return new CategoryEntity(
-                Category.getId(),
-                Category.getName(),
-                Category.getParentId(),
-                Category.getImage(),
-                Category.getDescription()
-        );
     }
 }

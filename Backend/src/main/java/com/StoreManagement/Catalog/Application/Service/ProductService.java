@@ -1,8 +1,10 @@
 package com.StoreManagement.Catalog.Application.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
+import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Catalog.Domain.Contract.IProductRepository;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Catalog.Domain.Models.Product;
@@ -91,7 +94,7 @@ public class ProductService implements IProductService {
     }
 
     @Transactional
-    public ProductResponse updateProduct(UUID productId, UpdateProductCommand command) {
+    public ProductResponse updateProduct(UUID productId, UpdateProductCommand command) throws IOException {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -104,6 +107,23 @@ public class ProductService implements IProductService {
 
         Product savedProduct = productRepository.save(product);
 
+        //Delete non-existent images
+        for(String imageUrl : product.getFiles().stream().map(file -> file.getUrl()).collect(Collectors.toList())) {
+            if(!command.getImageUrls().stream().map(url -> url.replace(baseUrl + "/", "")).collect(Collectors.toList()).contains(imageUrl)) {
+                fileService.deleteFile(imageUrl);
+                fileRepository.delete(imageUrl);
+            }
+        }
+
+        //Upload new images
+        if(command.getImages() != null && !command.getImages().isEmpty()) {
+            for(MultipartFile image : command.getImages()) {
+                String imageUrl = fileService.uploadFile(image, "catalog/products/");
+                File file = new File(null, imageUrl, "Product", savedProduct.getId());
+                fileRepository.save(file);
+            }
+        }
+
         publishDomainEvents(savedProduct, "Product.updated");
 
         return new ProductResponse(savedProduct, baseUrl);
@@ -112,6 +132,10 @@ public class ProductService implements IProductService {
     @Transactional
     public void deleteProduct(UUID productId) {
         productRepository.delete(productId);
+    }
+    
+    public List<String> getAllStatus() {
+        return Arrays.stream(ProductStatusEnum.values()).map(ProductStatusEnum::name).collect(Collectors.toList());
     }
 
     @Async

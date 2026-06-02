@@ -1,8 +1,9 @@
 package com.StoreManagement.Catalog.Application.DTO.Commands.Brand;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.UpdateBrandRequest;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,16 +12,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateBrandCommand {
-    @Size(max = 100)
-    private String name;
 
-    @Size(max = 500)
+    private String name;
     private String description;
+    private MultipartFile image;
 
     public static UpdateBrandCommand fromRequest(UpdateBrandRequest request) {
         return new UpdateBrandCommand(
             request.getName(),
-            request.getDescription()
+            request.getDescription(),
+            request.getImage()
         );
     }
 }

@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.CreateBrandCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.UpdateBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.CreateBrandRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.UpdateBrandRequest;
 import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandService;
+import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
 import jakarta.validation.Valid;
 
@@ -41,11 +44,12 @@ public class BrandController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping
     public ResponseEntity<HashMap<String,Object>> create(@Valid @ModelAttribute CreateBrandRequest request) {
         try {
-            BrandResponse brand = brandService.createBrand(request);
+            CreateBrandCommand command = CreateBrandCommand.fromRequest(request);
+            BrandResponse brand = brandService.createBrand(command);
             
             HashMap<String,Object> response = new HashMap<>();
             response.put("success", true);
@@ -61,7 +65,7 @@ public class BrandController {
         }
     }
 
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @GetMapping("/{brandId}")
     public ResponseEntity<HashMap<String,Object>> details(@PathVariable UUID brandId) {
         BrandResponse brand = brandService.getBrand(brandId);
@@ -73,10 +77,14 @@ public class BrandController {
         return ResponseEntity.ok().body(response);
     }
     
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PutMapping("/{brandId}")
-    public ResponseEntity<HashMap<String,Object>> update(@PathVariable UUID brandId, @Valid @ModelAttribute UpdateBrandRequest request) {
-        BrandResponse brand = brandService.updateBrand(brandId, request);
+    public ResponseEntity<HashMap<String,Object>> update(
+        @PathVariable UUID brandId, 
+        @Valid @ModelAttribute UpdateBrandRequest request
+    ) throws IOException {
+        UpdateBrandCommand command = UpdateBrandCommand.fromRequest(request);
+        BrandResponse brand = brandService.updateBrand(brandId, command);
         
         HashMap<String,Object> response = new HashMap<>();
         response.put("success", true);
@@ -85,7 +93,7 @@ public class BrandController {
         return ResponseEntity.ok().body(response);
     }
     
-    @PreAuthorize("hasAuthority('Admin')")
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @DeleteMapping("/{brandId}")
     public ResponseEntity<HashMap<String,Object>> delete(@PathVariable UUID brandId) {
         brandService.deleteBrand(brandId);

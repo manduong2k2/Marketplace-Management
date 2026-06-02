@@ -16,7 +16,9 @@ public class Product extends AggregateRoot<UUID> {
     private Money price = new Money(0);
     private int stock = 0;
     private UUID brandId;
+    private Brand brand;
     private List<UUID> categoryIds;
+    private List<Category> categories;
     private ProductStatus status;
     private List<File> files;
 
@@ -88,6 +90,22 @@ public class Product extends AggregateRoot<UUID> {
     
     public void setBrandId(UUID brandId) {
         this.brandId = brandId;
+    }
+    
+    public Brand getBrand() {
+        return brand;
+    }
+    
+    public void setBrand(Brand brand) {
+        this.brand = brand;
+    }
+    
+    public List<Category> getCategories() {
+        return categories;
+    }
+    
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
     }
 
     public void setDescription(String description) {

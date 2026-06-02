@@ -1,15 +1,18 @@
 package com.StoreManagement.Catalog.Application.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.StoreManagement.Catalog.Application.DTO.Requests.Category.CreateCategoryRequest;
-import com.StoreManagement.Catalog.Application.DTO.Requests.Category.UpdateCategoryRequest;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Category.CreateCategoryCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Category.UpdateCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.CategoryResponse;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryRepository;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryService;
@@ -23,7 +26,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class CategoryService implements ICategoryService {
     @Autowired
-    public ICategoryRepository CategoryRepository;
+    public ICategoryRepository categoryRepository;
     @Autowired
     public IEventPublisher eventPublisher;
     @Autowired
@@ -33,65 +36,94 @@ public class CategoryService implements ICategoryService {
     private String baseUrl; 
 
     public List<CategoryResponse> getAllCategories() {
-        return CategoryRepository.findAll().stream()
+        return categoryRepository.findAll().stream()
                 .map(category -> new CategoryResponse(category, baseUrl))
                 .toList();
     }
 
     public CategoryResponse getCategory(UUID CategoryId) {
-        return CategoryRepository.findById(CategoryId)
+        return categoryRepository.findById(CategoryId)
                 .map(category -> new CategoryResponse(category, baseUrl))
                 .orElseThrow(() -> new RuntimeException("Category not found"));
     }
 
     @Transactional
-    public CategoryResponse createCategory(CreateCategoryRequest request) throws java.io.IOException {
-        Category Category = new Category(
+    public CategoryResponse createCategory(CreateCategoryCommand command) throws IOException {
+        Category category = new Category(
                 null,
-                request.getName(),
-                request.getParentId(),
+                command.getName(),
                 null,
-                request.getDescription()
+                command.getDescription(),
+                null,
+                null
         );
 
-        Category = CategoryRepository.save(Category);
+        category.setParent(command.getParentId() != null ? categoryRepository.findById(command.getParentId()).orElse(null) : null);
 
-        if(request.getImage() != null) {
-            String imageUrl = fileService.uploadFile(request.getImage(), "catalog/categories/");
-            Category.setImage(imageUrl);
-            Category = CategoryRepository.save(Category);
+        category = categoryRepository.save(category);
+
+        if(command.getImage() != null) {
+            String imageUrl = fileService.uploadFile(command.getImage(), "catalog/categories/");
+            category.setImage(imageUrl);
+            category = categoryRepository.save(category);
         }
 
-        publishDomainEvents(Category, "Category.created");
+        publishDomainEvents(category, "Category.created");
 
-        return new CategoryResponse(Category, baseUrl);
+        return new CategoryResponse(category, baseUrl);
     }
 
     @Transactional
-    public CategoryResponse updateCategory(UUID CategoryId, UpdateCategoryRequest request) {
-        Category Category = CategoryRepository.findById(CategoryId)
+    public CategoryResponse updateCategory(UUID categoryId, UpdateCategoryCommand command) throws IOException {
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        Category.setName(request.getName());
-        Category.setDescription(request.getDescription());
+        category.setName(command.getName());
+        category.setDescription(command.getDescription());
+        category.setParent(command.getParentId() != null ? categoryRepository.findById(command.getParentId()).orElse(null) : null);
 
-        Category = CategoryRepository.save(Category);
+        validateCircularReference(categoryId, command.getParentId());
 
-        publishDomainEvents(Category, "Category.updated");
+        if(command.getImage() != null) {
+            String currentImage = category.getImage();
+            String imageUrl = fileService.uploadFile(command.getImage(), "catalog/categories/");
+            category.setImage(imageUrl);
+            if(currentImage != null) {
+                fileService.deleteFile(currentImage);
+            }
+        }
+
+        category = categoryRepository.save(category);
+
+        publishDomainEvents(category, "Category.updated");
         
-        return new CategoryResponse(Category, baseUrl);
+        return new CategoryResponse(category, baseUrl);
+    }
+
+    private void validateCircularReference(UUID categoryId, UUID parentId) {
+        if(parentId == null) {
+            return;
+        }
+
+        if(categoryRepository.findById(parentId).get().getParent() != null && categoryRepository.findById(parentId).get().getParent().getId() != null) {
+            validateCircularReference(categoryId, categoryRepository.findById(parentId).get().getParent().getId());
+        }
+        
+        if(categoryRepository.findById(parentId).get().getId().equals(categoryId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot set parent to its descendants");
+        }
     }
 
     @Transactional
-    public void deleteCategory(UUID CategoryId) {
-        CategoryRepository.delete(CategoryId);
+    public void deleteCategory(UUID categoryId) {
+        categoryRepository.delete(categoryId);
     }
 
     @Async
-    private void publishDomainEvents(Category Category, String queue) {
-        Category.getDomainEvents()
+    private void publishDomainEvents(Category category, String queue) {
+        category.getDomainEvents()
                 .forEach(event -> eventPublisher.publish(event, new EventOptions(queue, false)));
 
-        Category.clearDomainEvents();
+        category.clearDomainEvents();
     }
 }

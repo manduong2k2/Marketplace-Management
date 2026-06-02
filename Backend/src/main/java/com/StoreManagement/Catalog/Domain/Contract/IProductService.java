@@ -16,7 +16,9 @@ public interface IProductService {
 
     public ProductResponse getProduct(UUID id);
 
-    public ProductResponse updateProduct(UUID id, UpdateProductCommand command);
+    public ProductResponse updateProduct(UUID id, UpdateProductCommand command) throws IOException;
 
     public void deleteProduct(UUID id);
+    
+    public List<String> getAllStatus();
 }

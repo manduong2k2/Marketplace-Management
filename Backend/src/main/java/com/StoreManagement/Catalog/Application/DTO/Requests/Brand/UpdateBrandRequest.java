@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
@@ -14,5 +15,7 @@ public class UpdateBrandRequest {
 
     @Size(max = 500)
     private String description;
+
+    private MultipartFile image;
 }
 

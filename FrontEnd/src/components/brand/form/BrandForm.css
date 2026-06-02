@@ -84,7 +84,13 @@
   position: relative;
 }
 
+/* Legacy — kept for compatibility */
 .image-input {
+  display: none;
+}
+
+/* New pattern: hidden input triggered via ref */
+.image-input-hidden {
   display: none;
 }
 

@@ -1,5 +1,6 @@
 package com.StoreManagement.Catalog.Application.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,8 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.CreateBrandRequest;
-import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.UpdateBrandRequest;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.CreateBrandCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.UpdateBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandRepository;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandService;
@@ -45,18 +46,18 @@ public class BrandService implements IBrandService {
     }
 
     @Transactional
-    public BrandResponse createBrand(CreateBrandRequest request) throws java.io.IOException {
+    public BrandResponse createBrand(CreateBrandCommand command) throws java.io.IOException {
         Brand brand = new Brand(
                 null,
-                request.getName(),
+                command.getName(),
                 null,
-                request.getDescription()
+                command.getDescription()
         );
 
         brand = brandRepository.save(brand);
 
-        if(request.getImage() != null) {
-            String imageUrl = fileService.uploadFile(request.getImage(), "catalog/brands/");
+        if(command.getImage() != null) {
+            String imageUrl = fileService.uploadFile(command.getImage(), "catalog/brands/");
             brand.setImage(imageUrl);
             brand = brandRepository.save(brand);
         }
@@ -67,12 +68,21 @@ public class BrandService implements IBrandService {
     }
 
     @Transactional
-    public BrandResponse updateBrand(UUID brandId, UpdateBrandRequest request) {
+    public BrandResponse updateBrand(UUID brandId, UpdateBrandCommand command) throws IOException {
         Brand brand = brandRepository.findById(brandId)
                 .orElseThrow(() -> new RuntimeException("Brand not found"));
 
-        brand.setName(request.getName());
-        brand.setDescription(request.getDescription());
+        brand.setName(command.getName());
+        brand.setDescription(command.getDescription());
+
+        if(command.getImage() != null) {
+            String currentImage = brand.getImage();
+            String imageUrl = fileService.uploadFile(command.getImage(), "catalog/brands/");
+            brand.setImage(imageUrl);
+            if(currentImage != null) {
+                fileService.deleteFile(currentImage);
+            }
+        }
 
         brand = brandRepository.save(brand);
 

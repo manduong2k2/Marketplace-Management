@@ -26,4 +26,8 @@ public class FileRepository implements IFileRepository {
     public void delete(File file) {
         fileJpaRepository.deleteById(file.getId());
     }
+    
+    public void delete(String url) {
+        fileJpaRepository.deleteByUrl(url);
+    }
 }
