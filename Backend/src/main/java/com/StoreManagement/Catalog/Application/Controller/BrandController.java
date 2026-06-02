@@ -76,7 +76,6 @@ public class BrandController {
         }
     }
 
-    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @GetMapping("/{brandId}")
     public ResponseEntity<HashMap<String,Object>> details(@PathVariable UUID brandId) {
         BrandResponse brand = brandService.getBrand(brandId);

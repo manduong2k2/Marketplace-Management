@@ -85,19 +85,19 @@ export default function RegisterPage() {
         formDataToSend.append(key, registerData[key]);
       });
       const response = await authService.register(formDataToSend);
-
+      
       if (response.ok) {
         showSuccess('Registration successful!', 'Welcome to our platform');
         navigate('/login');
       }
-      else if (response.data.data && response.data.data.errors && typeof response.data.data.errors === 'object') {
+      else if (response.data && response.data.errors && typeof response.data.errors === 'object') {
         const backendErrors = {};
-        Object.keys(response.data.data.errors).forEach(field => {
-          backendErrors[field] = response.data.data.errors[field];
+        Object.keys(response.data.errors).forEach(field => {
+          backendErrors[field] = response.data.errors[field];
         });
         setErrors(backendErrors);
       } else {
-        showError('Registration failed!' + (response.data.data.message ? ' - ' + response.data.data.message : ''), 'Please try again');
+        showError('Registration failed!' + (response.data.message ? ' - ' + response.data.message : ''), 'Please try again');
       }
     } catch (err) {
       showError('Registration failed!', err.message || 'Please try again');

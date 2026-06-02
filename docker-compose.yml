@@ -31,6 +31,15 @@ services:
     networks:
       - store-network
 
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - store-network
+
   # Backend Service
   backend:
     build:
@@ -45,12 +54,20 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
+      - SPRING_MAIL_HOST=mailpit
+      - SPRING_MAIL_PORT=1025
+      - SPRING_MAIL_USERNAME=
+      - SPRING_MAIL_PASSWORD=
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=false
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=false
     networks:
       - store-network
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_started
+      mailpit:
         condition: service_started
 
   # FrontEnd Service
@@ -70,6 +87,7 @@ services:
       - store-network
     depends_on:
       - backend
+      - mailpit
 
 volumes:
   postgres-data:
