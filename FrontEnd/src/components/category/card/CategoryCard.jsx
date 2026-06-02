@@ -15,7 +15,7 @@ export default function CategoryCard({ category, depth = 0, selectedCategoryId, 
     if (hasChildren) {
       setExpanded((prev) => !prev);
     } else {
-      navigate(`/category/${category.id}`);
+      
     }
   };
 

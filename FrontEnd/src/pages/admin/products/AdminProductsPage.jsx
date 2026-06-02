@@ -21,6 +21,8 @@ export default function AdminProductsPage() {
   const [modal, setModal] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
   const [pagination, setPagination] = useState({
     currentPage: 0,
     pageSize: 10,
@@ -36,6 +38,8 @@ export default function AdminProductsPage() {
       const params = {
         page: pagination.currentPage,
         size: pagination.pageSize,
+        sortBy: sortBy,
+        sortOrder: sortOrder,
       };
 
       if (searchQuery.trim()) {
@@ -60,7 +64,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  useEffect(() => { fetchAll(); }, [pagination.currentPage, searchQuery]);
+  useEffect(() => { fetchAll(); }, [pagination.currentPage, searchQuery, sortBy, sortOrder]);
 
   const buildCreateFormData = (formData) => {
     const fd = new FormData();
@@ -200,6 +204,21 @@ export default function AdminProductsPage() {
     setPagination(prev => ({ ...prev, currentPage: 0 }));
   };
 
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPagination(prev => ({ ...prev, currentPage: 0 }));
+  };
+
+  const getSortIcon = (field) => {
+    if (sortBy !== field) return null;
+    return sortOrder === 'asc' ? '↑' : '↓';
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-page-header">
@@ -231,6 +250,34 @@ export default function AdminProductsPage() {
             ✕
           </button>
         )}
+      </div>
+
+      <div className="admin-sort-bar">
+        <span className="sort-label">Sort by:</span>
+        <button
+          className={`sort-btn ${sortBy === 'name' ? 'active' : ''}`}
+          onClick={() => handleSort('name')}
+        >
+          Name {getSortIcon('name')}
+        </button>
+        <button
+          className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
+          onClick={() => handleSort('price')}
+        >
+          Price {getSortIcon('price')}
+        </button>
+        <button
+          className={`sort-btn ${sortBy === 'stock' ? 'active' : ''}`}
+          onClick={() => handleSort('stock')}
+        >
+          Stock {getSortIcon('stock')}
+        </button>
+        <button
+          className={`sort-btn ${sortBy === 'status' ? 'active' : ''}`}
+          onClick={() => handleSort('status')}
+        >
+          Status {getSortIcon('status')}
+        </button>
       </div>
 
       {loading ? (

@@ -9,9 +9,11 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [sortBy, setSortBy] = useState('updatedAt');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [pagination, setPagination] = useState({
     currentPage: 0,
-    pageSize: 10,
+    pageSize: 16,
     totalElements: 0,
     totalPages: 0,
     hasNext: false,
@@ -25,6 +27,8 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
         const params = {
           page: pagination.currentPage,
           size: pagination.pageSize,
+          sortBy: sortBy,
+          sortOrder: sortOrder,
         };
 
         if (categoryIds.length > 0) {
@@ -50,7 +54,7 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
     }
 
     fetchProducts();
-  }, [categoryIds, brandId, searchQuery, pagination.currentPage]);
+  }, [categoryIds, brandId, searchQuery, sortBy, sortOrder, pagination.currentPage]);
 
   useEffect(() => {
     setSearchQuery(initialSearchQuery);
@@ -70,11 +74,21 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
     setPagination(prev => ({ ...prev, currentPage: 0 }));
   };
 
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPagination(prev => ({ ...prev, currentPage: 0 }));
+  };
+
   if (loading) {
     return (
       <div className="product-list-container">
-        <div className="loading-container">
-          <div className="spinner"></div>
+        <div className="product-list-loading-container">
+          <div className="product-list-spinner"></div>
           <p>Loading products...</p>
         </div>
       </div>
@@ -84,7 +98,7 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
   if (error) {
     return (
       <div className="product-list-container">
-        <div className="error-state">
+        <div className="product-list-error-state">
           <p>{error}</p>
         </div>
       </div>
@@ -115,6 +129,28 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
             ✕
           </button>
         )}
+      </div>
+
+      <div className="sort-bar">
+        <span className="sort-label">Sort by:</span>
+        <button
+          className={`sort-btn ${sortBy === 'name' ? 'active' : ''}`}
+          onClick={() => handleSort('name')}
+        >
+          Name {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+        </button>
+        <button
+          className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
+          onClick={() => handleSort('price')}
+        >
+          Price {sortBy === 'price' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+        </button>
+        <button
+          className={`sort-btn ${sortBy === 'updatedAt' ? 'active' : ''}`}
+          onClick={() => handleSort('updatedAt')}
+        >
+          Newest {sortBy === 'updatedAt' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+        </button>
       </div>
       
       {products.length === 0 ? (

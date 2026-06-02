@@ -63,11 +63,10 @@ public class ProductRepository implements IProductRepository {
         if (command.getSearch() != null && !command.getSearch().trim().isEmpty()) {
             String searchPattern = "%" + command.getSearch().toLowerCase() + "%";
             predicates.add(
-                builder.or(
-                    builder.like(builder.lower(root.get("name")), searchPattern),
-                    builder.like(builder.lower(root.get("description")), searchPattern)
-                )
-            );
+                    builder.or(
+                            builder.like(builder.lower(root.get("name")), searchPattern),
+                            builder.like(builder.lower(root.get("code")), searchPattern),
+                            builder.like(builder.lower(root.get("description")), searchPattern)));
         }
 
         if (command.getBrandId() != null) {
@@ -76,17 +75,21 @@ public class ProductRepository implements IProductRepository {
 
         query.where(predicates.toArray(new Predicate[0]));
 
-        // Sorting
-        if (command.getSortBy() != null && !command.getSortBy().trim().isEmpty()) {
-            jakarta.persistence.criteria.Path<Object> sortPath = root.get(command.getSortBy());
-            Order order;
-            if ("desc".equalsIgnoreCase(command.getSortOrder())) {
-                order = builder.desc(sortPath);
-            } else {
-                order = builder.asc(sortPath);
-            }
-            query.orderBy(order);
+        //Sorting
+        String sortBy = command.getSortBy() != null && !command.getSortBy().trim().isEmpty() ? command.getSortBy()
+                : "updatedAt";
+        String sortOrder = command.getSortOrder() != null && !command.getSortOrder().trim().isEmpty()
+                ? command.getSortOrder()
+                : "desc";
+
+        jakarta.persistence.criteria.Path<Object> sortPath = root.get(sortBy);
+        Order order;
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            order = builder.desc(sortPath);
+        } else {
+            order = builder.asc(sortPath);
         }
+        query.orderBy(order);
 
         // Get total count
         CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
@@ -105,11 +108,9 @@ public class ProductRepository implements IProductRepository {
         if (command.getSearch() != null && !command.getSearch().trim().isEmpty()) {
             String searchPattern = "%" + command.getSearch().toLowerCase() + "%";
             countPredicates.add(
-                builder.or(
-                    builder.like(builder.lower(countRoot.get("name")), searchPattern),
-                    builder.like(builder.lower(countRoot.get("description")), searchPattern)
-                )
-            );
+                    builder.or(
+                            builder.like(builder.lower(countRoot.get("name")), searchPattern),
+                            builder.like(builder.lower(countRoot.get("description")), searchPattern)));
         }
 
         if (command.getBrandId() != null) {

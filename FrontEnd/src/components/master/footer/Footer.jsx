@@ -12,21 +12,10 @@ export default function Footer() {
 
                 {/* Brand */}
                 <div className="footer-section">
-                    <h2 className="footer-logo">E-Com</h2>
+                    <h2 className="footer-logo">My Store</h2>
                     <p className="footer-description">
-                        A multi-category e-commerce platform offering a fast and convenient shopping experience.
+                        Your one-stop shop for all your needs.
                     </p>
-                </div>
-
-                {/* Categories */}
-                <div className="footer-section">
-                    <h3>Categories</h3>
-                    <ul>
-                        <li>Electronics</li>
-                        <li>Fashion</li>
-                        <li>Home & Kitchen</li>
-                        <li>Books</li>
-                    </ul>
                 </div>
 
                 {/* Support */}

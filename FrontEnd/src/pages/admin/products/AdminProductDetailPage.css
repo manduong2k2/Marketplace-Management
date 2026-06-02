@@ -1,0 +1,115 @@
+/* AdminProductDetailPage.css */
+.admin-product-detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detail-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+}
+
+.detail-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7f8c8d;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.detail-value.code {
+  font-family: 'Courier New', monospace;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.detail-value.price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+.detail-value.stock {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.detail-value.description {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* ── Image Gallery ── */
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.image-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-images {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #e0e0e0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
