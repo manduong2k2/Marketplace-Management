@@ -11,7 +11,7 @@ A full-stack Convenience Store Management application built with Spring Boot (Ba
 - **Shopping Cart**: Add items, update quantities, remove items
 - **Checkout**: Place orders with shipping information
 - **Order History**: View past orders with status tracking
-- **Order Details**: View detailed order information including items and shipping info
+- **Order Details**: View detailed order information
 
 ### Admin Features
 - **Admin Authentication**: Separate admin login system
@@ -23,8 +23,8 @@ A full-stack Convenience Store Management application built with Spring Boot (Ba
 ## Tech Stack
 
 ### Backend
-- **Java 17**
-- **Spring Boot 3.x**
+- **Java 21**
+- **Spring Boot 4.x**
 - **Spring Security** (Authentication & Authorization)
 - **Spring Data JPA** (Database operations)
 - **PostgreSQL** (Database)
@@ -33,7 +33,7 @@ A full-stack Convenience Store Management application built with Spring Boot (Ba
 - **Maven** (Build tool)
 
 ### Frontend
-- **React 18**
+- **React 19**
 - **Vite** (Build tool)
 - **React Router** (Navigation)
 - **Axios** (HTTP client)
@@ -48,8 +48,8 @@ A full-stack Convenience Store Management application built with Spring Boot (Ba
 ## Prerequisites
 
 - Docker and Docker Compose installed
-- Node.js 18+ (for local frontend development)
-- Java 17+ (for local backend development)
+- Node.js 20+ (for local frontend development)
+- Java 21+ (for local backend development)
 - Maven 3.8+ (for local backend development)
 
 ## Installation
@@ -69,7 +69,7 @@ docker-compose up -d
 
 3. Access the application:
 - Frontend: http://localhost:5173
-- Backend API: http://localhost:8080
+- Backend API: http://localhost:8083
 - Mailpit (Email testing): http://localhost:8025
 
 ### Local Development
@@ -81,7 +81,7 @@ docker-compose up -d
 cd Backend
 ```
 
-2. Configure PostgreSQL database connection in `application.properties` or `application.yml`
+2. Configure PostgreSQL database connection in `application.properties`
 
 3. Build the project:
 ```bash
@@ -182,6 +182,7 @@ The `docker-compose.yml` includes the following services:
 
 - **postgres**: PostgreSQL database
 - **redis**: Redis cache
+- **rabbitmq**: RabbitMQ message broker
 - **mailpit**: Email testing service
 - **backend**: Spring Boot application
 - **frontend**: React application
@@ -192,7 +193,8 @@ Configure the following environment variables in `.env` file or docker-compose.y
 
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` - Database configuration
 - `REDIS_HOST`, `REDIS_PORT` - Redis configuration
-- `JWT_SECRET` - JWT token secret key
+- `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USER`, `RABBITMQ_PASSWORD` - RabbitMQ configuration
+- `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` - JWT token private and public keys
 - `API_URL` - Backend API URL for frontend
 
 ## Default Credentials
@@ -208,14 +210,9 @@ Configure the following environment variables in `.env` file or docker-compose.y
 
 ### Adding New Features
 
-1. **Backend**: Create new controllers, services, repositories, domain models, mappers, and entities following the existing structure
+1. **Backend**: Create new controllers, services, repositories, domain models, mappers, and entities following the existing structure, make sure to isolate models and entities in their bounded contexts.
 2. **Frontend**: Create new pages, components, and services following the existing patterns
 3. **API Integration**: Add new service methods in the `services` directory
-
-### Code Style
-
-- Backend: Follow Java naming conventions and Spring Boot best practices
-- Frontend: Use functional components with hooks, follow React best practices
 
 ## License
 
@@ -223,4 +220,4 @@ This project is for demonstration purposes.
 
 ## Contact
 
-For questions or support, please contact the development team.
+For questions or support, please contact me.
