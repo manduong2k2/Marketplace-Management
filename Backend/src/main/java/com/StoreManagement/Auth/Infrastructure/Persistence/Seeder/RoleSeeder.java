@@ -16,8 +16,8 @@ public class RoleSeeder {
     public void seedRoles() {
         if(roleRepository.count() == 0) {
             this.roleRepository.saveAll(List.of(
-                new Role(null,"ADMIN", "Admin"),
-                new Role(null,"USER", "User")
+                new Role(null,"Admin", "ADMIN"),
+                new Role(null,"User", "USER")
             ));
         }
     }
