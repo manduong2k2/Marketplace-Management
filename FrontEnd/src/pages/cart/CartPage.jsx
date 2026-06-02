@@ -26,7 +26,14 @@ function CartPage() {
       [itemId]: Math.max(1, newQuantity)
     }));
     try {
-      await cartService.updateItem(itemId, newQuantity);
+      const res = await cartService.updateItem(itemId, newQuantity);
+      if (res.ok) {
+        // Refresh cart data
+        const cartData = await cartService.getCart();
+        if (cartData.data && cartData.data.cart) {
+          setCart(cartData.data.cart);
+        }
+      }
     } catch (error) {
       console.error('Error updating quantity:', error);
     }

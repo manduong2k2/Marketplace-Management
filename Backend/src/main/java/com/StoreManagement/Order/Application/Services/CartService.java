@@ -53,14 +53,24 @@ public class CartService implements ICartService {
     public Cart removeItem(RemoveFromCartCommand command) {
         Cart cart = getByUserId(command.getUserId());
         cart.removeItem(command.getProductId());
-        return repository.update(cart);
+        Cart updated = repository.update(cart);
+        return updated;
     }
 
     @Override
     public Cart updateItem(UpdateCartItemCommand command) {
         Cart cart = getByUserId(command.getUserId());
         cart.updateItemQuantity(command.getProductId(), command.getQuantity());
-        return repository.update(cart);
+        Cart updated = repository.update(cart);
+
+        for (CartItem item : updated.getItems()) {
+            ProductResponse product = productService.getProduct(item.getProductId());
+            item.setProductName(product.getName());
+            item.setProductPrice(product.getPrice());
+            item.setProductImage(product.getImages());
+        }
+
+        return updated;
     }
 
     @Override
@@ -68,6 +78,13 @@ public class CartService implements ICartService {
         Cart cart = getByUserId(command.getUserId());
         cart.checkout();
         Cart updated = repository.update(cart);
+
+        for (CartItem item : updated.getItems()) {
+            ProductResponse product = productService.getProduct(item.getProductId());
+            item.setProductName(product.getName());
+            item.setProductPrice(product.getPrice());
+            item.setProductImage(product.getImages());
+        }
 
         return updated;
     }
