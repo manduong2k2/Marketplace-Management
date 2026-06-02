@@ -117,4 +117,14 @@ public class CartService implements ICartService {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + id));
     }
+
+    @Override
+    public void removeItemsByProductId(UUID productId) {
+        repository.findByItemsProductId(productId).forEach(cart -> {
+            if (cart.getItems().stream().anyMatch(item -> item.getProductId().equals(productId))) {
+                cart.removeItem(productId);
+                repository.update(cart);
+            }
+        });
+    }
 }

@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 public class UpdateProductCommand {
     private String name;
     private String code;
+    private Double price;
+    private Integer stock;
     private UUID brandId;
     private String description;
     private String status;
@@ -27,6 +29,8 @@ public class UpdateProductCommand {
         return new UpdateProductCommand(
             request.getName(),
             request.getCode(),
+            request.getPrice(),
+            request.getStock(),
             request.getBrandId(),
             request.getDescription(),
             request.getStatus(),

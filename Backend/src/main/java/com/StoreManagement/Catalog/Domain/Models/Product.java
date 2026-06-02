@@ -83,6 +83,14 @@ public class Product extends AggregateRoot<UUID> {
         }
         this.stock = stock;
     }
+
+    public boolean isOutOfStock() {
+        return stock == 0;
+    }
+
+    public boolean isArchived() {
+        return status.getValue().equals("ARCHIVED");
+    }
     
     public UUID getBrandId() {
         return brandId;

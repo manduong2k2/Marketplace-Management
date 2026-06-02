@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +19,9 @@ import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Catalog.Domain.Contract.IProductRepository;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
+import com.StoreManagement.Catalog.Domain.Events.ProductArchivedEvent;
+import com.StoreManagement.Catalog.Domain.Events.ProductDeletedEvent;
+import com.StoreManagement.Catalog.Domain.Events.ProductOutStockEvent;
 import com.StoreManagement.Catalog.Domain.Models.Product;
 import com.StoreManagement.Catalog.Domain.Models.ProductStatus;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
@@ -28,6 +30,7 @@ import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Domain.Contracts.IFileRepository;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
+import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMQQueueConfig;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;
 
 import jakarta.transaction.Transactional;
@@ -97,8 +100,6 @@ public class ProductService implements IProductService {
             }
         }
 
-        publishDomainEvents(savedProduct, "Product.created");
-
         return new ProductResponse(savedProduct, baseUrl);
     }
 
@@ -110,9 +111,25 @@ public class ProductService implements IProductService {
         product.setName(command.getName());
         product.setDescription(command.getDescription());
         product.setCode(command.getCode());
+        product.setPrice(command.getPrice());
+        product.setStock(command.getStock());
         product.setStatus(command.getStatus());
         product.setBrandId(command.getBrandId());
         product.setCategoryIds(command.getCategoryIds());
+
+        if(product.isOutOfStock()) {
+            eventPublisher.publish(
+                new ProductOutStockEvent(product.getId(), "OUT_OF_STOCK"), 
+                new EventOptions("product.out_of_stock.queue", false)
+            );
+        }
+
+        if(product.isArchived()) {
+            eventPublisher.publish(
+                new ProductArchivedEvent(product.getId()), 
+                new EventOptions("product.archived.queue", false)
+            );
+        }
 
         Product savedProduct = productRepository.save(product);
 
@@ -133,25 +150,17 @@ public class ProductService implements IProductService {
             }
         }
 
-        publishDomainEvents(savedProduct, "Product.updated");
-
         return new ProductResponse(savedProduct, baseUrl);
     }
 
     @Transactional
     public void deleteProduct(UUID productId) {
         productRepository.delete(productId);
+        ProductDeletedEvent event = new ProductDeletedEvent(productId);
+        eventPublisher.publish(event, new EventOptions(RabbitMQQueueConfig.PRODUCT_DELETED_QUEUE, false));
     }
     
     public List<String> getAllStatus() {
         return Arrays.stream(ProductStatusEnum.values()).map(ProductStatusEnum::name).collect(Collectors.toList());
-    }
-
-    @Async
-    private void publishDomainEvents(Product product, String queue) {
-        product.getDomainEvents()
-                .forEach(event -> eventPublisher.publish(event, new EventOptions(queue, false)));
-
-        product.clearDomainEvents();
     }
 }

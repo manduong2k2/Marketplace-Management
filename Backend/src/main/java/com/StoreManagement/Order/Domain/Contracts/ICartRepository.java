@@ -13,4 +13,5 @@ public interface ICartRepository {
     Optional<Cart> findByUserId(UUID userId);
     Cart update(Cart cart);
     void delete(UUID id);
+    List<Cart> findByItemsProductId(UUID productId);
 }

@@ -57,4 +57,11 @@ public class CartRepository implements ICartRepository {
     public void delete(UUID id) {
         jpa.deleteById(id);
     }
+
+    @Override
+    public List<Cart> findByItemsProductId(UUID productId) {
+        return jpa.findByItemsProductId(productId).stream()
+            .map(mapper::toDomain)
+            .toList();
+    }
 }

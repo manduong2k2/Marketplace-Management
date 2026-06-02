@@ -45,5 +45,10 @@ public class UpdateProductRequest {
     private List<String> imageUrls;
 
     private List<MultipartFile> images;
+    
+    private Double price;
+    
+    private Integer stock;
 }
+
 
