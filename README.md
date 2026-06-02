@@ -74,6 +74,15 @@ docker-compose up -d
 
 ### Local Development
 
+### 3rd Party Services Setup
+
+- PostgreSQL
+- Redis
+- RabbitMQ
+- Mailpit
+
+Make sure to start these services before starting the backend and frontend and make sure backend and frontend have the correct connection configurations.
+
 #### Backend Setup
 
 1. Navigate to the Backend directory:
