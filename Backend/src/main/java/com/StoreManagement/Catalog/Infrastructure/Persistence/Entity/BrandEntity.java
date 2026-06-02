@@ -1,5 +1,6 @@
 package com.StoreManagement.Catalog.Infrastructure.Persistence.Entity;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
@@ -27,6 +28,9 @@ public class BrandEntity extends JpaEntity {
     @Column(nullable = true, length = 500)
     @Nationalized
     private String description;
+
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ProductEntity> products;
 
     public BrandEntity() {}
 
