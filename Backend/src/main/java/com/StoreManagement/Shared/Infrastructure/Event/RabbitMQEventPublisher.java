@@ -1,6 +1,7 @@
 package com.StoreManagement.Shared.Infrastructure.Event;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Shared.Domain.DomainEvent;
@@ -19,6 +20,7 @@ public class RabbitMQEventPublisher implements IEventPublisher {
     }
 
     @Override
+    @Async
     public void publish(DomainEvent event, EventOptions options) {
         sendMessage(event, options.getDestination());
     }

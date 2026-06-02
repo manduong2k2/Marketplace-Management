@@ -7,6 +7,8 @@ import com.StoreManagement.Shared.Domain.Entity;
 public class CartItem extends Entity<UUID> {
     private UUID productId;
     private Quantity quantity;
+    private String productCode;
+    private String productDescription;
     private String productName;
     private double productPrice;
     private List<String> productImage;
@@ -69,6 +71,22 @@ public class CartItem extends Entity<UUID> {
 
     public void setProductName(String productName) {
         this.productName = productName;
+    }
+    
+    public String getProductCode() {
+        return productCode;
+    }
+    
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+    
+    public String getProductDescription() {
+        return productDescription;
+    }
+    
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 
     public double getProductPrice() {

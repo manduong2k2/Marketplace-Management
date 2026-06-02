@@ -13,20 +13,20 @@ public class ProductSnapShotResponse {
     private UUID productId;
     private String productName;
     private String productCode;
-    private String brand;
-    private List<String> categories;
     private double price;
+    private List<String> productImages;
+    private String productDescription;
 
     public static ProductSnapShotResponse from(ProductSnapShot snap) {
         if (snap == null) return null;
         ProductSnapShotResponse r = new ProductSnapShotResponse();
-        r.id           = snap.getId();
-        r.productId    = snap.getProductId();
-        r.productName  = snap.getProductName();
-        r.productCode  = snap.getProductCode();
-        r.brand        = snap.getBrand();
-        r.categories   = snap.getCategories();
-        r.price        = snap.getPrice();
+        r.id                    = snap.getId();
+        r.productId             = snap.getProductId();
+        r.productName           = snap.getProductName();
+        r.productCode           = snap.getProductCode();
+        r.price                 = snap.getProductPrice();
+        r.productImages         = snap.getProductImages();
+        r.productDescription    = snap.getProductDescription();
         return r;
     }
 }

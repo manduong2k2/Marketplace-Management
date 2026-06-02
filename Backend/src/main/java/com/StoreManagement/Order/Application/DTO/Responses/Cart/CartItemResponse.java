@@ -13,6 +13,8 @@ public class CartItemResponse {
     private UUID productId;
     private int quantity;
     private double subTotal;
+    private String productCode;
+    private String productDescription;
     private String productName;
     private double productPrice;
     private List<String> productImage;
@@ -25,6 +27,8 @@ public class CartItemResponse {
         response.setProductName(item.getProductName());
         response.setProductPrice(item.getProductPrice());
         response.setProductImage(item.getProductImage());
+        response.setProductCode(item.getProductCode());
+        response.setProductDescription(item.getProductDescription());
         response.setSubTotal(item.getQuantity()*item.getProductPrice());
         return response;
     }

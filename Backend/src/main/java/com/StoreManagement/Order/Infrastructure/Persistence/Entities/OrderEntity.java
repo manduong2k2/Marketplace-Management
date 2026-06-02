@@ -42,6 +42,9 @@ public class OrderEntity extends JpaEntity {
 
     @Column(name = "note", nullable = true)
     private String note;
+    
+    @Column(name = "total", nullable = false)
+    private double total;
 
     @OneToMany(
         mappedBy = "order",
@@ -50,4 +53,16 @@ public class OrderEntity extends JpaEntity {
         fetch = FetchType.LAZY
     )
     private List<OrderItemEntity> items = new ArrayList<>();
+
+    public OrderEntity(UUID id, UUID userId, String status, String name, String phone, String address, String note, List<OrderItemEntity> items, double total) {
+        this.setId(id);
+        this.userId = userId;
+        this.status = status;
+        this.name = name;
+        this.phone = phone;
+        this.address = address;
+        this.note = note;
+        this.items = items;
+        this.total = total;
+    }
 }

@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class OrderItemResponse {
     private UUID id;
-    private String productId;
+    private UUID productId;
     private int quantity;
     private double total;
     private ProductSnapShotResponse snapShot;

@@ -5,9 +5,7 @@ import java.util.UUID;
 
 import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -25,31 +23,35 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ProductSnapShotEntity extends JpaEntity {
-
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_item_id", nullable = false)
     private OrderItemEntity orderItem;
 
-    @Column(name = "code")
-    private String code;
+    @Column(name = "product_code")
+    private String productCode;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "product_name")
+    private String productName;
 
     @Column(name = "product_id", nullable = false)
     private UUID productId;
 
-    @Column(name = "brand")
-    private String brand;
+    @Column(name = "product_price", nullable = false)
+    private double productPrice;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "product_snapshot_categories",
-        joinColumns = @JoinColumn(name = "snapshot_id")
-    )
-    @Column(name = "category")
-    private List<String> categories;
+    @Column(name = "product_images")
+    private List<String> productImages;
 
-    @Column(name = "price", nullable = false)
-    private double price;
+    @Column(name = "product_description")
+    private String productDescription;
+
+    public ProductSnapShotEntity(UUID id, String productCode, String productName, UUID productId, double productPrice, List<String> productImages, String productDescription) {
+        this.setId(id);
+        this.productCode = productCode;
+        this.productName = productName;
+        this.productId = productId;
+        this.productPrice = productPrice;
+        this.productImages = productImages;
+        this.productDescription = productDescription;
+    }
 }

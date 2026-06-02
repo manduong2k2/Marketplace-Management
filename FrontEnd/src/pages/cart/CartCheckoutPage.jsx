@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { showSuccess, showError } from '../../components/master/popup';
+import { orderService } from '../../services/orderService';
+import { cartService } from '../../services/cartService';
 import './CartCheckoutPage.css';
 
 export default function CartCheckoutPage() {
   const navigate = useNavigate();
-  const { cart, loading: cartLoading } = useContext(CartContext);
+  const { cart, loading: cartLoading, setCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
 
   const [shippingInfo, setShippingInfo] = useState({
@@ -57,10 +59,21 @@ export default function CartCheckoutPage() {
 
     setSubmitting(true);
     try {
-      // TODO: call order API when available
-      // await orderService.create({ ...shippingInfo });
-      showSuccess('Order placed successfully!', 'Thank you');
-      navigate('/home');
+      const res = await orderService.create(shippingInfo);
+      if (res.ok) {
+        // Clear cart after successful order
+        const clearRes = await cartService.clearCart();
+        if (clearRes.ok) {
+          const cartData = await cartService.getCart();
+          if (cartData.data && cartData.data.cart) {
+            setCart(cartData.data.cart);
+          }
+        }
+        showSuccess('Order placed successfully!', 'Thank you');
+        navigate('/home');
+      } else {
+        showError(res.data.message || 'Failed to place order. Please try again.', 'Error');
+      }
     } catch (err) {
       showError('Failed to place order. Please try again.', 'Error');
     } finally {

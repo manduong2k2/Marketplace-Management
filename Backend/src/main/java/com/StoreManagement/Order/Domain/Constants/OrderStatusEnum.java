@@ -1,13 +1,23 @@
 package com.StoreManagement.Order.Domain.Constants;
 
 public enum OrderStatusEnum {
-    PENDING,
-    PAID,
-    PROCESSING,
-    SHIPPING,
-    COMPLETED,
-    CANCELLED,
-    EXPIRED;
+    PENDING("PENDING"),
+    PAID("PAID"),
+    PROCESSING("PROCESSING"),
+    SHIPPING("SHIPPING"),
+    COMPLETED("COMPLETED"),
+    CANCELLED("CANCELLED"),
+    EXPIRED("EXPIRED");
+
+    private final String value;
+
+    OrderStatusEnum(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 
     public static boolean isValid(String value) {
         try {

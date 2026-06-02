@@ -1,4 +1,4 @@
-package com.StoreManagement.Shared.Infrastructure.Configuration;
+package com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMqQueues;
 
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.QueueBuilder;

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.StoreManagement.Order.Application.Contracts.ICartService;
 import com.StoreManagement.Order.Application.DTO.Messages.ProductDeletedMessage;
 import com.StoreManagement.Order.Application.DTO.Messages.ProductOutStockMessage;
-import com.StoreManagement.Shared.Infrastructure.Configuration.ProductQueueConfig;
+import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMqQueues.ProductQueueConfig;
 
 @Component
 public class ProductEventsConsumer {

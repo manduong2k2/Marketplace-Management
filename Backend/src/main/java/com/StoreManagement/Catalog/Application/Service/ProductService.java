@@ -30,7 +30,7 @@ import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Domain.Contracts.IFileRepository;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
-import com.StoreManagement.Shared.Infrastructure.Configuration.ProductQueueConfig;
+import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMqQueues.ProductQueueConfig;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;
 
 import jakarta.transaction.Transactional;
@@ -68,6 +68,7 @@ public class ProductService implements IProductService {
         );
     }
 
+    @Transactional
     public ProductResponse getProduct(UUID ProductId) {
         return productRepository.findById(ProductId)
                 .map(product -> new ProductResponse(product, baseUrl))
@@ -117,20 +118,6 @@ public class ProductService implements IProductService {
         product.setBrandId(command.getBrandId());
         product.setCategoryIds(command.getCategoryIds());
 
-        if(product.isOutOfStock()) {
-            eventPublisher.publish(
-                new ProductOutStockEvent(product.getId(), "OUT_OF_STOCK"), 
-                new EventOptions("product.out_of_stock.queue", false)
-            );
-        }
-
-        if(product.isArchived()) {
-            eventPublisher.publish(
-                new ProductArchivedEvent(product.getId()), 
-                new EventOptions("product.archived.queue", false)
-            );
-        }
-
         Product savedProduct = productRepository.save(product);
 
         //Delete non-existent images
@@ -148,6 +135,20 @@ public class ProductService implements IProductService {
                 File file = new File(null, imageUrl, "Product", savedProduct.getId());
                 fileRepository.save(file);
             }
+        }
+
+        if(product.isOutOfStock()) {
+            eventPublisher.publish(
+                new ProductOutStockEvent(product.getId(), "OUT_OF_STOCK"), 
+                new EventOptions("product.out_of_stock.queue", false)
+            );
+        }
+
+        if(product.isArchived()) {
+            eventPublisher.publish(
+                new ProductArchivedEvent(product.getId()), 
+                new EventOptions("product.archived.queue", false)
+            );
         }
 
         return new ProductResponse(savedProduct, baseUrl);

@@ -7,8 +7,8 @@ import com.StoreManagement.Shared.Domain.ValueObject;
 public class OrderStatus extends ValueObject{
     private String value;
 
-    public OrderStatus(OrderStatusEnum value) {
-        this.value = value.name();
+    public OrderStatus(String value) {
+        this.value = value;
     }
 
     //Business methods

@@ -22,6 +22,10 @@ import AdminProductDetailPage from '../pages/admin/products/AdminProductDetailPa
 
 import ProductDetailPage from '../pages/product/ProductDetailPage';
 import BrandDetailPage from '../pages/brand/BrandDetailPage';
+import OrderHistoryPage from '../pages/order/OrderHistoryPage';
+import OrderDetailPage from '../pages/order/OrderDetailPage';
+import AdminOrderHistoryPage from '../pages/admin/orders/AdminOrderHistoryPage';
+import AdminOrderDetailPage from '../pages/admin/orders/AdminOrderDetailPage';
 
 import { AuthContext } from '../contexts/AuthContext';
 import { AdminContext, AdminProvider } from '../contexts/AdminContext';
@@ -72,6 +76,8 @@ export default function AppRouter() {
             <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             <Route path="/admin/products" element={<AdminProductsPage />} />
             <Route path="/admin/products/:id" element={<AdminProductDetailPage />} />
+            <Route path="/admin/orders" element={<AdminOrderHistoryPage />} />
+            <Route path="/admin/orders/:id" element={<AdminOrderDetailPage />} />
             {/* Default admin redirect */}
             <Route path="/admin" element={<Navigate to="/admin/brands" replace />} />
           </Route>
@@ -84,6 +90,8 @@ export default function AppRouter() {
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
             <Route path="/checkout" element={<PrivateRoute><CartCheckoutPage /></PrivateRoute>} />
+            <Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />
+            <Route path="/orders/:id" element={<PrivateRoute><OrderDetailPage /></PrivateRoute>} />
           </Route>
 
           {/* Root redirect */}

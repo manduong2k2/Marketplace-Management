@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.StoreManagement.Order.Domain.Constants.OrderStatusEnum;
 import com.StoreManagement.Shared.Domain.AggregateRoot;
 
 public class Order extends AggregateRoot<UUID> {
@@ -15,12 +14,13 @@ public class Order extends AggregateRoot<UUID> {
     private String phone;
     private String address;
     private String note;
+    private double total;
 
     public Order(){
         super(null);
     }
 
-    public Order(UUID id, UUID userId, OrderStatusEnum status, List<OrderItem> items, String name, String phone, String address, String note) {
+    public Order(UUID id, UUID userId, String status, List<OrderItem> items, String name, String phone, String address, String note) {
         super(id);
         this.userId = userId;
         this.status = new OrderStatus(status);
@@ -29,6 +29,7 @@ public class Order extends AggregateRoot<UUID> {
         this.phone = phone;
         this.address = address;
         this.note = note;
+        this.total = this.calculateTotal();
     }
 
     //Business methods;
@@ -36,8 +37,12 @@ public class Order extends AggregateRoot<UUID> {
         this.status.setValue(status);
     }
 
+    public double calculateTotal() {
+        return this.items.stream().mapToDouble(item -> item.calculateTotal()).sum();
+    }
+
     public double getTotal() {
-        return this.items.stream().mapToDouble(item -> item.getTotal()).sum();
+        return this.total;
     }
 
     //Base methods

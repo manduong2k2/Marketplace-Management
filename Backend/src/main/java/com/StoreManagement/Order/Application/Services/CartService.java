@@ -92,7 +92,11 @@ public class CartService implements ICartService {
     @Override
     public Cart getByUserId(UUID userId) {
         Cart cart = repository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found for user: " + userId));
+                .orElse(null);
+        
+        if (cart == null) {
+            return null;
+        }
         
         // Load product details for each item in the cart
         for (CartItem item : cart.getItems()) {
@@ -100,6 +104,8 @@ public class CartService implements ICartService {
             item.setProductName(product.getName());
             item.setProductPrice(product.getPrice());
             item.setProductImage(product.getImages());
+            item.setProductCode(product.getCode());
+            item.setProductDescription(product.getDescription());
         }
         
         return cart;
@@ -108,6 +114,11 @@ public class CartService implements ICartService {
     @Override
     public void clearCart(UUID userId) {
         Cart cart = getByUserId(userId);
+        
+        if(cart == null) {
+            return;
+        }
+
         cart.clear();
         repository.update(cart);
     }

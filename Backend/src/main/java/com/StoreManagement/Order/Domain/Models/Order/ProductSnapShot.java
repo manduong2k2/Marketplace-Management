@@ -9,28 +9,23 @@ public class ProductSnapShot extends Entity<UUID>{
     private UUID productId;
     private String productName;
     private String productCode;
-    private String brand;
-    private List<String> categories;
-    
-    private double price;
-    private String code;
-    private String name;
+    private double productPrice;
+    private List<String> productImages;
+    private String productDescription;
 
     public ProductSnapShot() {
         super(null);
     }
 
-    public ProductSnapShot(UUID id, UUID productId, String code, String name, String brand,
-            List<String> categories, double price) {
+    public ProductSnapShot(UUID id, UUID productId, String productName, String productCode, 
+            double productPrice, List<String> productImages, String productDescription) {
         super(id);
         this.productId = productId;
-        this.code = code;
-        this.name = name;
-        this.brand = brand;
-        this.categories = categories;
-        this.price = price;
-        this.code = code;
-        this.name = name;
+        this.productName = productName;
+        this.productCode = productCode;
+        this.productPrice = productPrice;
+        this.productImages = productImages;
+        this.productDescription = productDescription;
     }
 
     public UUID getProductId() {
@@ -41,10 +36,6 @@ public class ProductSnapShot extends Entity<UUID>{
         this.productId = productId;
     }
     
-    public String getName() {
-        return name;
-    }
-    
     public String getProductName() {
         return productName;
     }
@@ -53,35 +44,12 @@ public class ProductSnapShot extends Entity<UUID>{
         this.productName = productName;
     }
     
-    public double getPrice() {
-        return price;
+    public double getProductPrice() {
+        return productPrice;
     }
     
-    public void setPrice(double price) {
-        this.price = price;
-    }
-    
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-    
-    public String getBrand() {
-        return brand;
-    }
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-    
-    public List<String> getCategories() {
-        return categories;
-    }
-    
-    public void setCategories(List<String> categories) {
-        this.categories = categories;
+    public void setProductPrice(double productPrice) {
+        this.productPrice = productPrice;
     }
     
     public String getProductCode() {
@@ -92,7 +60,19 @@ public class ProductSnapShot extends Entity<UUID>{
         this.productCode = productCode;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public List<String> getProductImages() {
+        return productImages;
+    }
+
+    public void setProductImages(List<String> productImages) {
+        this.productImages = productImages;
+    }
+
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 }

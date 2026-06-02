@@ -5,18 +5,21 @@ import java.util.UUID;
 import com.StoreManagement.Shared.Domain.Entity;
 
 public class OrderItem extends Entity<UUID>{
-    private String productId;
+    private UUID productId;
     private Quantity quantity;
     private ProductSnapShot snapShot;
+    private double total;
 
     public OrderItem() {
         super(null);
     }
 
-    public OrderItem(UUID id, String productId, int quantity) {
+    public OrderItem(UUID id, UUID productId, int quantity, ProductSnapShot snapShot) {
         super(id);
         this.productId = productId;
         this.quantity = new Quantity(quantity);
+        this.snapShot = snapShot;
+        this.total = this.calculateTotal();
     }
 
     //Business methods
@@ -29,16 +32,21 @@ public class OrderItem extends Entity<UUID>{
         this.quantity.setValue(this.quantity.getValue()-1);
     }
 
+    public double calculateTotal() {
+        return this.quantity.getValue() * this.snapShot.getProductPrice();
+    }
+
     public double getTotal() {
-        return this.quantity.getValue() * this.snapShot.getPrice();
+        return this.total;
     }
 
     //Base methods
-    public void setProductId(String productId) {
+
+    public void setProductId(UUID productId) {
         this.productId = productId;
     }
 
-    public String getProductId() {
+    public UUID getProductId() {
         return productId;
     }
     

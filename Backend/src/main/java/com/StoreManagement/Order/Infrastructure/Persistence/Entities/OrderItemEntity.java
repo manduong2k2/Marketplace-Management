@@ -1,5 +1,7 @@
 package com.StoreManagement.Order.Infrastructure.Persistence.Entities;
 
+import java.util.UUID;
+
 import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
 
 import jakarta.persistence.CascadeType;
@@ -28,10 +30,13 @@ public class OrderItemEntity extends JpaEntity {
     private OrderEntity order;
 
     @Column(name = "product_id", nullable = false)
-    private String productId;
+    private UUID productId;
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
+
+    @Column(name = "total", nullable = false)
+    private double total;
 
     @OneToOne(
         mappedBy = "orderItem",
@@ -40,4 +45,11 @@ public class OrderItemEntity extends JpaEntity {
         fetch = FetchType.EAGER
     )
     private ProductSnapShotEntity snapShot;
+
+    public OrderItemEntity(UUID id, UUID productId, int quantity, ProductSnapShotEntity snapShot) {
+        this.setId(id);
+        this.productId = productId;
+        this.quantity = quantity;
+        this.snapShot = snapShot;
+    }
 }

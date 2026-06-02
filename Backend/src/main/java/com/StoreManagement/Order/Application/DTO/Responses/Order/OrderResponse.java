@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.StoreManagement.Order.Domain.Models.Order.Order;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.Data;
 
 @Data
+@JsonPropertyOrder({"id", "userId", "status", "total", "name", "phone", "address", "note", "items", "createdAt", "updatedAt"})
 public class OrderResponse {
     private UUID id;
     private UUID userId;
