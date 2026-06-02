@@ -2,6 +2,9 @@ package com.StoreManagement.Order.Infrastructure.Persistence.Entities;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
 
 import jakarta.persistence.CascadeType;
@@ -27,6 +30,7 @@ public class OrderItemEntity extends JpaEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private OrderEntity order;
 
     @Column(name = "product_id", nullable = false)

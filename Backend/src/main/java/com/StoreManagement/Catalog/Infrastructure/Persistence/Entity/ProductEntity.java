@@ -16,7 +16,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "products")
+@Table(
+    name = "products",
+    indexes = {
+        @Index(name = "idx_product_brand_price", columnList = "brand_id, price"),
+        @Index(name = "idx_product_status", columnList = "status")
+    }
+)
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class ProductEntity extends JpaEntity {
@@ -25,7 +31,7 @@ public class ProductEntity extends JpaEntity {
     @Nationalized
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String code;
 
     @Column(nullable = false)

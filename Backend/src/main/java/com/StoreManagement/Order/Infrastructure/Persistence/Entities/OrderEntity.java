@@ -50,7 +50,7 @@ public class OrderEntity extends JpaEntity {
         mappedBy = "order",
         cascade = CascadeType.ALL,
         orphanRemoval = true,
-        fetch = FetchType.LAZY
+        fetch = FetchType.EAGER
     )
     private List<OrderItemEntity> items = new ArrayList<>();
 

@@ -9,6 +9,7 @@ import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Distinct;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
 import com.StoreManagement.Shared.Application.Annotation.Rules.In;
+import com.StoreManagement.Shared.Application.Annotation.Rules.Unique;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
@@ -28,6 +29,7 @@ public class CreateProductRequest {
     private String name;
 
     @NotBlank(message = "Product code is required")
+    @Unique(table = "products", column = "code", message = "Product code already exists")
     private String code;
 
     @NotNull(message = "Brand ID is required")

@@ -54,6 +54,14 @@ export default function AdminLayout() {
             <span className="nav-icon">📦</span>
             {!sidebarCollapsed && <span>Products</span>}
           </NavLink>
+
+          <NavLink
+            to="/admin/orders"
+            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+          >
+            <span className="nav-icon">🧾</span>
+            {!sidebarCollapsed && <span>Orders</span>}
+          </NavLink>
         </nav>
 
         <button
