@@ -19,9 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.CreateProductRequest;
+import com.StoreManagement.Catalog.Application.DTO.Requests.Product.GetListProductRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.UpdateProductRequest;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
@@ -35,12 +38,21 @@ public class ProductController {
     private IProductService productService;
 
     @GetMapping
-    public ResponseEntity<HashMap<String,Object>> getAll() {        
-        List<ProductResponse> products = productService.getAllProducts();
+    public ResponseEntity<HashMap<String,Object>> getAll(@Valid @ModelAttribute GetListProductRequest request) {
+        GetListProductCommand command = GetListProductCommand.fromRequest(request);
+        PaginatedResponse<ProductResponse> products = productService.getAllProducts(command);
 
         HashMap<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data",  products);
+        response.put("data", products.getData());
+        response.put("pagination", new HashMap<String, Object>() {{
+            put("currentPage", products.getCurrentPage());
+            put("pageSize", products.getPageSize());
+            put("totalElements", products.getTotalElements());
+            put("totalPages", products.getTotalPages());
+            put("hasNext", products.isHasNext());
+            put("hasPrevious", products.isHasPrevious());
+        }});
         
         return ResponseEntity.ok().body(response);
     }

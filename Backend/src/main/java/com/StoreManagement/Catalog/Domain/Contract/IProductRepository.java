@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Models.Product;
 
 
 public interface IProductRepository {
     Product save(Product Product);
 
-    List<Product> findAll();
+    PaginatedResponse<Product> findAll(GetListProductCommand command);
 
     Optional<Product> findById(UUID id);
 

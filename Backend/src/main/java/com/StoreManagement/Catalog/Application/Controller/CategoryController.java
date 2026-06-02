@@ -2,7 +2,6 @@ package com.StoreManagement.Catalog.Application.Controller;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.CreateCategoryCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Category.GetListCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.UpdateCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Category.CreateCategoryRequest;
+import com.StoreManagement.Catalog.Application.DTO.Requests.Category.GetListCategoryRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Category.UpdateCategoryRequest;
 import com.StoreManagement.Catalog.Application.DTO.Response.CategoryResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryService;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
@@ -34,12 +36,21 @@ public class CategoryController {
     private ICategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<HashMap<String,Object>> getAll() {
-        List<CategoryResponse> categories = categoryService.getAllCategories();
+    public ResponseEntity<HashMap<String,Object>> getAll(@Valid @ModelAttribute GetListCategoryRequest request) {
+        GetListCategoryCommand command = GetListCategoryCommand.fromRequest(request);
+        PaginatedResponse<CategoryResponse> categories = categoryService.getAllCategories(command);
 
-        HashMap<String,Object> response = new HashMap<>();
+        HashMap<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", categories);
+        response.put("data", categories.getData());
+        response.put("pagination", new HashMap<String, Object>() {{
+            put("currentPage", categories.getCurrentPage());
+            put("pageSize", categories.getPageSize());
+            put("totalElements", categories.getTotalElements());
+            put("totalPages", categories.getTotalPages());
+            put("hasNext", categories.isHasNext());
+            put("hasPrevious", categories.isHasPrevious());
+        }});
 
         return ResponseEntity.ok().body(response);
     }

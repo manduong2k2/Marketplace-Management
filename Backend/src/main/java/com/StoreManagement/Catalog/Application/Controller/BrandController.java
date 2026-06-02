@@ -2,7 +2,6 @@ package com.StoreManagement.Catalog.Application.Controller;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.CreateBrandCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.GetListBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.UpdateBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.CreateBrandRequest;
+import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.GetListBrandRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.UpdateBrandRequest;
 import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandService;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
@@ -34,12 +36,21 @@ public class BrandController {
     private IBrandService brandService;
 
     @GetMapping
-    public ResponseEntity<HashMap<String,Object>> getAll() {
-        List<BrandResponse> brands = brandService.getAllBrands();
+    public ResponseEntity<HashMap<String,Object>> getAll(@Valid @ModelAttribute GetListBrandRequest request) {
+        GetListBrandCommand command = GetListBrandCommand.fromRequest(request);
+        PaginatedResponse<BrandResponse> brands = brandService.getAllBrands(command);
 
-        HashMap<String,Object> response = new HashMap<>();
+        HashMap<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", brands);
+        response.put("data", brands.getData());
+        response.put("pagination", new HashMap<String, Object>() {{
+            put("currentPage", brands.getCurrentPage());
+            put("pageSize", brands.getPageSize());
+            put("totalElements", brands.getTotalElements());
+            put("totalPages", brands.getTotalPages());
+            put("hasNext", brands.isHasNext());
+            put("hasPrevious", brands.isHasPrevious());
+        }});
         
         return ResponseEntity.ok().body(response);
     }

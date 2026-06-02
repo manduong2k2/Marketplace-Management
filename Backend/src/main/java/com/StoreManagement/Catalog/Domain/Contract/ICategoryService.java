@@ -1,15 +1,16 @@
 package com.StoreManagement.Catalog.Domain.Contract;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.CreateCategoryCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Category.GetListCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.UpdateCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.CategoryResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 
 public interface ICategoryService {
-    public List<CategoryResponse> getAllCategories();
+    public PaginatedResponse<CategoryResponse> getAllCategories(GetListCategoryCommand command);
 
     public CategoryResponse createCategory(CreateCategoryCommand command) throws IOException;
 

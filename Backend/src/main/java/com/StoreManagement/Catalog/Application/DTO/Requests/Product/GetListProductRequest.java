@@ -1,5 +1,11 @@
 package com.StoreManagement.Catalog.Application.DTO.Requests.Product;
 
+import java.util.List;
+import java.util.UUID;
+
+import com.StoreManagement.Shared.Application.Annotation.Rules.Distinct;
+import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
+
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -16,6 +22,16 @@ public class GetListProductRequest {
     private String sortOrder = "asc";
 
     @Nullable
+    @Distinct(message = "Each category ID must be unique")
+    private List<@Exist(table = "categories", column = "id", message = "Category not found") UUID> categoryIds;
+
+    @Nullable
     @Size(max = 100, message = "Search query must not exceed 100 characters")
     private String search;
+
+    @Nullable
+    @Exist(table = "brands", column = "id", message = "Brand not found")
+    private UUID brandId;
+
+    private String status;
 }

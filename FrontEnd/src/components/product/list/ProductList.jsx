@@ -4,17 +4,44 @@ import ProductCard from '../card/ProductCard';
 import { productService } from '../../../services/productService';
 import './ProductList.css';
 
-function ProductList() {
+function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSearchQuery = '' }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [pagination, setPagination] = useState({
+    currentPage: 0,
+    pageSize: 10,
+    totalElements: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
 
   useEffect(() => {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const response = await productService.getAll();
+        const params = {
+          page: pagination.currentPage,
+          size: pagination.pageSize,
+        };
+
+        if (categoryIds.length > 0) {
+          params.categoryIds = categoryIds;
+        }
+
+        if (brandId) {
+          params.brandId = brandId;
+        }
+
+        if (searchQuery.trim()) {
+          params.search = searchQuery.trim();
+        }
+
+        const response = await productService.getAll(params);
         setProducts(response.data.data);
+        setPagination(response.data.pagination);
       } catch (err) {
         setError('Cannot load products');
       } finally {
@@ -23,7 +50,25 @@ function ProductList() {
     }
 
     fetchProducts();
-  }, []);
+  }, [categoryIds, brandId, searchQuery, pagination.currentPage]);
+
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery);
+  }, [initialSearchQuery]);
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, currentPage: newPage }));
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPagination(prev => ({ ...prev, currentPage: 0 }));
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+    setPagination(prev => ({ ...prev, currentPage: 0 }));
+  };
 
   if (loading) {
     return (
@@ -50,6 +95,26 @@ function ProductList() {
     <div className="product-list-container user-view">
       <div className="list-header">
         <h2>Products</h2>
+        {pagination.totalElements > 0 && (
+          <span className="pagination-info">
+            Page {pagination.currentPage + 1} of {pagination.totalPages} ({pagination.totalElements} total)
+          </span>
+        )}
+      </div>
+
+      <div className="search-bar">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+        {searchQuery && (
+          <button className="search-clear" onClick={handleSearchClear}>
+            ✕
+          </button>
+        )}
       </div>
       
       {products.length === 0 ? (
@@ -59,11 +124,45 @@ function ProductList() {
           <p>Please check back later</p>
         </div>
       ) : (
-        <div className="product-grid">
-          {products.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="product-grid">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          
+          {pagination.totalPages > 1 && (
+            <div className="pagination-controls">
+              <button
+                className="pagination-btn"
+                disabled={!pagination.hasPrevious}
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+              >
+                Previous
+              </button>
+              
+              <div className="pagination-numbers">
+                {Array.from({ length: pagination.totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    className={`pagination-number ${pagination.currentPage === i ? 'active' : ''}`}
+                    onClick={() => handlePageChange(i)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                className="pagination-btn"
+                disabled={!pagination.hasNext}
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

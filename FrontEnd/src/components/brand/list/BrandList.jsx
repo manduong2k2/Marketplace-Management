@@ -4,7 +4,7 @@ import BrandCard from '../card/BrandCard';
 import { brandService } from '../../../services/brandService';
 import './BrandList.css';
 
-export default function BrandList() {
+export default function BrandList({ selectedBrandId, onSelectBrand }) {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -94,6 +94,8 @@ export default function BrandList() {
               <BrandCard
                 key={brand.id}
                 brand={brand}
+                selected={selectedBrandId === brand.id}
+                onSelect={onSelectBrand}
               />
             ))}
           </div>

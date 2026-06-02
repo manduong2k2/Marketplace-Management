@@ -22,6 +22,17 @@
   width: 100%;
   user-select: none;
   box-sizing: border-box;
+  position: relative;
+}
+
+/* ── Checkbox ── */
+.category-checkbox {
+  width: 18px;
+  height: 18px;
+  margin: 0 8px 0 12px;
+  cursor: pointer;
+  accent-color: #667eea;
+  flex-shrink: 0;
 }
 
 .category-card:hover {

@@ -8,6 +8,21 @@
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  position: relative;
+}
+
+/* ── Checkbox ── */
+.brand-checkbox {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #667eea;
+  z-index: 10;
+  background: white;
+  border-radius: 4px;
 }
 
 .brand-card:hover {
@@ -27,12 +42,12 @@
   overflow: hidden;
   position: relative;
   background: #f8f9fa;
+  padding: 5px;
 }
 
 .brand-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   transition: transform 0.3s ease;
 }
 

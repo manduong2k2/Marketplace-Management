@@ -19,6 +19,7 @@ export default function Navbar() {
   const { user, setUser } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef(null);
 
   const cartCount = cart?.totalItemCount || 0;
@@ -42,6 +43,19 @@ export default function Navbar() {
     setShowDropdown(false);
     window.location.href = path;
   };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      window.location.href = `/home?search=${encodeURIComponent(searchQuery.trim())}`;
+    }
+  };
+
+  useEffect(() => {
+    const searchParam = new URLSearchParams(location.search).get('search');
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, [location.search]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -72,7 +86,22 @@ export default function Navbar() {
       {location.pathname === '/home' && (
         <div className="navbar-center">
           <i className="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Search products..." className="search-input" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            className="search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+          />
+          {searchQuery && (
+            <button className="navbar-search-clear" onClick={() => {
+              setSearchQuery('');
+              window.location.href = '/home';
+            }}>
+              ✕
+            </button>
+          )}
         </div>
       )}
 

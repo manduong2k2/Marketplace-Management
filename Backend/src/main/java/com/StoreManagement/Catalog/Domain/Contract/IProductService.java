@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 
 import java.io.IOException;
 
 public interface IProductService {
-    public List<ProductResponse> getAllProducts();
+    public PaginatedResponse<ProductResponse> getAllProducts(GetListProductCommand command);
 
     public ProductResponse createProduct(CreateProductCommand command) throws IOException;
 

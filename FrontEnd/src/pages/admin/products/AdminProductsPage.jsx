@@ -20,17 +20,36 @@ export default function AdminProductsPage() {
   const [error, setError] = useState(null);
   const [modal, setModal] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [pagination, setPagination] = useState({
+    currentPage: 0,
+    pageSize: 10,
+    totalElements: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false,
+  });
 
   const fetchAll = async () => {
     try {
       setLoading(true);
+      const params = {
+        page: pagination.currentPage,
+        size: pagination.pageSize,
+      };
+
+      if (searchQuery.trim()) {
+        params.search = searchQuery.trim();
+      }
+
       const [prodRes, brandRes, catRes, statusRes] = await Promise.all([
-        productService.getAll(),
+        productService.getAll(params),
         brandService.getAll(),
         categoryService.getAll(),
         productService.getStatuses(),
       ]);
       setProducts(prodRes.data?.data || []);
+      setPagination(prodRes.data?.pagination || pagination);
       setBrands(brandRes.data?.data || []);
       setCategories(catRes.data?.data || []);
       setStatuses(statusRes.data?.data || []);
@@ -41,7 +60,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(); }, [pagination.currentPage, searchQuery]);
 
   const buildCreateFormData = (formData) => {
     const fd = new FormData();
@@ -97,6 +116,7 @@ export default function AdminProductsPage() {
       if (res.ok && data.success) {
         window.showSuccess('Product created successfully');
         setModal(null);
+        setPagination(prev => ({ ...prev, currentPage: 0 }));
         fetchAll();
       } else {
         // Return server errors so form can display them under fields
@@ -139,6 +159,7 @@ export default function AdminProductsPage() {
       const res = await productService.delete(deleteTarget.id);
       if (res.ok) {
         window.showSuccess('Product deleted successfully');
+        setPagination(prev => ({ ...prev, currentPage: 0 }));
         fetchAll();
       } else {
         window.showError(res.data?.message || 'Failed to delete product');
@@ -157,28 +178,60 @@ export default function AdminProductsPage() {
   };
 
   const getStatusBadge = (status) => {
-    const isActive = status === 'ACTIVE';
+    const isPublished = status === 'PUBLISHED';
     const label = status
       .split('_')
       .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
       .join(' ');
     return (
-      <span className={`admin-badge ${isActive ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
+      <span className={`admin-badge ${isPublished ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
         {label}
       </span>
     );
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPagination(prev => ({ ...prev, currentPage: 0 }));
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+    setPagination(prev => ({ ...prev, currentPage: 0 }));
   };
 
   return (
     <div className="admin-page">
       <div className="admin-page-header">
         <h2 className="admin-page-title">📦 Products</h2>
-        <button className="btn-admin-primary" onClick={() => setModal('create')}>
-          + Add New
-        </button>
+        <div className="admin-header-actions">
+          {pagination.totalElements > 0 && (
+            <span className="pagination-info">
+              Page {pagination.currentPage + 1} of {pagination.totalPages} ({pagination.totalElements} total)
+            </span>
+          )}
+          <button className="btn-admin-primary" onClick={() => setModal('create')}>
+            + Add New
+          </button>
+        </div>
       </div>
 
       {error && <div className="admin-alert admin-alert-error">{error}</div>}
+
+      <div className="admin-search-bar">
+        <input
+          type="text"
+          className="admin-search-input"
+          placeholder="Search products by name or description..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+        {searchQuery && (
+          <button className="admin-search-clear" onClick={handleSearchClear}>
+            ✕
+          </button>
+        )}
+      </div>
 
       {loading ? (
         <div className="admin-loading">
@@ -246,6 +299,38 @@ export default function AdminProductsPage() {
               )}
             </tbody>
           </table>
+          
+          {pagination.totalPages > 1 && (
+            <div className="admin-pagination">
+              <button
+                className="btn-admin-secondary"
+                disabled={!pagination.hasPrevious}
+                onClick={() => setPagination(prev => ({ ...prev, currentPage: pagination.currentPage - 1 }))}
+              >
+                Previous
+              </button>
+              
+              <div className="pagination-numbers">
+                {Array.from({ length: pagination.totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    className={`pagination-number ${pagination.currentPage === i ? 'active' : ''}`}
+                    onClick={() => setPagination(prev => ({ ...prev, currentPage: i }))}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                className="btn-admin-secondary"
+                disabled={!pagination.hasNext}
+                onClick={() => setPagination(prev => ({ ...prev, currentPage: pagination.currentPage + 1 }))}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 

@@ -4,7 +4,7 @@ import CategoryCard from '../card/CategoryCard';
 import { categoryService } from '../../../services/categoryService';
 import './CategoryList.css';
 
-export default function CategoryList() {
+export default function CategoryList({ selectedCategoryId, onSelectCategory }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,7 +50,12 @@ export default function CategoryList() {
       ) : (
         <div className="category-list">
           {categories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
+            <CategoryCard 
+              key={category.id} 
+              category={category} 
+              selectedCategoryId={selectedCategoryId}
+              onSelectCategory={onSelectCategory}
+            />
           ))}
         </div>
       )}

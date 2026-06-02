@@ -93,18 +93,20 @@
     border-color: white;
 }
 
-.search-input {
-    background: transparent;
-    font-size: 14px;
-    width: 100%;
+.navbar-search-clear {
+    background: none;
     border: none;
-    outline: none;
-    color: white;
-    min-width: 0;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
 }
 
-.search-input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+.navbar-search-clear:hover {
+    color: white;
 }
 
 .navbar-right {

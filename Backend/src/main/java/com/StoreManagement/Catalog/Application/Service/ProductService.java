@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Catalog.Domain.Contract.IProductRepository;
@@ -50,10 +52,17 @@ public class ProductService implements IProductService {
     @Value("${spring.application.base-url}")
     private String baseUrl;
 
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream()
+    public PaginatedResponse<ProductResponse> getAllProducts(GetListProductCommand command) {
+        PaginatedResponse<Product> products = productRepository.findAll(command);
+        List<ProductResponse> productResponses = products.getData().stream()
                 .map(product -> new ProductResponse(product, baseUrl))
                 .toList();
+        return new PaginatedResponse<>(
+                productResponses,
+                products.getCurrentPage(),
+                products.getPageSize(),
+                products.getTotalElements()
+        );
     }
 
     public ProductResponse getProduct(UUID ProductId) {

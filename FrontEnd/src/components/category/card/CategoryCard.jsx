@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import './CategoryCard.css';
 import defaultCategoryImage from '../../../assets/category.png';
 
-export default function CategoryCard({ category, depth = 0 }) {
+export default function CategoryCard({ category, depth = 0, selectedCategoryId, onSelectCategory }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
 
   const hasChildren = category.children && category.children.length > 0;
+  const selected = selectedCategoryId === category.id;
 
   const handleCardClick = () => {
     if (hasChildren) {
@@ -16,6 +17,11 @@ export default function CategoryCard({ category, depth = 0 }) {
     } else {
       navigate(`/category/${category.id}`);
     }
+  };
+
+  const handleCheckboxChange = (e) => {
+    e.stopPropagation();
+    onSelectCategory(category.id);
   };
 
   return (
@@ -30,6 +36,17 @@ export default function CategoryCard({ category, depth = 0 }) {
         onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
         aria-expanded={hasChildren ? expanded : undefined}
       >
+        {/* Checkbox */}
+        {onSelectCategory && (
+          <input
+            type="checkbox"
+            className="category-checkbox"
+            checked={selected}
+            onChange={handleCheckboxChange}
+            onClick={(e) => e.stopPropagation()}
+          />
+        )}
+
         {/* Depth indicator line */}
         {depth > 0 && <span className="depth-indicator" aria-hidden="true" />}
 
@@ -66,6 +83,8 @@ export default function CategoryCard({ category, depth = 0 }) {
               key={child.id}
               category={child}
               depth={depth + 1}
+              selectedCategoryId={selectedCategoryId}
+              onSelectCategory={onSelectCategory}
             />
           ))}
         </div>

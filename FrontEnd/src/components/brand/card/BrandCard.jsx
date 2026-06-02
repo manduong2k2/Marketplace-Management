@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './BrandCard.css';
 import defaultBrandImage from '../../../assets/product.png'
 
-export default function BrandCard({ brand }) {
+export default function BrandCard({ brand, selected, onSelect }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -12,8 +12,22 @@ export default function BrandCard({ brand }) {
     navigate(`/brand/${brand.id}`);
   };
 
+  const handleCheckboxChange = (e) => {
+    e.stopPropagation();
+    onSelect(brand.id);
+  };
+
   return (
     <div className="brand-card user-view" onClick={handleClick}>
+      {onSelect && (
+        <input
+          type="checkbox"
+          className="brand-checkbox"
+          checked={selected}
+          onChange={handleCheckboxChange}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
       <div className="brand-image-container">
         <img 
           src={brand.image || defaultBrandImage} 

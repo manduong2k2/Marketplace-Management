@@ -10,8 +10,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.CreateBrandCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.GetListBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.UpdateBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandRepository;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandService;
 import com.StoreManagement.Catalog.Domain.Models.Brand;
@@ -33,10 +35,17 @@ public class BrandService implements IBrandService {
     @Value("${spring.application.base-url:http://localhost:8080}")
     private String baseUrl;
 
-    public List<BrandResponse> getAllBrands() {
-        return brandRepository.findAll().stream()
+    public PaginatedResponse<BrandResponse> getAllBrands(GetListBrandCommand command) {
+        PaginatedResponse<Brand> brands = brandRepository.findAll(command);
+        List<BrandResponse> brandResponses = brands.getData().stream()
                 .map(brand -> new BrandResponse(brand, baseUrl))
                 .toList();
+        return new PaginatedResponse<>(
+                brandResponses,
+                brands.getCurrentPage(),
+                brands.getPageSize(),
+                brands.getTotalElements()
+        );
     }
 
     public BrandResponse getBrand(UUID brandId) {

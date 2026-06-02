@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.CreateCategoryCommand;
+import com.StoreManagement.Catalog.Application.DTO.Commands.Category.GetListCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.UpdateCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.CategoryResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryRepository;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryService;
 import com.StoreManagement.Catalog.Domain.Models.Category;
@@ -35,10 +37,17 @@ public class CategoryService implements ICategoryService {
     @Value("${spring.application.base-url:http://localhost:8080}")
     private String baseUrl; 
 
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream()
+    public PaginatedResponse<CategoryResponse> getAllCategories(GetListCategoryCommand command) {
+        PaginatedResponse<Category> categories = categoryRepository.findAll(command);
+        List<CategoryResponse> categoryResponses = categories.getData().stream()
                 .map(category -> new CategoryResponse(category, baseUrl))
                 .toList();
+        return new PaginatedResponse<>(
+                categoryResponses,
+                categories.getCurrentPage(),
+                categories.getPageSize(),
+                categories.getTotalElements()
+        );
     }
 
     public CategoryResponse getCategory(UUID CategoryId) {
