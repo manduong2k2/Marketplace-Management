@@ -8,18 +8,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.amqp.core.*;
 
 @Configuration
-public class RabbitMQQueueConfig {
-    public static final String PRODUCT_DELETED_QUEUE = "product.deleted.queue";
-    public static final String PRODUCT_DELETED_EXCHANGE = "product.deleted.exchange";
-    public static final String PRODUCT_DELETED_ROUTING_KEY = "product.deleted";
+public class ProductQueueConfig {
+    public static final String PRODUCT_DELETED_QUEUE            = "product.deleted.queue";
+    public static final String PRODUCT_DELETED_EXCHANGE         = "product.deleted.exchange";
+    public static final String PRODUCT_DELETED_ROUTING_KEY      = "product.deleted";
 
-    public static final String PRODUCT_OUT_OF_STOCK_QUEUE = "product.out_of_stock.queue";
-    public static final String PRODUCT_OUT_OF_STOCK_EXCHANGE = "product.out_of_stock.exchange";
+    public static final String PRODUCT_OUT_OF_STOCK_QUEUE       = "product.out_of_stock.queue";
+    public static final String PRODUCT_OUT_OF_STOCK_EXCHANGE    = "product.out_of_stock.exchange";
     public static final String PRODUCT_OUT_OF_STOCK_ROUTING_KEY = "product.out_of_stock";
 
-    public static final String PRODUCT_ARCHIVED_QUEUE = "product.archived.queue";
-    public static final String PRODUCT_ARCHIVED_EXCHANGE = "product.archived.exchange";
-    public static final String PRODUCT_ARCHIVED_ROUTING_KEY = "product.archived";
+    public static final String PRODUCT_ARCHIVED_QUEUE           = "product.archived.queue";
+    public static final String PRODUCT_ARCHIVED_EXCHANGE        = "product.archived.exchange";
+    public static final String PRODUCT_ARCHIVED_ROUTING_KEY     = "product.archived";
 
     @Bean
     public Queue productDeletedQueue() {

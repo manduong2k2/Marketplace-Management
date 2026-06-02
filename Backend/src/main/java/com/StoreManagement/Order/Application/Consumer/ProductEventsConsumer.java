@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.StoreManagement.Order.Application.Contracts.ICartService;
 import com.StoreManagement.Order.Application.DTO.Messages.ProductDeletedMessage;
 import com.StoreManagement.Order.Application.DTO.Messages.ProductOutStockMessage;
-import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMQQueueConfig;
+import com.StoreManagement.Shared.Infrastructure.Configuration.ProductQueueConfig;
 
 @Component
 public class ProductEventsConsumer {
@@ -21,7 +21,7 @@ public class ProductEventsConsumer {
     @Autowired
     private ICartService cartService;
 
-    @RabbitListener(queues = RabbitMQQueueConfig.PRODUCT_DELETED_QUEUE)
+    @RabbitListener(queues = ProductQueueConfig.PRODUCT_DELETED_QUEUE)
     public void handleProductDeletedEvent(ProductDeletedMessage message) {
         System.out.println("ProductDeletedMessage received: " + message);
         try {
@@ -35,7 +35,7 @@ public class ProductEventsConsumer {
         }
     }
 
-    @RabbitListener(queues = RabbitMQQueueConfig.PRODUCT_OUT_OF_STOCK_QUEUE)
+    @RabbitListener(queues = ProductQueueConfig.PRODUCT_OUT_OF_STOCK_QUEUE)
     public void handleProductOutOfStockEvent(ProductOutStockMessage message) {
         System.out.println("ProductOutStockMessage received: " + message);
         try {

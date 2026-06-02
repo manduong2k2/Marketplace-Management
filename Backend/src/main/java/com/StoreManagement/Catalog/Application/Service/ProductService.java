@@ -30,7 +30,7 @@ import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Domain.Contracts.IFileRepository;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
-import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMQQueueConfig;
+import com.StoreManagement.Shared.Infrastructure.Configuration.ProductQueueConfig;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;
 
 import jakarta.transaction.Transactional;
@@ -157,7 +157,7 @@ public class ProductService implements IProductService {
     public void deleteProduct(UUID productId) {
         productRepository.delete(productId);
         ProductDeletedEvent event = new ProductDeletedEvent(productId);
-        eventPublisher.publish(event, new EventOptions(RabbitMQQueueConfig.PRODUCT_DELETED_QUEUE, false));
+        eventPublisher.publish(event, new EventOptions(ProductQueueConfig.PRODUCT_DELETED_QUEUE, false));
     }
     
     public List<String> getAllStatus() {
