@@ -198,8 +198,8 @@ Configure the following environment variables in `.env` file or docker-compose.y
 ## Default Credentials
 
 ### Admin
-- Email: admin@example.com
-- Password: admin123
+- Email: admin@storemanagement.com
+- Password: 123456
 
 ### User
 - Register through the application
@@ -208,7 +208,7 @@ Configure the following environment variables in `.env` file or docker-compose.y
 
 ### Adding New Features
 
-1. **Backend**: Create new controllers, services, and entities following the existing structure
+1. **Backend**: Create new controllers, services, repositories, domain models, mappers, and entities following the existing structure
 2. **Frontend**: Create new pages, components, and services following the existing patterns
 3. **API Integration**: Add new service methods in the `services` directory
 

@@ -1,0 +1,1478 @@
+{
+  "info": {
+    "_postman_id": "6e001de9-177f-4ec7-8cc2-2498a46cd04a",
+    "name": "7_Elevent_test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29110238"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"manduong2k2@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/login",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"admin@storemanagement.com\",\r\n    \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/admin/login",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "manduong111@gmail.com",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": " Dương Minh Mẫn",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": " 0938128003",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "text"
+                },
+                {
+                  "key": "avatar",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "3d2451ae-72e8-46ff-83e5-cab4e6d1cac6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/register",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Profile",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/profile",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/logout",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"manduong2k2@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"manduong2k2@gmail.com\",\r\n    \"token\": \"a7a7b879-9583-4b6f-a5a8-600dce1ab301\", \r\n    \"newPassword\": \"123456\" \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/reset-password",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "manduong2k2@gmail.com",
+                  "disabled": true
+                },
+                {
+                  "key": "token",
+                  "value": "7838e273-365d-4d79-b25b-026ad9bc7d54",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"manduong2k2@gmail.com\",\r\n    \"token\": \"873851b3-9778-462c-ab41-a403d1c88772\", \r\n    \"newPassword\": \"123456\" \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/auth/verify-email",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "token",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "Product",
+          "item": [
+            {
+              "name": "LIST",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"categoryIds\": [\r\n        \"ca428fa0-592d-4e07-ad4c-4b7fdf86ba21\"\r\n    ],\r\n    \"search\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/products?page=0&size=10&search=laptop&categoryIds=ca428fa0-592d-4e07-ad4c-4b7fdf86ba21",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "products"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "search",
+                      "value": "laptop"
+                    },
+                    {
+                      "key": "categoryIds",
+                      "value": "ca428fa0-592d-4e07-ad4c-4b7fdf86ba21"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "CREATE",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "if (response && response.data && response.data.id) {\r",
+                      "    pm.environment.set(\"latestProductId\", response.data.id);\r",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": " Laptop {{$randomProduct}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "code",
+                      "value": " DELL_{{$randomInt}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": " High performance laptop {{$randomInt}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "brandId",
+                      "value": "{{latestBrandId}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "categoryIds[0]",
+                      "value": "{{latestCategoryId}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "price",
+                      "value": "{{$randomInt}}",
+                      "type": "text",
+                      "uuid": "e9c802b4-5319-4133-a3cb-d5406529e78f"
+                    },
+                    {
+                      "key": "stock",
+                      "value": "{{$randomInt}}",
+                      "type": "text",
+                      "uuid": "3bdd6896-8f91-4a6a-ba48-bcccb47c8dcd"
+                    },
+                    {
+                      "key": "status",
+                      "value": "PUBLISHED",
+                      "type": "text",
+                      "uuid": "dd0a2188-907c-4e96-8979-d12213d7ffb8"
+                    },
+                    {
+                      "key": "images[0]",
+                      "type": "file",
+                      "uuid": "34263c4e-0391-46ff-ba4a-89659a99abc1",
+                      "value": null
+                    },
+                    {
+                      "key": "images[1]",
+                      "type": "file",
+                      "uuid": "37c3303d-e1f2-4cd7-85d6-8ccf8d915a1b",
+                      "value": null,
+                      "disabled": true
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/products",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DETAIL",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true,
+                "disabledSystemHeaders": {}
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"filters\": [\r\n    ],\r\n    \"search\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/products/fb29acff-ef5f-4b91-87c5-113a0320428d",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "products",
+                    "fb29acff-ef5f-4b91-87c5-113a0320428d"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "UPDATE",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": " Laptop Dell XPS",
+                      "type": "text"
+                    },
+                    {
+                      "key": "code",
+                      "value": " DELL_003",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": " High performance laptop",
+                      "type": "text"
+                    },
+                    {
+                      "key": "brandId",
+                      "value": "75d5a291-731f-47d8-ab4f-b0c287f5ed41",
+                      "type": "text"
+                    },
+                    {
+                      "key": "categories[0][id]",
+                      "value": " 094663ff-ea08-4a7c-85d5-9a4826faec5e",
+                      "type": "text"
+                    },
+                    {
+                      "key": "status",
+                      "value": "A",
+                      "type": "text",
+                      "uuid": "5bcbf5da-5446-4ddc-8b41-6051abaa0389"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/products/92960e1b-15d6-4f5c-9281-c4538f189d0e",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "products",
+                    "92960e1b-15d6-4f5c-9281-c4538f189d0e"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"filters\": [\r\n    ],\r\n    \"search\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/products/019ced25-7079-71a4-bac4-6142f1e3b40d",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "products",
+                    "019ced25-7079-71a4-bac4-6142f1e3b40d"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Categories",
+          "item": [
+            {
+              "name": "LIST",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BaseUrl}}/api/categories?page=0&size=10&search=children",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "search",
+                      "value": "children"
+                    }
+                  ]
+                },
+                "description": "Generated from cURL: curl -X GET \"{{CatalogBaseUrl}}/api/v1/categories\" -H \"Accept: application/json\" -d '{\"filters\": [], \"search\": \"\"}'"
+              },
+              "response": []
+            },
+            {
+              "name": "CREATE",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "if (response && response.data && response.data.id) {\r",
+                      "    pm.environment.set(\"latestCategoryId\", response.data.id);\r",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Computer",
+                      "type": "text"
+                    },
+                    {
+                      "key": "parentId",
+                      "value": "61b423bd-c8d6-4158-98e7-95eebf48997d",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Description {{$randomInt}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "src": "/C:/Users/mandu/Pictures/computer-symbol.jpg"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/categories",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X POST \"{{CatalogBaseUrl}}/api/v1/categories\" -H \"Accept: application/json\" -F \"name=Category {{$randomNoun}}\" -F \"parent_id=\" -F \"description=Description {{$randomInt}}\""
+              },
+              "response": []
+            },
+            {
+              "name": "DETAIL",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/categories/{{latestCategoryId}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "categories",
+                    "{{latestCategoryId}}"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X GET \"{{CatalogBaseUrl}}/api/v1/categories/:id\" -H \"Accept: application/json\""
+              },
+              "response": []
+            },
+            {
+              "name": "UPDATE",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Updated Category {{$randomNoun}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "parentId",
+                      "value": "47798503-38bc-428d-90a6-93a4cdde56cf",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Updated description",
+                      "type": "text"
+                    },
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "src": "/C:/Users/mandu/Pictures/computer-symbol.jpg"
+                    },
+                    {
+                      "key": "_method",
+                      "value": "put",
+                      "type": "text",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/categories/{{latestCategoryId}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories",
+                    "{{latestCategoryId}}"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X POST \"{{CatalogBaseUrl}}/api/v1/categories/:id\" -H \"Accept: application/json\" -F \"name=Updated Category {{$randomNoun}}\" -F \"parent_id=\" -F \"description=Updated description\" -F \"_method=put\""
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/categories/{{latestCategoryId}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "categories",
+                    "{{latestCategoryId}}"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X DELETE \"{{CatalogBaseUrl}}/api/v1/categories/:id\" -H \"Accept: application/json\""
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Brands",
+          "item": [
+            {
+              "name": "LIST",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"filters\": [], \"search\": \"\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/brands",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "brands"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X GET \"{{CatalogBaseUrl}}/api/v1/brands\" -H \"Accept: application/json\" -d '{\"filters\": [], \"search\": \"\"}'"
+              },
+              "response": []
+            },
+            {
+              "name": "CREATE",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const response = pm.response.json();\r",
+                      "\r",
+                      "if (response && response.data && response.data.id) {\r",
+                      "    pm.environment.set(\"latestBrandId\", response.data.id);\r",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Brand {{$randomNoun}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Description {{$randomInt}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "src": "/C:/Users/mandu/Pictures/computer-symbol.jpg"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/brands",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "brands"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X POST \"{{CatalogBaseUrl}}/api/v1/brands\" -H \"Accept: application/json\" -F \"name=Brand {{$randomNoun}}\" -F \"description=Description {{$randomInt}}\""
+              },
+              "response": []
+            },
+            {
+              "name": "DETAIL",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "url": {
+                  "raw": "{{BaseUrl}}/api/brands/{{latestBrandId}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "brands",
+                    "{{latestBrandId}}"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X GET \"{{CatalogBaseUrl}}/api/v1/brands/:id\" -H \"Accept: application/json\""
+              },
+              "response": []
+            },
+            {
+              "name": "UPDATE",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name",
+                      "value": "Updated Brand {{$randomNoun}} 1",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Updated description",
+                      "type": "text"
+                    },
+                    {
+                      "key": "image",
+                      "value": "",
+                      "type": "text",
+                      "disabled": true
+                    },
+                    {
+                      "key": "_method",
+                      "value": "put",
+                      "type": "text",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{BaseUrl}}/api/brands/{{latestBrandId}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "brands",
+                    "{{latestBrandId}}"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X POST \"{{CatalogBaseUrl}}/api/v1/brands/:id\" -H \"Accept: application/json\" -F \"name=Updated Brand {{$randomNoun}}\" -F \"description=Updated description\" -F \"_method=put\""
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": false
+                  }
+                ],
+                "url": {
+                  "raw": "{{BaseUrl}}/api/v1/brands/{{latestBrandId}}",
+                  "host": [
+                    "{{BaseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "brands",
+                    "{{latestBrandId}}"
+                  ]
+                },
+                "description": "Generated from cURL: curl -X DELETE \"{{CatalogBaseUrl}}/api/v1/brands/:id\" -H \"Accept: application/json\""
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Carts",
+      "item": [
+        {
+          "name": "LIST",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"filters\": [\r\n    ],\r\n    \"search\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/cart",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CREATE",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/cart/checkout",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DETAIL",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"filters\": [\r\n    ],\r\n    \"search\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/v1/carts/019ced25-7079-71a4-bac4-6142f1e3b40d",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "carts",
+                "019ced25-7079-71a4-bac4-6142f1e3b40d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UPDATE",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": " Laptop Dell XPS",
+                  "type": "text"
+                },
+                {
+                  "key": "code",
+                  "value": " DELL_002",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": " High performance laptop",
+                  "type": "text"
+                },
+                {
+                  "key": "brandId",
+                  "value": " 57efa2ae-7fdf-457e-a263-c03fe73bf417",
+                  "type": "text"
+                },
+                {
+                  "key": "categories[0][id]",
+                  "value": " 094663ff-ea08-4a7c-85d5-9a4826faec5e",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[0][name]",
+                  "value": " 16GB RAM / 512GB SSD",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[0][price]",
+                  "value": " 1600",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[0][id]",
+                  "value": "019cd9b1-de81-7258-aa3b-104efe56a68d",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[0][extraAttributes][0][id]",
+                  "value": "019cd9b1-de83-71c2-81a3-6f39386d3c61",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[0][extraAttributes][0][value]",
+                  "value": " 17GB",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[0][extraAttributes][1][id]",
+                  "value": "019cd9b1-de85-737e-ab57-2891b5c34818",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[0][extraAttributes][1][value]",
+                  "value": " 512GB SSD",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[1][id]",
+                  "value": " 019cd9b1-de85-737e-ab57-2891b6163c2d",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[1][name]",
+                  "value": " 32GB RAM / 1TB SSD",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[1][price]",
+                  "value": " 2000",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[1][extraAttributes][0][id]",
+                  "value": "019cda0c-6c23-7314-9b94-307df24d87c3",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[1][extraAttributes][0][value]",
+                  "value": " 64GB",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[1][extraAttributes][1][id]",
+                  "value": "019cd9b1-de86-710d-85f6-facc617dbadc",
+                  "type": "text"
+                },
+                {
+                  "key": "variants[1][extraAttributes][1][value]",
+                  "value": " 1TB SSD",
+                  "type": "text"
+                },
+                {
+                  "key": "files[0]",
+                  "type": "file",
+                  "uuid": "c59508f4-dcb9-4b3d-b695-74db061b336e",
+                  "src": "/C:/Users/mandu/Desktop/B1.png"
+                },
+                {
+                  "key": "_method",
+                  "value": "put",
+                  "type": "text",
+                  "uuid": "d3815dc4-a25d-468c-9fdf-80828c9c7a9f"
+                },
+                {
+                  "key": "variants[0][description]",
+                  "value": "1st Variant",
+                  "type": "text",
+                  "uuid": "f2c43b8a-7c7a-4a7f-9754-3fc819af99ac"
+                },
+                {
+                  "key": "variants[1][description]",
+                  "value": "2nd Variant",
+                  "type": "text",
+                  "uuid": "8e44026f-d3c8-4cf5-8893-8854e845b8a0"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/v1/carts/019cd9b1-de65-7394-8719-58fb273ba892",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "carts",
+                "019cd9b1-de65-7394-8719-58fb273ba892"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"filters\": [\r\n    ],\r\n    \"search\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/v1/carts/019ced25-7079-71a4-bac4-6142f1e3b40d",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "carts",
+                "019ced25-7079-71a4-bac4-6142f1e3b40d"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/api/orders",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/api/orders/me",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CREATE",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Dương Minh Mẫn\",\r\n    \"phone\": \"0938128002\",\r\n    \"address\": \"ABC\",\r\n    \"note\": \"ABC\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/api/orders",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/api/orders/06ba73ef-99f1-40db-85ef-7e8bb0e547d3",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "06ba73ef-99f1-40db-85ef-7e8bb0e547d3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
