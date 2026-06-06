@@ -1,5 +1,6 @@
 package com.StoreManagement.Catalog.Application.DTO.Response;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonPropertyOrder({"id", "name", "image", "description"})
-public class CategoryResponse {
+public class CategoryResponse implements Serializable {
     private UUID id;
     private String name;
     private String image;

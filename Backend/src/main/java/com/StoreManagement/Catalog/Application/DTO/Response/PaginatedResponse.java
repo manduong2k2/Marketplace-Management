@@ -1,5 +1,6 @@
 package com.StoreManagement.Catalog.Application.DTO.Response;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaginatedResponse<T> {
+public class PaginatedResponse<T> implements Serializable {
     private List<T> data;
     private int currentPage;
     private int pageSize;
