@@ -68,15 +68,19 @@
 .variant-select {
   width: 100%;
   margin-top: 4px;
+  margin-bottom: 4px;
   padding: 2px 4px;
   border: 1px solid #d1d5db;
   border-radius: 3px;
-  font-size: 9px;
+  font-size: 10px;
   color: #374151;
   background-color: #f9fafb;
   cursor: pointer;
   outline: none;
   transition: border-color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .variant-select:focus {

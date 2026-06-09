@@ -23,15 +23,19 @@ public class GetListProductRequest {
 
     @Nullable
     @Distinct(message = "Each category ID must be unique")
-    private List<@Exist(table = "categories", column = "id", message = "Category not found") UUID> categoryIds;
+    private List<
+    @Exist(table = "categories", column = "id", message = "Category not found", type = UUID.class) 
+    @org.hibernate.validator.constraints.UUID 
+    String> categoryIds;
 
     @Nullable
     @Size(max = 100, message = "Search query must not exceed 100 characters")
     private String search;
 
     @Nullable
-    @Exist(table = "brands", column = "id", message = "Brand not found")
-    private UUID brandId;
+    @Exist(table = "brands", column = "id", message = "Brand not found", type = UUID.class)
+    @org.hibernate.validator.constraints.UUID
+    private String brandId;
 
     private String status;
 }

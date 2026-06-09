@@ -9,23 +9,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.StoreManagement.Cart.Application.Contracts.ICartService;
+import com.StoreManagement.Cart.Application.DTO.Responses.CartResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
-import com.StoreManagement.Order.Application.Contracts.ICartService;
-import com.StoreManagement.Order.Application.DTO.Commands.Order.ListOrderCommand;
-import com.StoreManagement.Order.Application.DTO.Commands.Order.OrderItemCommand;
-import com.StoreManagement.Order.Application.DTO.Commands.Order.PlaceOrderCommand;
-import com.StoreManagement.Order.Application.DTO.Responses.Cart.CartResponse;
-import com.StoreManagement.Order.Application.DTO.Responses.Order.HistoryResponse;
-import com.StoreManagement.Order.Application.DTO.Responses.Order.OrderResponse;
+import com.StoreManagement.Order.Application.Contracts.IOrderService;
+import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
+import com.StoreManagement.Order.Application.DTO.Commands.OrderItemCommand;
+import com.StoreManagement.Order.Application.DTO.Commands.PlaceOrderCommand;
+import com.StoreManagement.Order.Application.DTO.Responses.HistoryResponse;
+import com.StoreManagement.Order.Application.DTO.Responses.OrderResponse;
 import com.StoreManagement.Order.Domain.Constants.OrderStatusEnum;
 import com.StoreManagement.Order.Domain.Contracts.IOrderRepository;
-import com.StoreManagement.Order.Domain.Contracts.IOrderService;
 import com.StoreManagement.Order.Domain.Events.OrderPlacedEvent;
-import com.StoreManagement.Order.Domain.Models.Order.Order;
-import com.StoreManagement.Order.Domain.Models.Order.OrderItem;
-import com.StoreManagement.Order.Domain.Models.Order.ProductSnapShot;
+import com.StoreManagement.Order.Domain.Models.Order;
+import com.StoreManagement.Order.Domain.Models.OrderItem;
+import com.StoreManagement.Order.Domain.Models.ProductSnapShot;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMqQueues.OrderQueueConfig;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;
@@ -72,14 +72,14 @@ public class OrderService implements IOrderService{
         List<OrderItemCommand> items = new ArrayList<>();
 
         for (var item : cartResponse.getItems()) {
-            ProductResponse product = productService.getProduct(item.getProductId());
+            ProductResponse product = productService.getProduct(item.getProductVariantId());
 
-            if(product.getStock() < item.getQuantity()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product " + product.getName() + " does not have enough stock");
-            }
+            //if(product.getStock() < item.getQuantity()) {
+            //    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product " + product.getName() + " does not have enough stock");
+            //}
 
             items.add(new OrderItemCommand(
-                item.getProductId(),
+                item.getProductVariantId(),
                 item.getQuantity(),
                 item.getProductName(),
                 item.getProductPrice(),

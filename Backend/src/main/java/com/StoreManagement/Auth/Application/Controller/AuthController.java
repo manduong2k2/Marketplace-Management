@@ -118,7 +118,7 @@ public class AuthController {
         HttpHeaders headers = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
 
         headers.setLocation(
-                URI.create(frontendBaseUrl + "/home"));
+                URI.create(frontendBaseUrl + "/onboarding"));
 
         return ResponseEntity.status(HttpStatus.SEE_OTHER)
                 .headers(headers)

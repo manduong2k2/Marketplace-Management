@@ -1,7 +1,6 @@
 package com.StoreManagement.Catalog.Domain.Contract;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
@@ -14,7 +13,7 @@ public interface IProductRepository {
 
     PaginatedResponse<Product> findAll(GetListProductCommand command);
 
-    Optional<Product> findById(UUID id);
+    Product findById(UUID id);
 
     List<Product> findByName(String name);
 

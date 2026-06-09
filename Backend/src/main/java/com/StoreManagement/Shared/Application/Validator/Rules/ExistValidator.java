@@ -4,6 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+
+import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
@@ -16,6 +19,7 @@ public class ExistValidator implements ConstraintValidator<Exist, Object> {
 
     private String table;
     private String column;
+    private Class<?> type;
     private String deletedAtColumn;
     private String whereClause;
 
@@ -23,6 +27,7 @@ public class ExistValidator implements ConstraintValidator<Exist, Object> {
     public void initialize(Exist exist) {
         this.table = exist.table();
         this.column = exist.column();
+        this.type = exist.type();
         this.deletedAtColumn = exist.deletedAtColumn();
         this.whereClause = exist.whereClause();
     }
@@ -30,6 +35,14 @@ public class ExistValidator implements ConstraintValidator<Exist, Object> {
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         if (value == null) return true;
+
+        if(type == UUID.class) {
+            value = UUID.fromString(value.toString());
+        }
+
+        if(type == String.class) {
+            value = value.toString();
+        }
 
         String sql = "SELECT COUNT(*) FROM " + table + " WHERE " + column + " = :value";
 

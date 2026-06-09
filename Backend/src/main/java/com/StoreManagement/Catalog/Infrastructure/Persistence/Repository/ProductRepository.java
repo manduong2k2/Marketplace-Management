@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
@@ -19,7 +18,6 @@ import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.EntityManager;
@@ -41,112 +39,107 @@ public class ProductRepository implements IProductRepository {
 
     public PaginatedResponse<Product> findAll(GetListProductCommand command) {
 
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ProductEntity> query = builder.createQuery(ProductEntity.class);
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
+        // ========== MAIN QUERY ==========
+        CriteriaQuery<ProductEntity> query = cb.createQuery(ProductEntity.class);
         Root<ProductEntity> root = query.from(ProductEntity.class);
 
-        List<Predicate> predicates = new ArrayList<>();
-
-        if (command.getCategoryIds() != null
-                && !command.getCategoryIds().isEmpty()) {
-
-            Join<ProductEntity, CategoryEntity> categoryJoin = root.join("categories");
-
-            predicates.add(
-                    categoryJoin.get("id")
-                            .in(command.getCategoryIds()));
-
-            query.distinct(true);
-        }
-
-        if (command.getSearch() != null && !command.getSearch().trim().isEmpty()) {
-            String searchPattern = "%" + command.getSearch().toLowerCase() + "%";
-            predicates.add(
-                    builder.or(
-                            builder.like(builder.lower(root.get("name")), searchPattern),
-                            builder.like(builder.lower(root.get("code")), searchPattern),
-                            builder.like(builder.lower(root.get("description")), searchPattern)));
-        }
-
-        if (command.getBrandId() != null) {
-            predicates.add(builder.equal(root.get("brand").get("id"), command.getBrandId()));
-        }
-
-        query.where(predicates.toArray(new Predicate[0]));
-
-        //Sorting
-        String sortBy = command.getSortBy() != null && !command.getSortBy().trim().isEmpty() ? command.getSortBy()
-                : "updatedAt";
-        String sortOrder = command.getSortOrder() != null && !command.getSortOrder().trim().isEmpty()
-                ? command.getSortOrder()
-                : "desc";
-
-        jakarta.persistence.criteria.Path<Object> sortPath = root.get(sortBy);
-        Order order;
-        if ("desc".equalsIgnoreCase(sortOrder)) {
-            order = builder.desc(sortPath);
-        } else {
-            order = builder.asc(sortPath);
-        }
-        query.orderBy(order);
-
-        // Get total count
-        CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
+        // ========== COUNT QUERY ==========
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<ProductEntity> countRoot = countQuery.from(ProductEntity.class);
+
+        // ================= SHARED LOGIC =================
+        List<Predicate> predicates = new ArrayList<>();
         List<Predicate> countPredicates = new ArrayList<>();
 
-        if (command.getCategoryIds() != null
-                && !command.getCategoryIds().isEmpty()) {
-            Join<ProductEntity, CategoryEntity> categoryJoin = countRoot.join("categories");
-            countPredicates.add(
-                    categoryJoin.get("id")
-                            .in(command.getCategoryIds()));
+        // category
+        if (command.getCategoryIds() != null && !command.getCategoryIds().isEmpty()) {
+
+            Join<ProductEntity, CategoryEntity> categoryJoin = root.join("categories");
+            Join<ProductEntity, CategoryEntity> countCategoryJoin = countRoot.join("categories");
+
+            predicates.add(categoryJoin.get("id").in(command.getCategoryIds()));
+            countPredicates.add(countCategoryJoin.get("id").in(command.getCategoryIds()));
+
+            query.distinct(true);
             countQuery.distinct(true);
         }
 
+        // search
         if (command.getSearch() != null && !command.getSearch().trim().isEmpty()) {
-            String searchPattern = "%" + command.getSearch().toLowerCase() + "%";
-            countPredicates.add(
-                    builder.or(
-                            builder.like(builder.lower(countRoot.get("name")), searchPattern),
-                            builder.like(builder.lower(countRoot.get("description")), searchPattern)));
+
+            String search = "%" + command.getSearch().toLowerCase() + "%";
+
+            Predicate searchPredicate = cb.or(
+                    cb.like(cb.lower(root.get("name")), search),
+                    cb.like(cb.lower(root.get("description")), search));
+
+            predicates.add(searchPredicate);
+            countPredicates.add(searchPredicate);
         }
 
+        // brand
         if (command.getBrandId() != null) {
-            countPredicates.add(builder.equal(countRoot.get("brand").get("id"), command.getBrandId()));
+
+            Predicate brandPredicate = cb.equal(root.get("brand").get("id"), command.getBrandId());
+
+            predicates.add(brandPredicate);
+            countPredicates.add(brandPredicate);
         }
 
+        // ================= APPLY WHERE =================
+        query.where(predicates.toArray(new Predicate[0]));
         countQuery.where(countPredicates.toArray(new Predicate[0]));
-        countQuery.select(builder.count(countRoot));
-        Long totalElements = entityManager.createQuery(countQuery).getSingleResult();
 
-        // Pagination
-        int firstResult = command.getPage() * command.getSize();
-        int maxResults = command.getSize();
+        countQuery.select(cb.countDistinct(countRoot));
+
+        // ================= SORT =================
+        String sortBy = (command.getSortBy() == null || command.getSortBy().isBlank())
+                ? "updatedAt"
+                : command.getSortBy();
+
+        boolean desc = "desc".equalsIgnoreCase(command.getSortOrder());
+
+        query.orderBy(desc ? cb.desc(root.get(sortBy)) : cb.asc(root.get(sortBy)));
+
+        // ================= EXECUTE =================
+        Long total = entityManager.createQuery(countQuery).getSingleResult();
 
         List<ProductEntity> entities = entityManager.createQuery(query)
-                .setFirstResult(firstResult)
-                .setMaxResults(maxResults)
+                .setFirstResult(command.getPage() * command.getSize())
+                .setMaxResults(command.getSize())
                 .getResultList();
 
         List<Product> products = entities.stream()
                 .map(productMapper::toDomain)
                 .toList();
 
-        return new PaginatedResponse<>(products, command.getPage(), command.getSize(), totalElements);
+        return new PaginatedResponse<>(
+                products,
+                command.getPage(),
+                command.getSize(),
+                total);
     }
 
     @Override
     public Product save(Product Product) {
         ProductEntity productEntity = productMapper.toEntity(Product);
         ProductEntity saved = jpaRepository.save(productEntity);
+        if (saved != null && saved.getVariants() != null && !saved.getVariants().isEmpty()) {
+            saved.getVariants().forEach(
+                    variant -> {
+                        if (variant != null && variant.getFiles() != null && !variant.getFiles().isEmpty()) {
+                            variant.getFiles().forEach(file -> file.setEntityId(variant.getId()));
+                        }
+                    });
+        }
         return productMapper.toDomain(saved);
     }
 
     @Override
-    public Optional<Product> findById(UUID id) {
-        return jpaRepository.findById(id).map(productMapper::toDomain);
+    public Product findById(UUID id) {
+        return jpaRepository.findById(id).map(productMapper::toDomain).orElse(null);
     }
 
     @Override

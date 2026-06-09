@@ -22,6 +22,8 @@ public @interface Exist {
     String table();
     String column();
 
+    Class<?> type() default String.class;
+    
     String deletedAtColumn() default "";
     
     String whereClause() default "";

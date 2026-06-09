@@ -26,6 +26,10 @@ import OrderHistoryPage from '../pages/order/OrderHistoryPage';
 import OrderDetailPage from '../pages/order/OrderDetailPage';
 import AdminOrderHistoryPage from '../pages/admin/orders/AdminOrderHistoryPage';
 import AdminOrderDetailPage from '../pages/admin/orders/AdminOrderDetailPage';
+import OnboardingPage from '../pages/onboarding/OnboardingPage';
+import VendorDetailPage from '../pages/vendor/detail/VendorDetailPage';
+import MyVendorPage from '../pages/vendor/my/MyVendorPage';
+import VendorCreatePage from '../pages/vendor/create/VendorCreatePage';
 
 import { AuthContext } from '../contexts/AuthContext';
 import { AdminContext, AdminProvider } from '../contexts/AdminContext';
@@ -64,6 +68,8 @@ export default function AppRouter() {
           {/* Admin login — standalone (no AdminLayout) */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
+          <Route path="/onboarding" element={<OnboardingPage />} />
+
           {/* Admin protected pages */}
           <Route
             element={
@@ -92,6 +98,13 @@ export default function AppRouter() {
             <Route path="/checkout" element={<PrivateRoute><CartCheckoutPage /></PrivateRoute>} />
             <Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />
             <Route path="/orders/:id" element={<PrivateRoute><OrderDetailPage /></PrivateRoute>} />
+          </Route>
+
+          {/* Vendor routes */}
+          <Route element={<PublicRoute><MasterLayout /></PublicRoute>}>
+            <Route path="/vendor/:id" element={<VendorDetailPage />} />
+            <Route path="/my-vendor" element={<MyVendorPage />} />
+            <Route path="/vendor-create" element={<VendorCreatePage />} />
           </Route>
 
           {/* Root redirect */}

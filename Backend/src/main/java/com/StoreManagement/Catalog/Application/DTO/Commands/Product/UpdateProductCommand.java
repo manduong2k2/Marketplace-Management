@@ -3,40 +3,30 @@ package com.StoreManagement.Catalog.Application.DTO.Commands.Product;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.UpdateProductRequest;
+import com.StoreManagement.Shared.Application.DTO.Commands.BaseCommand;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class UpdateProductCommand {
+@EqualsAndHashCode(callSuper = true)
+public class UpdateProductCommand extends BaseCommand {
     private String name;
-    private String code;
-    private Double price;
-    private Integer stock;
     private UUID brandId;
     private String description;
-    private String status;
     private List<UUID> categoryIds;
-    private List<String> imageUrls;
-    private List<MultipartFile> images;
+    private String status;
 
     public static UpdateProductCommand fromRequest(UpdateProductRequest request) {
         return new UpdateProductCommand(
-            request.getName(),
-            request.getCode(),
-            request.getPrice(),
-            request.getStock(),
-            request.getBrandId(),
-            request.getDescription(),
-            request.getStatus(),
-            request.getCategoryIds(),
-            request.getImageUrls(),
-            request.getImages()
+            BaseCommand.safeTrim(request.getName()),
+            UUID.fromString(request.getBrandId()),
+            BaseCommand.safeTrim(request.getDescription()),
+            request.getCategoryIds().stream().map(UUID::fromString).toList(),
+            BaseCommand.safeTrim(request.getStatus())
         );
     }
 }

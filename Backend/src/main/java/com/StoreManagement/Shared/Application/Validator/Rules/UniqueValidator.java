@@ -1,5 +1,7 @@
 package com.StoreManagement.Shared.Application.Validator.Rules;
 
+import java.util.UUID;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ConstraintValidator;
@@ -16,6 +18,7 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
 
     private String table;
     private String column;
+    private Class<?> type;
     private String deletedAtColumn;
     private String whereClause;
 
@@ -23,6 +26,7 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
     public void initialize(Unique unique) {
         this.table = unique.table();
         this.column = unique.column();
+        this.type = unique.type();
         this.deletedAtColumn = unique.deletedAtColumn();
         this.whereClause = unique.whereClause();
     }
@@ -30,6 +34,14 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         if (value == null) return true;
+        
+        if(type == String.class) {
+            value = value.toString();
+        }
+
+        if(type == UUID.class) {
+            value = UUID.fromString(value.toString());
+        }
 
         String sql = "SELECT COUNT(*) FROM " + table + " WHERE " + column + " = :value";
 

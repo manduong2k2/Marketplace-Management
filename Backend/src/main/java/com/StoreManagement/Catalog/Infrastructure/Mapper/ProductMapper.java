@@ -9,9 +9,11 @@ import org.springframework.stereotype.Component;
 import com.StoreManagement.Catalog.Domain.Models.Brand;
 import com.StoreManagement.Catalog.Domain.Models.Category;
 import com.StoreManagement.Catalog.Domain.Models.Product;
+import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.BrandEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.CategoryEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
+import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductVariantEntity;
 import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 import com.StoreManagement.Shared.Infrastructure.Persistence.Entity.FileEntity;
@@ -29,6 +31,9 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
 
     @Autowired
     public IMapper<Category, CategoryEntity> categoryMapper;
+
+    @Autowired
+    public IMapper<ProductVariant, ProductVariantEntity> variantMapper;
     
 
     @Override
@@ -37,9 +42,6 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
         product.setId(entity.getId());
         product.setName(entity.getName());
         product.setDescription(entity.getDescription());
-        product.setCode(entity.getCode());
-        product.setPrice(entity.getPrice());
-        product.setStock(entity.getStock());
         product.setBrandId(entity.getBrand().getId());
         product.setStatus(entity.getStatus());
         product.setBrand(brandMapper.toDomain(entity.getBrand()));
@@ -48,9 +50,7 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
         product.setCategoryIds(
                 entity.getCategories() != null ? entity.getCategories().stream().map(category -> category.getId())
                         .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
-        product.setFiles(entity.getFiles() != null ? entity.getFiles().stream()
-                .map(file -> fileMapper.toDomain(file))
-                .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
+        product.setVariants(entity.getVariants().stream().map(variantMapper::toDomain).toList());
         return product;
     }
 
@@ -65,10 +65,10 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                         .map(categoryId -> entityManager.find(CategoryEntity.class, categoryId))
                         .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
         entity.setStatus(domain.getStatus());
-        entity.setCode(domain.getCode());
-        entity.setPrice(domain.getPrice().getValue());
-        entity.setStock(domain.getStock());
-
+        entity.setVariants(
+                domain.getVariants() != null ? domain.getVariants().stream().map(variantMapper::toEntity)
+                        .peek(variant -> variant.setProduct(entity))
+                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
         return entity;
     }
 }

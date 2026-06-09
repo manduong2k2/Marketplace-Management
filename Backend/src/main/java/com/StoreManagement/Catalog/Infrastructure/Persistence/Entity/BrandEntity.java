@@ -29,7 +29,7 @@ public class BrandEntity extends JpaEntity {
     @Nationalized
     private String description;
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "brand")
     private List<ProductEntity> products;
 
     public BrandEntity() {}

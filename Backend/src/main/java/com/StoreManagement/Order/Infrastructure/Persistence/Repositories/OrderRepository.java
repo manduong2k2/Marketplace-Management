@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
-import com.StoreManagement.Order.Application.DTO.Commands.Order.ListOrderCommand;
-import com.StoreManagement.Order.Application.DTO.Responses.Order.HistoryResponse;
+import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
+import com.StoreManagement.Order.Application.DTO.Responses.HistoryResponse;
 import com.StoreManagement.Order.Domain.Contracts.IOrderRepository;
-import com.StoreManagement.Order.Domain.Models.Order.Order;
+import com.StoreManagement.Order.Domain.Models.Order;
 import com.StoreManagement.Order.Infrastructure.Persistence.Entities.OrderEntity;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 

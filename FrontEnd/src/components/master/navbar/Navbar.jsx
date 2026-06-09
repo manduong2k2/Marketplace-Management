@@ -121,6 +121,9 @@ export default function Navbar() {
                   <button className="dropdown-item" onClick={() => handleMenuClick('/orders')}>
                     <i className="fas fa-shopping-cart"></i> Order History
                   </button>
+                  <button className="dropdown-item" onClick={() => handleMenuClick('/my-vendor')}>
+                    <i className="fas fa-store"></i> Vendor Management
+                  </button>
                   <div className="dropdown-divider"></div>
                   <button className="dropdown-item" onClick={handleLogout}>
                     <i className="fas fa-sign-out-alt"></i> Logout

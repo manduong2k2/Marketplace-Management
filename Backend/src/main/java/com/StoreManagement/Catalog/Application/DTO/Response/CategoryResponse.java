@@ -1,6 +1,5 @@
 package com.StoreManagement.Catalog.Application.DTO.Response;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +12,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor // For Jackson deserialization
 @JsonPropertyOrder({"id", "name", "image", "description"})
-public class CategoryResponse implements Serializable {
+public class CategoryResponse {
     private UUID id;
     private String name;
     private String image;

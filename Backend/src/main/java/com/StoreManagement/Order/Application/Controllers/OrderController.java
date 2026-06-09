@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
-import com.StoreManagement.Order.Application.DTO.Commands.Order.ListOrderCommand;
-import com.StoreManagement.Order.Application.DTO.Commands.Order.PlaceOrderCommand;
-import com.StoreManagement.Order.Application.DTO.Requests.Order.ListOrderRequest;
-import com.StoreManagement.Order.Application.DTO.Requests.Order.PlaceOrderRequest;
-import com.StoreManagement.Order.Application.DTO.Responses.Order.HistoryResponse;
-import com.StoreManagement.Order.Application.DTO.Responses.Order.OrderResponse;
-import com.StoreManagement.Order.Domain.Contracts.IOrderService;
+import com.StoreManagement.Order.Application.Contracts.IOrderService;
+import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
+import com.StoreManagement.Order.Application.DTO.Commands.PlaceOrderCommand;
+import com.StoreManagement.Order.Application.DTO.Requests.ListOrderRequest;
+import com.StoreManagement.Order.Application.DTO.Requests.PlaceOrderRequest;
+import com.StoreManagement.Order.Application.DTO.Responses.HistoryResponse;
+import com.StoreManagement.Order.Application.DTO.Responses.OrderResponse;
 import com.StoreManagement.Shared.Application.Annotation.Auth.Authenticated;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 

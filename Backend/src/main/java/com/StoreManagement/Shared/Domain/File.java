@@ -18,4 +18,10 @@ public class File extends Entity<UUID>{
         this.entityType = entityType;
         this.entityId = entityId;
     }
+
+    public File(UUID id, String url, String entityType) {
+        super(id);
+        this.url = url;
+        this.entityType = entityType;
+    }
 }

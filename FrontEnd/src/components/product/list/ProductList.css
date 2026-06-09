@@ -175,33 +175,26 @@
 
 /* Fluid grid — cards fill available space */
 .product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  display: grid !important;
   gap: 12px;
+  grid-template-columns: repeat(7, 1fr) !important;
 }
 
-/* ── Tablet ── */
-@media (max-width: 1024px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 12px;
-  }
+/* giảm dần theo màn hình */
+@media (max-width: 1400px) {
+  .product-grid { grid-template-columns: repeat(6, 1fr); }
 }
 
-/* ── Mobile ── */
+@media (max-width: 1200px) {
+  .product-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (max-width: 992px) {
+  .product-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
 @media (max-width: 768px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-  }
-}
-
-/* ── Small mobile ── */
-@media (max-width: 480px) {
-  .product-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
+  .product-grid { grid-template-columns: repeat(2, 1fr) !important; } 
 }
 
 /* ── Shared states ── */

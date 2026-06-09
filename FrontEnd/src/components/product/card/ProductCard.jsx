@@ -11,10 +11,24 @@ function ProductCard({ product, onCartUpdate }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { setCart } = useContext(CartContext);
-  const { name, price, images } = product;
-  const imageUrl = images && images.length > 0 ? images[0] : defaultProductImage;
-
+  const { name, images, variants } = product;
+  
+  const [selectedVariant, setSelectedVariant] = useState(
+    variants && variants.length > 0 ? variants[0] : null
+  );
   const [adding, setAdding] = useState(false);
+  
+  const imageUrl = selectedVariant && selectedVariant.images && selectedVariant.images.length > 0
+    ? selectedVariant.images[0]
+    : (images && images.length > 0 ? images[0] : defaultProductImage);
+
+  const price = selectedVariant?.price || 0;
+  
+  const handleVariantChange = (e) => {
+    const variantId = e.target.value;
+    const variant = variants.find(v => v.id === variantId);
+    setSelectedVariant(variant);
+  };
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
@@ -67,7 +81,20 @@ function ProductCard({ product, onCartUpdate }) {
       <div className="product-info">
         <h3 className="product-name">{name}</h3>
         {price >= 0 && <p className="product-price">${price}</p>}
-
+        {variants && variants.length > 0 && (
+          <select 
+            className="variant-select"
+            value={selectedVariant?.id || ''}
+            onChange={handleVariantChange}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {variants.map(variant => (
+              <option key={variant.id} value={variant.id}>
+                {variant.name}
+              </option>
+            ))}
+          </select>
+        )}
         <button
           className={`add-to-cart-btn${adding ? ' loading' : ''}`}
           onClick={handleAddToCart}

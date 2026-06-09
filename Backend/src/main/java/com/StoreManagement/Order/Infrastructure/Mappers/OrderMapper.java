@@ -2,10 +2,10 @@ package com.StoreManagement.Order.Infrastructure.Mappers;
 
 import org.springframework.stereotype.Component;
 
-import com.StoreManagement.Order.Domain.Models.Order.Order;
-import com.StoreManagement.Order.Domain.Models.Order.OrderItem;
-import com.StoreManagement.Order.Domain.Models.Order.ProductSnapShot;
 import com.StoreManagement.Order.Infrastructure.Persistence.Entities.OrderItemEntity;
+import com.StoreManagement.Order.Domain.Models.Order;
+import com.StoreManagement.Order.Domain.Models.OrderItem;
+import com.StoreManagement.Order.Domain.Models.ProductSnapShot;
 import com.StoreManagement.Order.Infrastructure.Persistence.Entities.OrderEntity;
 import com.StoreManagement.Order.Infrastructure.Persistence.Entities.ProductSnapShotEntity;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;

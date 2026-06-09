@@ -20,7 +20,7 @@ public class FileEntity extends JpaEntity {
     @Column(nullable = false)
     private String url;
 
-    @Column(name = "entity_id", nullable = false)
+    @Column(name = "entity_id", nullable = true)
     private UUID entityId;
 
     @Column(name = "entity_type", nullable = false)

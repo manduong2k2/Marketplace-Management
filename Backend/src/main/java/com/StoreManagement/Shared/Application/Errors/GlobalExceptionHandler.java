@@ -19,95 +19,97 @@ import com.StoreManagement.StoreManagementApplication;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @Value("${app.debug:false}")
-    private boolean debug;
+        @Value("${app.debug:false}")
+        private boolean debug;
 
-    private static final String BASE_PACKAGE = StoreManagementApplication.class.getPackageName();
+        private static final String BASE_PACKAGE = StoreManagementApplication.class.getPackageName();
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<?> handleAuthentication(AuthenticationException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+        @ExceptionHandler(AuthenticationException.class)
+        public ResponseEntity<?> handleAuthentication(AuthenticationException ex) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("message", ex.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(errors);
-    }
-    
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(errors);
+        }
 
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(errors);
-    }
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("message", ex.getMessage());
 
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<?> handleResponseStatus(ResponseStatusException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", ex.getReason());
+                return ResponseEntity
+                                .status(HttpStatus.FORBIDDEN)
+                                .body(errors);
+        }
 
-        return ResponseEntity
-                .status(ex.getStatusCode())
-                .body(errors);
-    }
+        @ExceptionHandler(ResponseStatusException.class)
+        public ResponseEntity<?> handleResponseStatus(ResponseStatusException ex) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("message", ex.getReason());
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+                return ResponseEntity
+                                .status(ex.getStatusCode())
+                                .body(errors);
+        }
 
-        ex.getBindingResult().getFieldErrors().forEach(err -> {
-            errors.put(err.getField(), err.getDefaultMessage());
-        });
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
+                Map<String, String> errors = new HashMap<>();
 
-        ValidationError response = new ValidationError(
-                "Validation failed",
-                errors
-        );
+                ex.getBindingResult().getFieldErrors().forEach(err -> {
+                        errors.put(err.getField(), err.getDefaultMessage());
+                });
 
-        return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(response);
-    }
+                ValidationError response = new ValidationError(
+                                "Validation failed",
+                                errors);
 
-    @ExceptionHandler(DebugBreakpointException.class)
-    public ResponseEntity<?> handleDebugBreakpoint(DebugBreakpointException ex) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ex.getDebugInfo());
-    }
+                return ResponseEntity
+                                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                                .body(response);
+        }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
-        ApiError response = new ApiError(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage(),
-                ex.getClass().getName(),
-                extractStackTrace(ex));
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
-    }
+        @ExceptionHandler(RuntimeException.class)
+        public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+                ApiError response = new ApiError(
+                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                ex.getMessage(),
+                                ex.getClass().getName(),
+                                ex.getCause() != null ? ex.getCause().getMessage() : null,
+                                extractFullTrace(ex),
+                                extractAppTrace(ex));
+                return ResponseEntity
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(response);
+        }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ApiError> handleAll(Exception ex) {
-        ApiError response = new ApiError(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage(),
-                ex.getClass().getName(),
-                extractStackTrace(ex));
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
-    }
+        @ExceptionHandler(Exception.class)
+        @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+        public ResponseEntity<ApiError> handleAll(Exception ex) {
+                ApiError response = new ApiError(
+                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                ex.getMessage(),
+                                ex.getClass().getName(),
+                                ex.getCause() != null ? ex.getCause().getMessage() : null,
+                                extractFullTrace(ex),
+                                extractAppTrace(ex));
+                return ResponseEntity
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(response);
+        }
 
-    private List<String> extractStackTrace(Exception ex) {
-        return Arrays.stream(ex.getStackTrace())
-                .map(StackTraceElement::toString)
-                .filter(st -> st.startsWith(BASE_PACKAGE))
-                .toList();
-    }
+        private List<String> extractFullTrace(Exception ex) {
+                return Arrays.stream(ex.getStackTrace())
+                                .map(StackTraceElement::toString)
+                                .toList();
+        }
+
+        private List<String> extractAppTrace(Exception ex) {
+                return Arrays.stream(ex.getStackTrace())
+                                .map(StackTraceElement::toString)
+                                .filter(st -> st.startsWith(BASE_PACKAGE))
+                                .toList();
+        }
 }

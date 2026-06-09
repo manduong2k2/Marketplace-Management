@@ -4,7 +4,7 @@ import ProductCard from '../card/ProductCard';
 import { productService } from '../../../services/productService';
 import './ProductList.css';
 
-function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSearchQuery = '' }) {
+function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSearchQuery = '', vendorId = null }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,6 +43,10 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
           params.search = searchQuery.trim();
         }
 
+        if (vendorId) {
+          params.vendorId = vendorId;
+        }
+
         const response = await productService.getAll(params);
         setProducts(response.data.data);
         setPagination(response.data.pagination);
@@ -54,7 +58,7 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
     }
 
     fetchProducts();
-  }, [categoryIds, brandId, searchQuery, sortBy, sortOrder, pagination.currentPage]);
+  }, [categoryIds, brandId, vendorId, searchQuery, sortBy, sortOrder, pagination.currentPage]);
 
   useEffect(() => {
     setSearchQuery(initialSearchQuery);

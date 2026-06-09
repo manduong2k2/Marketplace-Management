@@ -3,16 +3,12 @@ package com.StoreManagement.Catalog.Application.DTO.Requests.Product;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Distinct;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
 import com.StoreManagement.Shared.Application.Annotation.Rules.In;
-import com.StoreManagement.Shared.Application.Annotation.Rules.Unique;
 
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,13 +24,10 @@ public class CreateProductRequest {
     @Size(min = 1, max = 100, message = "Product name must be between 1 and 100 characters")
     private String name;
 
-    @NotBlank(message = "Product code is required")
-    @Unique(table = "products", column = "code", message = "Product code already exists")
-    private String code;
-
     @NotNull(message = "Brand ID is required")
-    @Exist(table = "brands", column = "id", message = "Brand not found")
-    private UUID brandId;
+    @Exist(table = "brands", column = "id", message = "Brand not found", type = UUID.class)
+    @org.hibernate.validator.constraints.UUID
+    private String brandId;
     
     @Nullable
     @Size(max = 500, message = "Description must be less than 500 characters")
@@ -42,20 +35,12 @@ public class CreateProductRequest {
     
     @Nullable
     @Distinct(message = "Each category ID must be unique")
-    private List<@Exist(table = "categories", column = "id", message = "Category not found") UUID> categoryIds;
-
-    @NotNull(message = "Price is required")
-    @Min(value = 0, message = "Price must be positive")
-    private int price;
-
-    @NotNull(message = "Stock is required")
-    @Min(value = 0, message = "Stock must be positive")
-    private int stock;
+    private List<@Exist(table = "categories", column = "id", message = "Category not found", type = UUID.class) @org.hibernate.validator.constraints.UUID String> categoryIds;
     
     @In(enumClass = ProductStatusEnum.class, message = "Invalid product status")
     private String status;
     
-    private List<MultipartFile> images;
+    private List<CreateProductVariantRequest> variants;
 }
 
 

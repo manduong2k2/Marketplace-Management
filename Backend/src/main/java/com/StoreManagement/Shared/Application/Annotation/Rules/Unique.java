@@ -21,6 +21,7 @@ public @interface Unique {
 
     String table();
     String column();
+    Class<?> type() default String.class;
 
     // optional: hỗ trợ soft delete
     String deletedAtColumn() default "";

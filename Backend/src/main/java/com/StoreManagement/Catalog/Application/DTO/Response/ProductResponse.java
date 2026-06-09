@@ -12,30 +12,24 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-@JsonPropertyOrder({"id", "name", "code", "price", "stock", "brand", "description", "status", "images"})
+@NoArgsConstructor // For Jackson deserialization
+@JsonPropertyOrder({"id", "name", "brand", "categories", "description", "status", "variants"})
 public class ProductResponse {
     private UUID id;
     private String name;
-    private String code;
-    private double price;
-    private int stock;
     private BrandResponse brand;
     private List<CategoryResponse> categories;
     private String description;
     private String status;
-    private List<String> images;
+    private List<ProductVariantResponse> variants;
     
     public ProductResponse(Product product, String baseUrl) {
         this.id = product.getId();
         this.name = product.getName();
-        this.code = product.getCode();
-        this.price = product.getPrice().getValue();
-        this.stock = product.getStock();
-        this.brand = new BrandResponse(product.getBrand(), baseUrl);
-        this.categories = product.getCategories().stream().map(category -> new CategoryResponse(category, baseUrl)).toList();
+        this.brand = product.getBrand() != null ? new BrandResponse(product.getBrand(), baseUrl) : null;
+        this.categories = product.getCategories() != null ? product.getCategories().stream().map(category -> new CategoryResponse(category, baseUrl)).toList() : null;
         this.description = product.getDescription();
         this.status = product.getStatus();
-        this.images = product.getFiles().stream().map(file -> baseUrl + "/" + file.getUrl()).toList();
+        this.variants = product.getVariants() != null ? product.getVariants().stream().map(variant -> new ProductVariantResponse(variant, baseUrl)).toList() : null;
     }
 }

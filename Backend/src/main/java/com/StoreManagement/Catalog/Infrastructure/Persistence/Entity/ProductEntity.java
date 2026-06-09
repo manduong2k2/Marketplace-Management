@@ -1,14 +1,11 @@
 package com.StoreManagement.Catalog.Infrastructure.Persistence.Entity;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.SQLRestriction;
 import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
-import com.StoreManagement.Shared.Infrastructure.Persistence.Entity.FileEntity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -31,15 +28,6 @@ public class ProductEntity extends JpaEntity {
     @Nationalized
     private String name;
 
-    @Column(nullable = false)
-    private String code;
-
-    @Column(nullable = false)
-    private double price;
-
-    @Column(nullable = false, columnDefinition = "int default 0")
-    private int stock;
-
     @ManyToOne
     @JoinColumn(name = "brand_id", nullable = false)
     private BrandEntity brand;
@@ -57,17 +45,10 @@ public class ProductEntity extends JpaEntity {
     @Nationalized
     private String description;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "entity_id", referencedColumnName = "id", insertable = false, updatable = false)
-    @SQLRestriction("entity_type = 'Product'")
-    private List<FileEntity> files;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<ProductVariantEntity> variants;
 
     public ProductEntity() {
-    }
-
-    public ProductEntity(UUID id, String name, String description) {
-        this.setId(id);
-        this.name = name;
-        this.description = description;
     }
 }
