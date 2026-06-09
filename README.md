@@ -1,6 +1,6 @@
-# E-Commerce Store Management System
+#Marketplace Management System
 
-A full-stack Convenience Store Management application built with Spring Boot (Backend) and React (Frontend) with Docker Compose for containerized deployment.
+A full-stack Marketplace Management application built with Spring Boot (Backend) and React (Frontend) with Docker Compose for containerized deployment.
 
 ## Features
 
@@ -152,6 +152,13 @@ npm run dev
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/me` - Get current user info
+
+### Vendor
+- `GET /api/vendors` - List vendors with pagination and filtering
+- `GET /api/vendors/{id}` - Get vendor details
+- `POST /api/vendors` - Create vendor (Admin)
+- `PUT /api/vendors/{id}` - Update vendor (Admin)
+- `DELETE /api/vendors/{id}` - Delete vendor (Admin)
 
 ### Products
 - `GET /api/products` - List products with pagination and filtering
