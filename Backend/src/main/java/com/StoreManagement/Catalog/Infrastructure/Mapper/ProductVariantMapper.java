@@ -3,6 +3,7 @@ package com.StoreManagement.Catalog.Infrastructure.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.StoreManagement.Catalog.Domain.Models.Product;
 import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductVariantEntity;
 import com.StoreManagement.Shared.Domain.File;
@@ -16,18 +17,37 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
     private IMapper<File, FileEntity> fileMapper;
 
     public ProductVariant toDomain(ProductVariantEntity entity) {
-        return new ProductVariant(
-            entity.getId(),
-            entity.getProduct().getId(),
-            entity.getName(),
-            entity.getCode(),
-            entity.getPrice(),
-            entity.getStock(),
-            entity.getFiles() != null ? entity.getFiles().stream().map(fileMapper::toDomain).toList() : null
-        );
+
+        if (entity == null) {
+            return null;
+        }
+        
+        return ProductVariant.builder()
+            .id(entity.getId())
+            .productId(entity.getProduct().getId())
+            .name(entity.getName())
+            .code(entity.getCode())
+            .price(entity.getPrice())
+            .stock(entity.getStock())
+            .files(entity.getFiles() != null ? entity.getFiles().stream().map(fileMapper::toDomain).toList() : null)
+            .product(Product.builder()
+                .id(entity.getProduct().getId())
+                .name(entity.getProduct().getName())
+                .description(entity.getProduct().getDescription())
+                .brandId(entity.getProduct().getBrand().getId())
+                .status(entity.getProduct().getStatus())
+                .categoryIds(entity.getProduct().getCategories().stream().map(category -> category.getId()).toList())
+                .build()
+            )
+            .build();
     }
     
     public ProductVariantEntity toEntity(ProductVariant domain) {
+
+        if (domain == null) {
+            return null;
+        }
+        
         return new ProductVariantEntity(
             domain.getId(),
             domain.getName(),
@@ -38,5 +58,4 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
             null
         );
     }
-    
 }

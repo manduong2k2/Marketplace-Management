@@ -21,6 +21,7 @@ public class ProductVariantResponse {
     private int stock;
     private double price;
     private List<String> images;
+    private ProductResponse product;
 
     public ProductVariantResponse(ProductVariant variant, String baseUrl) {
         this.id = variant.getId();
@@ -29,5 +30,6 @@ public class ProductVariantResponse {
         this.stock = variant.getStock();
         this.price = variant.getPrice().getValue();
         this.images = variant.getFiles() != null ? variant.getFiles().stream().map(file -> baseUrl + "/" + file.getUrl()).toList() : null;
+        this.product = new ProductResponse(variant.getProduct(), baseUrl);
     }
 }

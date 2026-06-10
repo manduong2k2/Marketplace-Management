@@ -24,6 +24,10 @@ public class ProductResponse {
     private List<ProductVariantResponse> variants;
     
     public ProductResponse(Product product, String baseUrl) {
+        if(product == null) {
+            return;
+        }
+
         this.id = product.getId();
         this.name = product.getName();
         this.brand = product.getBrand() != null ? new BrandResponse(product.getBrand(), baseUrl) : null;

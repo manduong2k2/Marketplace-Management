@@ -11,6 +11,7 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProdu
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IProductRepository;
 import com.StoreManagement.Catalog.Domain.Models.Product;
+import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.CategoryEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
@@ -24,18 +25,15 @@ import jakarta.persistence.EntityManager;
 
 @Repository
 public class ProductRepository implements IProductRepository {
-    private final ProductJpaRepository jpaRepository;
-    private final IMapper<Product, ProductEntity> productMapper;
+
+    @Autowired
+    private ProductJpaRepository jpaRepository;
+
+    @Autowired
+    private IMapper<Product, ProductEntity> productMapper;
 
     @Autowired
     private EntityManager entityManager;
-
-    public ProductRepository(ProductJpaRepository jpaRepository, IMapper<Product, ProductEntity> productMapper,
-            EntityManager entityManager) {
-        this.jpaRepository = jpaRepository;
-        this.productMapper = productMapper;
-        this.entityManager = entityManager;
-    }
 
     public PaginatedResponse<Product> findAll(GetListProductCommand command) {
 
@@ -122,7 +120,6 @@ public class ProductRepository implements IProductRepository {
                 total);
     }
 
-    @Override
     public Product save(Product Product) {
         ProductEntity productEntity = productMapper.toEntity(Product);
         ProductEntity saved = jpaRepository.save(productEntity);
@@ -137,27 +134,34 @@ public class ProductRepository implements IProductRepository {
         return productMapper.toDomain(saved);
     }
 
-    @Override
     public Product findById(UUID id) {
         return jpaRepository.findById(id).map(productMapper::toDomain).orElse(null);
     }
 
-    @Override
     public List<Product> findByName(String name) {
         return jpaRepository.findByName(name).stream()
                 .map(productMapper::toDomain)
                 .toList();
     }
 
-    @Override
     public Product update(Product Product) {
         ProductEntity productEntity = productMapper.toEntity(Product);
         ProductEntity updated = jpaRepository.save(productEntity);
         return productMapper.toDomain(updated);
     }
 
-    @Override
     public void delete(UUID id) {
         jpaRepository.deleteById(id);
+    }
+
+    public ProductVariant findVariantById(UUID productId, UUID variantId) {
+        var product = findById(productId);
+        if (product == null) {
+            return null;
+        }
+        return product.getVariants().stream()
+                .filter(variant -> variant.getId().equals(variantId))
+                .findFirst()
+                .orElse(null);
     }
 }

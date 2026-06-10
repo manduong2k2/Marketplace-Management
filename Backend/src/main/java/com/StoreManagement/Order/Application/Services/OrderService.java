@@ -12,8 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.StoreManagement.Cart.Application.Contracts.ICartService;
 import com.StoreManagement.Cart.Application.DTO.Responses.CartResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
-import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
-import com.StoreManagement.Catalog.Domain.Contract.IProductService;
+//import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
+//import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Order.Application.Contracts.IOrderService;
 import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
 import com.StoreManagement.Order.Application.DTO.Commands.OrderItemCommand;
@@ -38,8 +38,8 @@ public class OrderService implements IOrderService{
     @Autowired
     private IOrderRepository repository;
 
-    @Autowired
-    private IProductService productService;
+    //@Autowired
+    //private IProductService productService;
 
     @Autowired
     private IEventPublisher eventPublisher;
@@ -72,7 +72,7 @@ public class OrderService implements IOrderService{
         List<OrderItemCommand> items = new ArrayList<>();
 
         for (var item : cartResponse.getItems()) {
-            ProductResponse product = productService.getProduct(item.getProductVariantId());
+            //ProductResponse product = productService.getProduct(item.getProductVariantId());
 
             //if(product.getStock() < item.getQuantity()) {
             //    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product " + product.getName() + " does not have enough stock");

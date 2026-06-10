@@ -8,6 +8,7 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProdu
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.ProductVariantResponse;
 
 import java.io.IOException;
 
@@ -23,4 +24,6 @@ public interface IProductService {
     public void deleteProduct(UUID id);
     
     public List<String> getAllStatus();
+
+    public ProductVariantResponse getProductVariant(UUID productId, UUID productVariantId);
 }

@@ -25,11 +25,13 @@ import com.StoreManagement.Catalog.Application.DTO.Requests.Product.GetListProdu
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.UpdateProductRequest;
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.ProductVariantResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Shared.Application.Controllers.BaseController;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/products")
@@ -67,6 +69,13 @@ public class ProductController extends BaseController{
         ProductResponse product = productService.getProduct(productId);
         
         return objectResponse(product);
+    }
+
+    @GetMapping("/{productId}/variants/{productVariantId}")
+    public ResponseEntity<Map<String, Object>> getProductVariant(@PathVariable UUID productId, @PathVariable UUID productVariantId) {
+        ProductVariantResponse productVariant = productService.getProductVariant(productId, productVariantId);
+        
+        return objectResponse(productVariant);
     }
     
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")

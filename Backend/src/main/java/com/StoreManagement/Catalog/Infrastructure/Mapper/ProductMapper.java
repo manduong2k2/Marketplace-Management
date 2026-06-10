@@ -38,20 +38,20 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
 
     @Override
     public Product toDomain(ProductEntity entity) {
-        Product product = new Product();
-        product.setId(entity.getId());
-        product.setName(entity.getName());
-        product.setDescription(entity.getDescription());
-        product.setBrandId(entity.getBrand().getId());
-        product.setStatus(entity.getStatus());
-        product.setBrand(brandMapper.toDomain(entity.getBrand()));
-        product.setCategories(entity.getCategories() != null ? entity.getCategories().stream().map(category -> categoryMapper.toDomain(category))
-                .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
-        product.setCategoryIds(
-                entity.getCategories() != null ? entity.getCategories().stream().map(category -> category.getId())
-                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
-        product.setVariants(entity.getVariants().stream().map(variantMapper::toDomain).toList());
-        return product;
+        return Product.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .brandId(entity.getBrand().getId())
+                .brand(brandMapper.toDomain(entity.getBrand()))
+                .status(entity.getStatus())
+                .categories(entity.getCategories() != null ? entity.getCategories().stream().map(category -> categoryMapper.toDomain(category))
+                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList())
+                .categoryIds(
+                        entity.getCategories() != null ? entity.getCategories().stream().map(category -> category.getId())
+                                .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList())
+                .variants(entity.getVariants().stream().map(variantMapper::toDomain).toList())
+                .build();
     }
 
     public ProductEntity toEntity(Product domain) {

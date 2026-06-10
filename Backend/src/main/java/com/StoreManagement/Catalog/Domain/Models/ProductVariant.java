@@ -7,23 +7,98 @@ import com.StoreManagement.Shared.Domain.AggregateRoot;
 import com.StoreManagement.Shared.Domain.File;
 
 
-public class ProductVariant extends AggregateRoot<UUID>{
+public class ProductVariant extends AggregateRoot<UUID> {
+    
     private UUID productId;
     private String name;
     private String code;
     private Money price = new Money(0);
     private int stock = 0;
     private List<File> files;
+    private Product product;
 
-    public ProductVariant(UUID id, UUID productId, String name, String code, double price, int stock, List<File> files) {
-        super(id);
-        this.productId = productId;
-        this.name = name;
-        this.code = code;
-        this.price = new Money(price);
-        this.stock = stock;
-        this.files = files;
+    public ProductVariant() {
+        super(null);
     }
+
+    private ProductVariant(Builder builder) {
+        super(builder.id);
+        this.productId  = builder.productId;
+        this.name       = builder.name;
+        this.code       = builder.code;
+        this.price      = builder.price;
+        this.stock      = builder.stock;
+        this.files      = builder.files;
+        this.product    = builder.product;
+    }
+
+    // Builders
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private UUID id;
+        private UUID productId;
+        private String name;
+        private String code;
+        private Money price = new Money(0);
+        private int stock = 0;
+        private List<File> files;
+        private Product product;
+
+        public Builder id(UUID id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder productId(UUID productId) {
+            this.productId = productId;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder code(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public Builder price(double price) {
+            this.price = new Money(price);
+            return this;
+        }
+
+        public Builder stock(int stock) {
+            this.stock = stock;
+            return this;
+        }
+
+        public Builder files(List<File> files) {
+            this.files = files;
+            return this;
+        }
+
+        public Builder product(Product product) {
+            this.product = product;
+            return this;
+        }
+
+        public ProductVariant build() {
+            if (name == null || name.isBlank()) {
+                throw new IllegalArgumentException("Variant name is required");
+            }
+
+            return new ProductVariant(this);
+        }
+    }
+
+    //Getters / Setters
     
     public String getName() {
         return name;
@@ -71,5 +146,13 @@ public class ProductVariant extends AggregateRoot<UUID>{
     
     public void setFiles(List<File> files) {
         this.files = files;
+    }
+    
+    public Product getProduct() {
+        return product;
+    }
+    
+    public void setProduct(Product product) {
+        this.product = product;
     }
 }

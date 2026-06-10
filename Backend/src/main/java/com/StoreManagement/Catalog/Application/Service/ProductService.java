@@ -16,13 +16,13 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProdu
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
+import com.StoreManagement.Catalog.Application.DTO.Response.ProductVariantResponse;
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
 import com.StoreManagement.Catalog.Domain.Contract.IProductRepository;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Catalog.Domain.Events.ProductArchivedEvent;
 import com.StoreManagement.Catalog.Domain.Events.ProductDeletedEvent;
 import com.StoreManagement.Catalog.Domain.Models.Product;
-import com.StoreManagement.Catalog.Domain.Models.ProductStatus;
 import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
 import com.StoreManagement.Shared.Application.Contracts.IFileService;
@@ -77,22 +77,19 @@ public class ProductService implements IProductService {
 
     @Transactional
     public ProductResponse createProduct(CreateProductCommand command) throws IOException {
-        Product product = new Product(
-                null,
-                command.getName(),
-                command.getDescription(),
-                command.getBrandId(),
-                new ProductStatus(),
-                command.getCategoryIds(),
-                command.getVariants().stream().map(variant -> {
-                    ProductVariant productVariant = new ProductVariant(
-                            null,
-                            null,
-                            variant.getName(),
-                            variant.getCode(),
-                            variant.getPrice(),
-                            variant.getStock(),
-                            variant.getImages() != null ? variant.getImages().stream().map(img -> {
+        Product product = Product.builder()
+                .name(command.getName())
+                .description(command.getDescription())
+                .brandId(command.getBrandId())
+                .status(command.getStatus())
+                .categoryIds(command.getCategoryIds())
+                .variants(command.getVariants().stream().map(variant -> 
+                    ProductVariant.builder()
+                            .name(variant.getName())
+                            .code(variant.getCode())
+                            .price(variant.getPrice())
+                            .stock(variant.getStock())
+                            .files(variant.getImages() != null ? variant.getImages().stream().map(img -> {
                                 try {
                                     String imageUrl = fileService.uploadFile(img, "catalog/product_variants");
                                     File file = new File(null, imageUrl, "ProductVariant");
@@ -100,9 +97,9 @@ public class ProductService implements IProductService {
                                 } catch (IOException e) {
                                     throw new RuntimeException("Failed to upload file", e);
                                 }
-                            }).toList() : null);
-                    return productVariant;
-                }).toList());
+                            }).toList() : null)
+                            .build()
+                ).toList()).build();
 
         if (command.getStatus() != null) {
             product.setStatus(command.getStatus());
@@ -145,5 +142,10 @@ public class ProductService implements IProductService {
 
     public List<String> getAllStatus() {
         return Arrays.stream(ProductStatusEnum.values()).map(ProductStatusEnum::name).collect(Collectors.toList());
+    }
+
+    public ProductVariantResponse getProductVariant(UUID productId, UUID productVariantId) {
+        ProductVariant productVariant = productRepository.findVariantById(productId, productVariantId);
+        return new ProductVariantResponse(productVariant, baseUrl);
     }
 }

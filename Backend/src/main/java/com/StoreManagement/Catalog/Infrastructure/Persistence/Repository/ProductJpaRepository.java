@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
 
 public interface ProductJpaRepository extends JpaRepository<ProductEntity, UUID> {
-    List<ProductEntity> findByName(String name);
+    List<ProductEntity> findByName(String name);    
 }

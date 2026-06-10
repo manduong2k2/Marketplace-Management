@@ -6,10 +6,10 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.5</version>
+		<version>4.0.6</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.e_com</groupId>
+	<groupId>com</groupId>
 	<artifactId>StoreManagement</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>StoreManagement</name>
@@ -157,7 +157,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.11.0</version>
 				<configuration>
 					<source>21</source>
 					<target>21</target>

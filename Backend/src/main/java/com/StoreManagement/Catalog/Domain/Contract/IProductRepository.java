@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Models.Product;
+import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
 
 
 public interface IProductRepository {
@@ -20,4 +21,6 @@ public interface IProductRepository {
     Product update(Product Product);
 
     void delete(UUID id);
+
+    public ProductVariant findVariantById(UUID productId, UUID variantId);
 }
