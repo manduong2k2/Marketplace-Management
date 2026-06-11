@@ -7,7 +7,7 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Category.CreateCateg
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.GetListCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.UpdateCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.CategoryResponse;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 public interface ICategoryService {
     public PaginatedResponse<CategoryResponse> getAllCategories(GetListCategoryCommand command);

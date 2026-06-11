@@ -9,10 +9,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.GetListCategoryCommand;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryRepository;
 import com.StoreManagement.Catalog.Domain.Models.Category;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.CategoryEntity;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 
 import jakarta.persistence.criteria.CriteriaBuilder;

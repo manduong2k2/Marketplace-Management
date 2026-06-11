@@ -3,7 +3,7 @@ package com.StoreManagement.Auth.Infrastructure.Persistence.Entity;
 import java.util.UUID;
 
 import com.StoreManagement.Auth.Domain.Models.Role;
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "roles")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RoleEntity extends JpaEntity {
+public class RoleEntity extends UuidEntity {
 
     @Column(unique = false, nullable = false)
     private String name;

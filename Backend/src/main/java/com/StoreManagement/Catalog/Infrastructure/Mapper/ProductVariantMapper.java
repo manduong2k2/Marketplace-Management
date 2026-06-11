@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Catalog.Domain.Models.Product;
+import com.StoreManagement.Catalog.Domain.Models.ProductOption;
 import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
+import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductOptionEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductVariantEntity;
 import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
@@ -15,6 +17,9 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
     
     @Autowired
     private IMapper<File, FileEntity> fileMapper;
+
+    @Autowired
+    private IMapper<ProductOption, ProductOptionEntity> optionMapper;
 
     public ProductVariant toDomain(ProductVariantEntity entity) {
 
@@ -39,6 +44,7 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
                 .categoryIds(entity.getProduct().getCategories().stream().map(category -> category.getId()).toList())
                 .build()
             )
+            .options(entity.getOptions() != null ? entity.getOptions().stream().map(optionMapper::toDomain).toList() : null)
             .build();
     }
     
@@ -55,7 +61,8 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
             domain.getPrice().getValue(),
             domain.getStock(),
             domain.getFiles() != null ? domain.getFiles().stream().map(fileMapper::toEntity).toList() : null,
-            null
+            null,
+            domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity).toList() : null
         );
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.StoreManagement.Cart.Application.Contracts.ICartService;
 import com.StoreManagement.Cart.Application.DTO.Responses.CartResponse;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 //import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 //import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Order.Application.Contracts.IOrderService;
@@ -26,6 +25,7 @@ import com.StoreManagement.Order.Domain.Events.OrderPlacedEvent;
 import com.StoreManagement.Order.Domain.Models.Order;
 import com.StoreManagement.Order.Domain.Models.OrderItem;
 import com.StoreManagement.Order.Domain.Models.ProductSnapShot;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMqQueues.OrderQueueConfig;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;

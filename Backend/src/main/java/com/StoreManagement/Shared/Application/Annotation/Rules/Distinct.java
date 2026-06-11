@@ -13,7 +13,11 @@ import com.StoreManagement.Shared.Application.Validator.Rules.DistinctValidator;
 public @interface Distinct {
     String message() default "List contains duplicated values";
 
+    boolean when() default true;
+
     Class<?>[] groups() default {};
+
+    String field() default "";
 
     Class<? extends Payload>[] payload() default {};
 }

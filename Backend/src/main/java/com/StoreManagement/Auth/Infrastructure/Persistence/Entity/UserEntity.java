@@ -3,7 +3,7 @@ package com.StoreManagement.Auth.Infrastructure.Persistence.Entity;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Data
 @Table(name = "users")
 @EqualsAndHashCode(callSuper = false)
-public class UserEntity extends JpaEntity {
+public class UserEntity extends UuidEntity {
     @Column(unique = true, columnDefinition = "varchar(255)", nullable = false)
     private String email;
 

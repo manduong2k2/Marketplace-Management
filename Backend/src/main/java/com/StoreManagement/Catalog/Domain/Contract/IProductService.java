@@ -6,9 +6,9 @@ import java.util.UUID;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductVariantResponse;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 import java.io.IOException;
 

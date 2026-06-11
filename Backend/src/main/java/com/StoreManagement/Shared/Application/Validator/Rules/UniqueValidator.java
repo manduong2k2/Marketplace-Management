@@ -16,6 +16,7 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
     @PersistenceContext
     private EntityManager em;
 
+    private boolean when;
     private String table;
     private String column;
     private Class<?> type;
@@ -29,10 +30,15 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
         this.type = unique.type();
         this.deletedAtColumn = unique.deletedAtColumn();
         this.whereClause = unique.whereClause();
+        this.when = unique.when();
     }
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
+        if(!when) {
+            return true;
+        }
+
         if (value == null) return true;
         
         if(type == String.class) {

@@ -3,11 +3,11 @@ package com.StoreManagement.Catalog.Domain.Models;
 import java.util.List;
 import java.util.UUID;
 
-import com.StoreManagement.Shared.Domain.AggregateRoot;
+import com.StoreManagement.Shared.Domain.Entity;
 import com.StoreManagement.Shared.Domain.File;
 
 
-public class ProductVariant extends AggregateRoot<UUID> {
+public class ProductVariant extends Entity<UUID> {
     
     private UUID productId;
     private String name;
@@ -16,6 +16,7 @@ public class ProductVariant extends AggregateRoot<UUID> {
     private int stock = 0;
     private List<File> files;
     private Product product;
+    private List<ProductOption> options;
 
     public ProductVariant() {
         super(null);
@@ -30,6 +31,7 @@ public class ProductVariant extends AggregateRoot<UUID> {
         this.stock      = builder.stock;
         this.files      = builder.files;
         this.product    = builder.product;
+        this.options    = builder.options;
     }
 
     // Builders
@@ -48,6 +50,7 @@ public class ProductVariant extends AggregateRoot<UUID> {
         private int stock = 0;
         private List<File> files;
         private Product product;
+        private List<ProductOption> options;
 
         public Builder id(UUID id) {
             this.id = id;
@@ -86,6 +89,11 @@ public class ProductVariant extends AggregateRoot<UUID> {
 
         public Builder product(Product product) {
             this.product = product;
+            return this;
+        }
+
+        public Builder options(List<ProductOption> options) {
+            this.options = options;
             return this;
         }
 
@@ -154,5 +162,13 @@ public class ProductVariant extends AggregateRoot<UUID> {
     
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public List<ProductOption> getOptions() {
+        return options;
+    }
+    
+    public void setOptions(List<ProductOption> options) {
+        this.options = options;
     }
 }

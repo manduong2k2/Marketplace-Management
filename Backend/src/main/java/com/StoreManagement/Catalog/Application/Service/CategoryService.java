@@ -15,11 +15,11 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Category.CreateCateg
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.GetListCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.UpdateCategoryCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.CategoryResponse;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryRepository;
 import com.StoreManagement.Catalog.Domain.Contract.ICategoryService;
 import com.StoreManagement.Catalog.Domain.Models.Category;
 import com.StoreManagement.Shared.Application.Contracts.IFileService;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;
 

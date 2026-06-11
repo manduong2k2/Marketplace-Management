@@ -4,8 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.GetListBrandCommand;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Models.Brand;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 public interface IBrandRepository {
     Brand save(Brand brand);

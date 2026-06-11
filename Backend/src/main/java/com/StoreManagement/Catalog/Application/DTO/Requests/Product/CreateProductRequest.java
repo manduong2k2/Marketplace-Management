@@ -9,6 +9,7 @@ import com.StoreManagement.Shared.Application.Annotation.Rules.Exist;
 import com.StoreManagement.Shared.Application.Annotation.Rules.In;
 
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -40,7 +41,10 @@ public class CreateProductRequest {
     @In(enumClass = ProductStatusEnum.class, message = "Invalid product status")
     private String status;
     
-    private List<CreateProductVariantRequest> variants;
+    @Distinct(field = "optionIds", message = "Variants must have unique option list")
+    private List<@Valid CreateProductVariantRequest> variants;
+
+    private List<@Valid CreateProductOptionRequest> options;
 }
 
 

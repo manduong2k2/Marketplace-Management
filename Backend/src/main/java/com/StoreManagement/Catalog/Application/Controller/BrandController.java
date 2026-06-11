@@ -23,8 +23,8 @@ import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.CreateBrandReq
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.GetListBrandRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Brand.UpdateBrandRequest;
 import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandService;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
 import jakarta.validation.Valid;

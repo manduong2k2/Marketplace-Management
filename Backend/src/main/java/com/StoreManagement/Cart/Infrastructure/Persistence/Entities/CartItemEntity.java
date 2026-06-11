@@ -2,7 +2,7 @@ package com.StoreManagement.Cart.Infrastructure.Persistence.Entities;
 
 import java.util.UUID;
 
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "cart_items")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CartItemEntity extends JpaEntity {
+public class CartItemEntity extends UuidEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id", nullable = false)

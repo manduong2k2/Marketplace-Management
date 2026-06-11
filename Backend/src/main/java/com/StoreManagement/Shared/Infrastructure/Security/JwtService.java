@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
 
 import com.StoreManagement.Auth.Domain.Constants.Message;
@@ -141,8 +142,7 @@ public class JwtService {
                 redisTemplate.opsForValue().set(
                         BLACKLIST_PREFIX + jti,
                         "1",
-                        ttl,
-                        TimeUnit.MILLISECONDS);
+                        Expiration.milliseconds(ttl));
             }
         } catch (Exception e) {
             System.out.println("Redis unavailable: " + e.getMessage());

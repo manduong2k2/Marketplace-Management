@@ -18,4 +18,6 @@ public @interface In {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+    
+    boolean when() default true;
 }

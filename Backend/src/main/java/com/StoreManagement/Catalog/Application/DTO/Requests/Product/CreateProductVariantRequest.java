@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.StoreManagement.Shared.Application.Annotation.Rules.Distinct;
 import com.StoreManagement.Shared.Application.Annotation.Rules.Unique;
 
 import jakarta.validation.constraints.Min;
@@ -19,7 +20,7 @@ public class CreateProductVariantRequest {
     private String name;
 
     @NotBlank(message = "Product code is required")
-    @Unique(table = "products", column = "code", message = "Product code already exists")
+    @Unique(table = "product_variants", column = "code", message = "Product variant code already exists")
     private String code;
 
     @NotNull(message = "Price is required")
@@ -31,4 +32,7 @@ public class CreateProductVariantRequest {
     private int stock;
 
     private List<MultipartFile> images;
+
+    @Distinct
+    private List<Integer> optionIds;
 }

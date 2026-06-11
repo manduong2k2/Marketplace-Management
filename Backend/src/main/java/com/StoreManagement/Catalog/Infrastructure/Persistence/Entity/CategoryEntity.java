@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class CategoryEntity extends JpaEntity {
+public class CategoryEntity extends UuidEntity {
     @Column(nullable = false)
     @Size(max = 100)
     @Nationalized

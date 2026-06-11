@@ -5,7 +5,7 @@ import java.util.List;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -22,11 +22,21 @@ import lombok.EqualsAndHashCode;
 )
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class ProductEntity extends JpaEntity {
+public class ProductEntity extends UuidEntity {
     @Column(nullable = false)
     @Size(max = 100)
     @Nationalized
     private String name;
+
+    @Column(nullable = false)
+    private String status;
+
+    @Column(nullable = true)
+    @Size(max = 500)
+    @Nationalized
+    private String description;
+
+    // relationships
 
     @ManyToOne
     @JoinColumn(name = "brand_id", nullable = false)
@@ -37,17 +47,15 @@ public class ProductEntity extends JpaEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<CategoryEntity> categories;
 
-    @Column(nullable = false)
-    private String status;
-
-    @Column(nullable = true)
-    @Size(max = 500)
-    @Nationalized
-    private String description;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<ProductVariantEntity> variants;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<ProductOptionEntity> options;
+
+    //
 
     public ProductEntity() {
     }

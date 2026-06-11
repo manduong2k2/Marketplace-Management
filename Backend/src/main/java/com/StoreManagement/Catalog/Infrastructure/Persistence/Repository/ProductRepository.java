@@ -3,25 +3,20 @@ package com.StoreManagement.Catalog.Infrastructure.Persistence.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IProductRepository;
 import com.StoreManagement.Catalog.Domain.Models.Product;
 import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
-import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.CategoryEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
+import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.QProductEntity;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
-
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.EntityManager;
+import com.querydsl.core.types.dsl.ComparablePath;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
 public class ProductRepository implements IProductRepository {
@@ -33,91 +28,55 @@ public class ProductRepository implements IProductRepository {
     private IMapper<Product, ProductEntity> productMapper;
 
     @Autowired
-    private EntityManager entityManager;
+    public JPAQueryFactory jpaQueryFactory;
 
     public PaginatedResponse<Product> findAll(GetListProductCommand command) {
 
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        QProductEntity product = QProductEntity.productEntity;
+        String sortBy = command.getSortBy().isBlank() ? "updated_at" : command.getSortBy();
+        String sortOrder = command.getSortOrder().equals("asc") ? "asc" : "desc";
+        PathBuilder<ProductEntity> entityPath = new PathBuilder<>(ProductEntity.class, product.getMetadata());
+        ComparablePath<?> path = entityPath.getComparable(
+                sortBy,
+                Comparable.class);
 
-        // ========== MAIN QUERY ==========
-        CriteriaQuery<ProductEntity> query = cb.createQuery(ProductEntity.class);
-        Root<ProductEntity> root = query.from(ProductEntity.class);
+        List<ProductEntity> products = jpaQueryFactory
+                .selectFrom(product)
+                .leftJoin(product.brand).fetchJoin()
+                .leftJoin(product.categories).fetchJoin()
+                .where(
+                        command.getSearch().isBlank() ? null
+                                : product.name.containsIgnoreCase(command.getSearch())
+                                        .or(product.brand.name.containsIgnoreCase(command.getSearch())),
 
-        // ========== COUNT QUERY ==========
-        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-        Root<ProductEntity> countRoot = countQuery.from(ProductEntity.class);
+                        command.getBrandId() == null ? null : product.brand.id.eq(command.getBrandId()),
 
-        // ================= SHARED LOGIC =================
-        List<Predicate> predicates = new ArrayList<>();
-        List<Predicate> countPredicates = new ArrayList<>();
+                        command.getCategoryIds().isEmpty() ? null
+                                : product.categories.any().id.in(command.getCategoryIds()))
+                .offset((long) command.getPage() * command.getSize())
+                .limit(command.getSize())
+                .orderBy(sortOrder.equals("asc") ? path.asc() : path.desc())
+                .fetch();
 
-        // category
-        if (command.getCategoryIds() != null && !command.getCategoryIds().isEmpty()) {
+        Long total = jpaQueryFactory
+                .select(product.count())
+                .from(product)
+                .where(
+                        command.getSearch().isBlank() ? null
+                                : product.name.containsIgnoreCase(command.getSearch())
+                                        .or(product.brand.name.containsIgnoreCase(command.getSearch())),
 
-            Join<ProductEntity, CategoryEntity> categoryJoin = root.join("categories");
-            Join<ProductEntity, CategoryEntity> countCategoryJoin = countRoot.join("categories");
+                        command.getBrandId() == null ? null : product.brand.id.eq(command.getBrandId()),
 
-            predicates.add(categoryJoin.get("id").in(command.getCategoryIds()));
-            countPredicates.add(countCategoryJoin.get("id").in(command.getCategoryIds()));
+                        command.getCategoryIds().isEmpty() ? null
+                                : product.categories.any().id.in(command.getCategoryIds()))
+                .fetchOne();
 
-            query.distinct(true);
-            countQuery.distinct(true);
-        }
-
-        // search
-        if (command.getSearch() != null && !command.getSearch().trim().isEmpty()) {
-
-            String search = "%" + command.getSearch().toLowerCase() + "%";
-
-            Predicate searchPredicate = cb.or(
-                    cb.like(cb.lower(root.get("name")), search),
-                    cb.like(cb.lower(root.get("description")), search));
-
-            predicates.add(searchPredicate);
-            countPredicates.add(searchPredicate);
-        }
-
-        // brand
-        if (command.getBrandId() != null) {
-
-            Predicate brandPredicate = cb.equal(root.get("brand").get("id"), command.getBrandId());
-
-            predicates.add(brandPredicate);
-            countPredicates.add(brandPredicate);
-        }
-
-        // ================= APPLY WHERE =================
-        query.where(predicates.toArray(new Predicate[0]));
-        countQuery.where(countPredicates.toArray(new Predicate[0]));
-
-        countQuery.select(cb.countDistinct(countRoot));
-
-        // ================= SORT =================
-        String sortBy = (command.getSortBy() == null || command.getSortBy().isBlank())
-                ? "updatedAt"
-                : command.getSortBy();
-
-        boolean desc = "desc".equalsIgnoreCase(command.getSortOrder());
-
-        query.orderBy(desc ? cb.desc(root.get(sortBy)) : cb.asc(root.get(sortBy)));
-
-        // ================= EXECUTE =================
-        Long total = entityManager.createQuery(countQuery).getSingleResult();
-
-        List<ProductEntity> entities = entityManager.createQuery(query)
-                .setFirstResult(command.getPage() * command.getSize())
-                .setMaxResults(command.getSize())
-                .getResultList();
-
-        List<Product> products = entities.stream()
-                .map(productMapper::toDomain)
-                .toList();
-
-        return new PaginatedResponse<>(
-                products,
+        return new PaginatedResponse<Product>(
+                products.stream().map(productMapper::toDomain).toList(),
                 command.getPage(),
                 command.getSize(),
-                total);
+                total != null ? total : 0);
     }
 
     public Product save(Product Product) {
@@ -136,12 +95,6 @@ public class ProductRepository implements IProductRepository {
 
     public Product findById(UUID id) {
         return jpaRepository.findById(id).map(productMapper::toDomain).orElse(null);
-    }
-
-    public List<Product> findByName(String name) {
-        return jpaRepository.findByName(name).stream()
-                .map(productMapper::toDomain)
-                .toList();
     }
 
     public Product update(Product Product) {

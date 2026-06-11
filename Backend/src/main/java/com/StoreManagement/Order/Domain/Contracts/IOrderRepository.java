@@ -3,10 +3,10 @@ package com.StoreManagement.Order.Domain.Contracts;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
 import com.StoreManagement.Order.Application.DTO.Responses.HistoryResponse;
 import com.StoreManagement.Order.Domain.Models.Order;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 public interface IOrderRepository {
     PaginatedResponse<HistoryResponse> findAll(ListOrderCommand command);

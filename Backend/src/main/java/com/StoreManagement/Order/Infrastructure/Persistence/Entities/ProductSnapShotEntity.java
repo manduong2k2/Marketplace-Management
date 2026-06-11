@@ -3,7 +3,7 @@ package com.StoreManagement.Order.Infrastructure.Persistence.Entities;
 import java.util.List;
 import java.util.UUID;
 
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ProductSnapShotEntity extends JpaEntity {
+public class ProductSnapShotEntity extends UuidEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_item_id", nullable = false)
     private OrderItemEntity orderItem;

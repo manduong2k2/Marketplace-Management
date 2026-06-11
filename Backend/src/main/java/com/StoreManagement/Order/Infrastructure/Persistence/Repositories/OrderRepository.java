@@ -8,12 +8,12 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
 import com.StoreManagement.Order.Application.DTO.Responses.HistoryResponse;
 import com.StoreManagement.Order.Domain.Contracts.IOrderRepository;
 import com.StoreManagement.Order.Domain.Models.Order;
 import com.StoreManagement.Order.Infrastructure.Persistence.Entities.OrderEntity;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 
 import jakarta.persistence.EntityManager;

@@ -9,10 +9,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.GetListBrandCommand;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandRepository;
 import com.StoreManagement.Catalog.Domain.Models.Brand;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.BrandEntity;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 import com.StoreManagement.Shared.Infrastructure.Persistence.Entity.FileEntity;
 
 import jakarta.persistence.CascadeType;
@@ -13,6 +15,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -28,7 +32,7 @@ import org.hibernate.annotations.SQLRestriction;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
-public class ProductVariantEntity extends JpaEntity{
+public class ProductVariantEntity extends UuidEntity{
     @Column(nullable = false)
     @Size(max = 100)
     @Nationalized
@@ -52,12 +56,22 @@ public class ProductVariantEntity extends JpaEntity{
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
-    public ProductVariantEntity(UUID id, String name, String code, double price, int stock, List<FileEntity> files, ProductEntity product) {
+    @ManyToMany(cascade = CascadeType.REFRESH)
+    @JoinTable(
+        name = "product_variant_option", 
+        joinColumns = @JoinColumn(name = "variant_id"), 
+        inverseJoinColumns = @JoinColumn(name = "option_id")
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<ProductOptionEntity> options;
+
+    public ProductVariantEntity(UUID id, String name, String code, double price, int stock, List<FileEntity> files, ProductEntity product, List<ProductOptionEntity> options) {
         this.setId(id);
         this.setName(name);
         this.setCode(code);
         this.setPrice(price);
         this.setStock(stock);
         this.setFiles(files);
+        this.setOptions(options);
     }
 }

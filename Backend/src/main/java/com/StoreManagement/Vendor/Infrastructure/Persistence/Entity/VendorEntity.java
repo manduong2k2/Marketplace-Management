@@ -3,8 +3,7 @@ package com.StoreManagement.Vendor.Infrastructure.Persistence.Entity;
 import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
-
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 import com.StoreManagement.Vendor.Domain.Model.VendorStatus;
 
 import jakarta.persistence.*;
@@ -15,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "vendors")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class VendorEntity extends JpaEntity {
+public class VendorEntity extends UuidEntity {
     @Column(nullable = false)
     private UUID userId;
 

@@ -17,6 +17,7 @@ public class Product extends AggregateRoot<UUID> {
     private List<Category> categories;
     private ProductStatus status;
     private List<ProductVariant> variants;
+    private List<ProductOption> options;
 
     public Product() {
         super(null);
@@ -40,6 +41,7 @@ public class Product extends AggregateRoot<UUID> {
         private List<Category> categories;
         private ProductStatus status;
         private List<ProductVariant> variants;
+        private List<ProductOption> options;
         
         public Builder id(UUID id) {
             this.id = id;
@@ -86,6 +88,11 @@ public class Product extends AggregateRoot<UUID> {
             return this;
         }
         
+        public Builder options(List<ProductOption> options) {
+            this.options = options;
+            return this;
+        }
+        
         public Product build() {
             Product product = new Product();
             product.setId(this.id);
@@ -97,6 +104,7 @@ public class Product extends AggregateRoot<UUID> {
             product.setCategories(this.categories);
             product.setStatus(this.status);
             product.setVariants(this.variants);
+            product.setOptions(this.options);
             return product;
         }
     }
@@ -177,5 +185,13 @@ public class Product extends AggregateRoot<UUID> {
 
     public void setVariants(List<ProductVariant> variants) {
         this.variants = variants;
+    }
+
+    public List<ProductOption> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<ProductOption> options) {
+        this.options = options;
     }
 }

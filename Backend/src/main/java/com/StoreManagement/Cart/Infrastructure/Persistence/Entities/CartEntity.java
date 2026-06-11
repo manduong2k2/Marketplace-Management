@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "carts")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CartEntity extends JpaEntity {
+public class CartEntity extends UuidEntity {
     @Column(name = "user_id", nullable = false, unique = true)
     private UUID userId;
 

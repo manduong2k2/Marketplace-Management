@@ -6,7 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "files")
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class FileEntity extends JpaEntity {
+public class FileEntity extends UuidEntity {
 
     @Column(nullable = false)
     private String url;

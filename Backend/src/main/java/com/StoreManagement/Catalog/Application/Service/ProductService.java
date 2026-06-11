@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.CreateProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.GetListProductCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProductCommand;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductVariantResponse;
 import com.StoreManagement.Catalog.Domain.Constants.ProductStatusEnum;
@@ -23,9 +22,11 @@ import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Catalog.Domain.Events.ProductArchivedEvent;
 import com.StoreManagement.Catalog.Domain.Events.ProductDeletedEvent;
 import com.StoreManagement.Catalog.Domain.Models.Product;
+import com.StoreManagement.Catalog.Domain.Models.ProductOption;
 import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
 import com.StoreManagement.Shared.Application.Contracts.IFileService;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Domain.Contracts.IFileRepository;
@@ -68,7 +69,6 @@ public class ProductService implements IProductService {
                 products.getTotalElements());
     }
 
-    @Transactional
     @Cacheable(value = "product", key = "#ProductId")
     public ProductResponse getProduct(UUID ProductId) {
         Product product = productRepository.findById(ProductId);
@@ -77,12 +77,21 @@ public class ProductService implements IProductService {
 
     @Transactional
     public ProductResponse createProduct(CreateProductCommand command) throws IOException {
+        List<ProductOption> productOptions = command.getOptions().stream().map(option -> 
+            ProductOption.builder()
+                    .id(option.getTempId())
+                    .name(option.getName())
+                    .value(option.getValue())
+                    .build()
+        ).toList();
+
         Product product = Product.builder()
                 .name(command.getName())
                 .description(command.getDescription())
                 .brandId(command.getBrandId())
                 .status(command.getStatus())
                 .categoryIds(command.getCategoryIds())
+                .options(productOptions)
                 .variants(command.getVariants().stream().map(variant -> 
                     ProductVariant.builder()
                             .name(variant.getName())
@@ -98,8 +107,15 @@ public class ProductService implements IProductService {
                                     throw new RuntimeException("Failed to upload file", e);
                                 }
                             }).toList() : null)
+                            .options(productOptions.stream().filter(po -> variant.getOptionIds().contains(po.getId())).toList())
                             .build()
-                ).toList()).build();
+                ).toList())
+                .build();
+
+        productOptions.forEach(option -> {
+            option.setProduct(product);
+            option.setId(null);
+        });
 
         if (command.getStatus() != null) {
             product.setStatus(command.getStatus());
@@ -147,5 +163,10 @@ public class ProductService implements IProductService {
     public ProductVariantResponse getProductVariant(UUID productId, UUID productVariantId) {
         ProductVariant productVariant = productRepository.findVariantById(productId, productVariantId);
         return new ProductVariantResponse(productVariant, baseUrl);
+    }
+
+    public ProductVariantResponse getProductVariant(List<UUID> optionIds) {
+        
+        return null;
     }
 }

@@ -13,11 +13,11 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.CreateBrandCom
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.GetListBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.UpdateBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandRepository;
 import com.StoreManagement.Catalog.Domain.Contract.IBrandService;
 import com.StoreManagement.Catalog.Domain.Models.Brand;
 import com.StoreManagement.Shared.Application.Contracts.IFileService;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Contracts.IEventPublisher;
 import com.StoreManagement.Shared.Infrastructure.Event.EventOptions;
 

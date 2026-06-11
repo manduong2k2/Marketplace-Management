@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 public abstract class BaseController {
 

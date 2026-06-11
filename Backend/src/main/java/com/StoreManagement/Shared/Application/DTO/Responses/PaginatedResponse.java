@@ -1,4 +1,4 @@
-package com.StoreManagement.Catalog.Application.DTO.Response;
+package com.StoreManagement.Shared.Application.DTO.Responses;
 
 import java.io.Serializable;
 import java.util.List;

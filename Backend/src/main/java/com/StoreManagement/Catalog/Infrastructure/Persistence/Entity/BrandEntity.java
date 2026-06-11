@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
 
-import com.StoreManagement.Shared.Infrastructure.Persistence.JpaEntity;
+import com.StoreManagement.Shared.Infrastructure.Persistence.UuidEntity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "brands")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class BrandEntity extends JpaEntity {
+public class BrandEntity extends UuidEntity {
     @Column(nullable = false)
     @Size(max = 100)
     @Nationalized

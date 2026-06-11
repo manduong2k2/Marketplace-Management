@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor // For Jackson deserialization
 @AllArgsConstructor
-@JsonPropertyOrder({"id", "name", "code", "stock", "price", "images"})
+@JsonPropertyOrder({"id", "name", "code", "stock", "price", "images", "options"})
 public class ProductVariantResponse {
     private UUID id;
     private String name;
@@ -22,6 +22,7 @@ public class ProductVariantResponse {
     private double price;
     private List<String> images;
     private ProductResponse product;
+    private List<ProductOptionResponse> options;
 
     public ProductVariantResponse(ProductVariant variant, String baseUrl) {
         this.id = variant.getId();
@@ -31,5 +32,6 @@ public class ProductVariantResponse {
         this.price = variant.getPrice().getValue();
         this.images = variant.getFiles() != null ? variant.getFiles().stream().map(file -> baseUrl + "/" + file.getUrl()).toList() : null;
         this.product = new ProductResponse(variant.getProduct(), baseUrl);
+        this.options = variant.getOptions() != null ? variant.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;
     }
 }

@@ -7,7 +7,7 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.CreateBrandCom
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.GetListBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Commands.Brand.UpdateBrandCommand;
 import com.StoreManagement.Catalog.Application.DTO.Response.BrandResponse;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 public interface IBrandService {
     public PaginatedResponse<BrandResponse> getAllBrands(GetListBrandCommand command);

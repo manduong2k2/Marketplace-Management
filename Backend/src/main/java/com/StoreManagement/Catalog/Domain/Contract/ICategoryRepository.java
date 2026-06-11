@@ -4,8 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.StoreManagement.Catalog.Application.DTO.Commands.Category.GetListCategoryCommand;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Domain.Models.Category;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 
 public interface ICategoryRepository {
     Category save(Category Category);

@@ -1,5 +1,7 @@
 package com.StoreManagement.Catalog.Infrastructure.Mapper;
 
+import java.util.List;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -9,32 +11,31 @@ import org.springframework.stereotype.Component;
 import com.StoreManagement.Catalog.Domain.Models.Brand;
 import com.StoreManagement.Catalog.Domain.Models.Category;
 import com.StoreManagement.Catalog.Domain.Models.Product;
+import com.StoreManagement.Catalog.Domain.Models.ProductOption;
 import com.StoreManagement.Catalog.Domain.Models.ProductVariant;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.BrandEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.CategoryEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductEntity;
+import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductOptionEntity;
 import com.StoreManagement.Catalog.Infrastructure.Persistence.Entity.ProductVariantEntity;
-import com.StoreManagement.Shared.Domain.File;
 import com.StoreManagement.Shared.Domain.Contracts.IMapper;
-import com.StoreManagement.Shared.Infrastructure.Persistence.Entity.FileEntity;
 
 @Component
 public class ProductMapper implements IMapper<Product, ProductEntity> {
     @PersistenceContext
     private EntityManager entityManager;
-
-    @Autowired
-    public IMapper<File, FileEntity> fileMapper;
     
     @Autowired
-    public IMapper<Brand, BrandEntity> brandMapper;
+    private IMapper<Brand, BrandEntity> brandMapper;
 
     @Autowired
-    public IMapper<Category, CategoryEntity> categoryMapper;
+    private IMapper<Category, CategoryEntity> categoryMapper;
 
     @Autowired
-    public IMapper<ProductVariant, ProductVariantEntity> variantMapper;
+    private IMapper<ProductVariant, ProductVariantEntity> variantMapper;
     
+    @Autowired
+    private IMapper<ProductOption, ProductOptionEntity> optionMapper;
 
     @Override
     public Product toDomain(ProductEntity entity) {
@@ -51,6 +52,7 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                         entity.getCategories() != null ? entity.getCategories().stream().map(category -> category.getId())
                                 .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList())
                 .variants(entity.getVariants().stream().map(variantMapper::toDomain).toList())
+                .options(entity.getOptions().stream().map(optionMapper::toDomain).toList())
                 .build();
     }
 
@@ -65,9 +67,18 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                         .map(categoryId -> entityManager.find(CategoryEntity.class, categoryId))
                         .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
         entity.setStatus(domain.getStatus());
+        
+        List<ProductOptionEntity> optionEntities = domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity)
+                        .peek(option -> option.setProduct(entity))
+                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList();
+        entity.setOptions(optionEntities);
+
         entity.setVariants(
                 domain.getVariants() != null ? domain.getVariants().stream().map(variantMapper::toEntity)
-                        .peek(variant -> variant.setProduct(entity))
+                        .peek(variant -> {
+                            variant.setProduct(entity);
+                            variant.setOptions(optionEntities);
+                        })
                         .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
         return entity;
     }

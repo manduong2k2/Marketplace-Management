@@ -21,6 +21,7 @@ public class CreateProductVariantCommand extends BaseCommand {
     private int stock;
     
     private List<MultipartFile> images;
+    private List<Integer> optionIds;
 
     public static CreateProductVariantCommand fromRequest(CreateProductVariantRequest request) {
         return new CreateProductVariantCommand(
@@ -28,7 +29,8 @@ public class CreateProductVariantCommand extends BaseCommand {
             BaseCommand.safeTrim(request.getCode()),
             request.getPrice(),
             request.getStock(),
-            request.getImages()
+            request.getImages(),
+            request.getOptionIds()
         );
     }
 }

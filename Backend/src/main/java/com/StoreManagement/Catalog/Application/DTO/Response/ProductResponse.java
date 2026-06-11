@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor // For Jackson deserialization
-@JsonPropertyOrder({"id", "name", "brand", "categories", "description", "status", "variants"})
+@JsonPropertyOrder({"id", "name", "brand", "categories", "description", "status", "options", "variants"})
 public class ProductResponse {
     private UUID id;
     private String name;
@@ -22,6 +22,7 @@ public class ProductResponse {
     private String description;
     private String status;
     private List<ProductVariantResponse> variants;
+    private List<ProductOptionResponse> options;
     
     public ProductResponse(Product product, String baseUrl) {
         if(product == null) {
@@ -34,6 +35,7 @@ public class ProductResponse {
         this.categories = product.getCategories() != null ? product.getCategories().stream().map(category -> new CategoryResponse(category, baseUrl)).toList() : null;
         this.description = product.getDescription();
         this.status = product.getStatus();
+        this.options = product.getOptions() != null ? product.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;
         this.variants = product.getVariants() != null ? product.getVariants().stream().map(variant -> new ProductVariantResponse(variant, baseUrl)).toList() : null;
     }
 }

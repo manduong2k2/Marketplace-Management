@@ -12,6 +12,7 @@ import com.StoreManagement.Shared.Application.Validator.Rules.ExistValidator;
 @Constraint(validatedBy = ExistValidator.class)
 @Repeatable(ExistList.class)
 public @interface Exist {
+    boolean when() default true;
 
     String message() default "Value not exists";
 

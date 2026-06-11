@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Order.Application.Contracts.IOrderService;
 import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
 import com.StoreManagement.Order.Application.DTO.Commands.PlaceOrderCommand;
@@ -23,6 +22,7 @@ import com.StoreManagement.Order.Application.DTO.Requests.PlaceOrderRequest;
 import com.StoreManagement.Order.Application.DTO.Responses.HistoryResponse;
 import com.StoreManagement.Order.Application.DTO.Responses.OrderResponse;
 import com.StoreManagement.Shared.Application.Annotation.Auth.Authenticated;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
 import jakarta.validation.Valid;

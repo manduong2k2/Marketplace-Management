@@ -23,15 +23,14 @@ import com.StoreManagement.Catalog.Application.DTO.Commands.Product.UpdateProduc
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.CreateProductRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.GetListProductRequest;
 import com.StoreManagement.Catalog.Application.DTO.Requests.Product.UpdateProductRequest;
-import com.StoreManagement.Catalog.Application.DTO.Response.PaginatedResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductResponse;
 import com.StoreManagement.Catalog.Application.DTO.Response.ProductVariantResponse;
 import com.StoreManagement.Catalog.Domain.Contract.IProductService;
 import com.StoreManagement.Shared.Application.Controllers.BaseController;
+import com.StoreManagement.Shared.Application.DTO.Responses.PaginatedResponse;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/api/products")
@@ -70,6 +69,12 @@ public class ProductController extends BaseController{
         
         return objectResponse(product);
     }
+
+    @GetMapping("/{productId}/variants")
+    public ResponseEntity<Map<String, Object>> getProductVariants(@PathVariable UUID productId) {
+        return simpleResponse(null);
+    }
+    
 
     @GetMapping("/{productId}/variants/{productVariantId}")
     public ResponseEntity<Map<String, Object>> getProductVariant(@PathVariable UUID productId, @PathVariable UUID productVariantId) {

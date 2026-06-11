@@ -17,6 +17,7 @@ public class ExistValidator implements ConstraintValidator<Exist, Object> {
     @PersistenceContext
     private EntityManager em;
 
+    private boolean when;
     private String table;
     private String column;
     private Class<?> type;
@@ -25,6 +26,7 @@ public class ExistValidator implements ConstraintValidator<Exist, Object> {
 
     @Override
     public void initialize(Exist exist) {
+        this.when = exist.when();
         this.table = exist.table();
         this.column = exist.column();
         this.type = exist.type();
@@ -34,6 +36,11 @@ public class ExistValidator implements ConstraintValidator<Exist, Object> {
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
+        
+        if(!when) {
+            return true;
+        }
+
         if (value == null) return true;
 
         if(type == UUID.class) {

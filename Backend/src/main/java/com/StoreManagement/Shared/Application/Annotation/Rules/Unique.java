@@ -13,6 +13,8 @@ import com.StoreManagement.Shared.Application.Validator.Rules.UniqueValidator;
 @Repeatable(UniqueList.class)
 public @interface Unique {
 
+    boolean when() default true;
+
     String message() default "Value already exists";
 
     Class<?>[] groups() default {};
@@ -23,9 +25,7 @@ public @interface Unique {
     String column();
     Class<?> type() default String.class;
 
-    // optional: hỗ trợ soft delete
     String deletedAtColumn() default "";
     
-    // optional: điều kiện bổ sung (ví dụ: "role_id = 1 AND status = 'active'")
     String whereClause() default "";
 }
