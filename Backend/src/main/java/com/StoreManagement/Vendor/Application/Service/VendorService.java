@@ -3,7 +3,6 @@ package com.StoreManagement.Vendor.Application.Service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,10 +25,13 @@ import jakarta.transaction.Transactional;
 @Service
 public class VendorService implements IVendorService {
 
-    @Autowired
-    public IVendorRepository vendorRepository;
-    @Autowired
-    public IEventPublisher eventPublisher;
+    private final IVendorRepository vendorRepository;
+    private final IEventPublisher eventPublisher;
+
+    public VendorService(IVendorRepository vendorRepository, IEventPublisher eventPublisher) {
+        this.vendorRepository = vendorRepository;
+        this.eventPublisher = eventPublisher;
+    }
 
     public List<VendorResponse> getAll() {
         return vendorRepository.findAll().stream()

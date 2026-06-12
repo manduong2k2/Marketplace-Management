@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -38,23 +37,24 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class ProductService implements IProductService {
-    @Autowired
-    public IProductRepository productRepository;
-
-    @Autowired
-    public IFileRepository fileRepository;
-
-    @Autowired
-    public IEventPublisher eventPublisher;
-
-    @Autowired
-    public IFileService fileService;
-
-    @Autowired
-    public IMapper<Product, ProductEntity> productMapper;
+    private final IProductRepository productRepository;
+    private final IFileRepository fileRepository;
+    private final IEventPublisher eventPublisher;
+    private final IFileService fileService;
+    private final IMapper<Product, ProductEntity> productMapper;
 
     @Value("${spring.application.base-url}")
     private String baseUrl;
+
+    public ProductService(IProductRepository productRepository, IFileRepository fileRepository,
+                        IEventPublisher eventPublisher, IFileService fileService,
+                        IMapper<Product, ProductEntity> productMapper) {
+        this.productRepository = productRepository;
+        this.fileRepository = fileRepository;
+        this.eventPublisher = eventPublisher;
+        this.fileService = fileService;
+        this.productMapper = productMapper;
+    }
 
     @Cacheable(value = "products", key = "#command.page + '_' + #command.size + '_' + #command.search + '_' + #command.categoryIds + '_' + #command.brandId")
     public PaginatedResponse<ProductResponse> getAllProducts(GetListProductCommand command) {

@@ -1,6 +1,5 @@
 package com.StoreManagement.Catalog.Infrastructure.Mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Catalog.Domain.Models.Product;
@@ -14,12 +13,14 @@ import com.StoreManagement.Shared.Infrastructure.Persistence.Entity.FileEntity;
 
 @Component
 public class ProductVariantMapper implements IMapper<ProductVariant, ProductVariantEntity>{
-    
-    @Autowired
-    private IMapper<File, FileEntity> fileMapper;
 
-    @Autowired
-    private IMapper<ProductOption, ProductOptionEntity> optionMapper;
+    private final IMapper<File, FileEntity> fileMapper;
+    private final IMapper<ProductOption, ProductOptionEntity> optionMapper;
+
+    public ProductVariantMapper(IMapper<File, FileEntity> fileMapper, IMapper<ProductOption, ProductOptionEntity> optionMapper) {
+        this.fileMapper = fileMapper;
+        this.optionMapper = optionMapper;
+    }
 
     public ProductVariant toDomain(ProductVariantEntity entity) {
 

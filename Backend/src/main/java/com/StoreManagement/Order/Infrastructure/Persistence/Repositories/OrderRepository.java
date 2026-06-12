@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.StoreManagement.Order.Application.DTO.Commands.ListOrderCommand;
@@ -25,14 +24,15 @@ import jakarta.persistence.criteria.Root;
 @Repository
 public class OrderRepository implements IOrderRepository {
 
-    @Autowired
-    private OrderJpaRepository jpaRepository;
+    private final OrderJpaRepository jpaRepository;
+    private final IMapper<Order, OrderEntity> mapper;
+    private final EntityManager entityManager;
 
-    @Autowired
-    private IMapper<Order, OrderEntity> mapper;
-
-    @Autowired
-    private EntityManager entityManager;
+    public OrderRepository(OrderJpaRepository jpaRepository, IMapper<Order, OrderEntity> mapper, EntityManager entityManager) {
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+        this.entityManager = entityManager;
+    }
 
     @Override
     public PaginatedResponse<HistoryResponse> findAll(ListOrderCommand command) {

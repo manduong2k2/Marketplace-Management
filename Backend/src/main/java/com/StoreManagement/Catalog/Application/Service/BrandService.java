@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,15 +24,18 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class BrandService implements IBrandService {
-    @Autowired
-    public IBrandRepository brandRepository;
-    @Autowired
-    public IEventPublisher eventPublisher; 
-    @Autowired
-    public IFileService fileService;
-    
+    private final IBrandRepository brandRepository;
+    private final IEventPublisher eventPublisher;
+    private final IFileService fileService;
+
     @Value("${spring.application.base-url:http://localhost:8080}")
     private String baseUrl;
+
+    public BrandService(IBrandRepository brandRepository, IEventPublisher eventPublisher, IFileService fileService) {
+        this.brandRepository = brandRepository;
+        this.eventPublisher = eventPublisher;
+        this.fileService = fileService;
+    }
 
     public PaginatedResponse<BrandResponse> getAllBrands(GetListBrandCommand command) {
         PaginatedResponse<Brand> brands = brandRepository.findAll(command);

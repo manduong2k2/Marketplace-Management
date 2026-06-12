@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -46,20 +45,21 @@ import com.StoreManagement.Shared.Infrastructure.Security.SecurityUtils;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private IAuthService auth;
-
-    @Autowired
-    private ICookieService cookieService;
+    private final JwtService jwtService;
+    private final IAuthService auth;
+    private final ICookieService cookieService;
 
     @Value("${spring.application.auth-domain}")
     private String authDomain;
-    
+
     @Value("${application.frontend.base-url}")
     private String frontendBaseUrl;
+
+    public AuthController(JwtService jwtService, IAuthService auth, ICookieService cookieService) {
+        this.jwtService = jwtService;
+        this.auth = auth;
+        this.cookieService = cookieService;
+    }
 
     @PostMapping("/register")
     public RegisterResponse register(@Valid @ModelAttribute RegisterRequest req)

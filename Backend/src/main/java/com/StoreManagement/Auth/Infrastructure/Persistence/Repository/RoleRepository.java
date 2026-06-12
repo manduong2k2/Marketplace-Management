@@ -3,7 +3,6 @@ package com.StoreManagement.Auth.Infrastructure.Persistence.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.StoreManagement.Auth.Domain.Contract.IRoleRepository;
@@ -13,11 +12,13 @@ import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 
 @Repository
 public class RoleRepository implements IRoleRepository {
-    @Autowired
-    private RoleJpaRepository roleJpaRepository;
+    private final RoleJpaRepository roleJpaRepository;
+    private final IMapper<Role, RoleEntity> roleMapper;
 
-    @Autowired
-    private IMapper<Role, RoleEntity> roleMapper;
+    public RoleRepository(RoleJpaRepository roleJpaRepository, IMapper<Role, RoleEntity> roleMapper) {
+        this.roleJpaRepository = roleJpaRepository;
+        this.roleMapper = roleMapper;
+    }
 
     public Optional<Role> findByCode(String code) {
         return roleJpaRepository.findByCode(code).map(roleMapper::toDomain);

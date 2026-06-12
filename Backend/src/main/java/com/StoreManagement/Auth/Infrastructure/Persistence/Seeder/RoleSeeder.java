@@ -2,7 +2,6 @@ package com.StoreManagement.Auth.Infrastructure.Persistence.Seeder;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Auth.Domain.Contract.IRoleRepository;
@@ -10,8 +9,11 @@ import com.StoreManagement.Auth.Domain.Models.Role;
 
 @Component
 public class RoleSeeder {
-    @Autowired
-    public IRoleRepository roleRepository;
+    private final IRoleRepository roleRepository;
+
+    public RoleSeeder(IRoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
     
     public void seedRoles() {
         if(roleRepository.count() == 0) {

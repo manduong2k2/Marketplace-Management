@@ -5,7 +5,6 @@ import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Catalog.Domain.Models.Brand;
@@ -24,18 +23,20 @@ import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 public class ProductMapper implements IMapper<Product, ProductEntity> {
     @PersistenceContext
     private EntityManager entityManager;
-    
-    @Autowired
-    private IMapper<Brand, BrandEntity> brandMapper;
 
-    @Autowired
-    private IMapper<Category, CategoryEntity> categoryMapper;
+    private final IMapper<Brand, BrandEntity> brandMapper;
+    private final IMapper<Category, CategoryEntity> categoryMapper;
+    private final IMapper<ProductVariant, ProductVariantEntity> variantMapper;
+    private final IMapper<ProductOption, ProductOptionEntity> optionMapper;
 
-    @Autowired
-    private IMapper<ProductVariant, ProductVariantEntity> variantMapper;
-    
-    @Autowired
-    private IMapper<ProductOption, ProductOptionEntity> optionMapper;
+    public ProductMapper(IMapper<Brand, BrandEntity> brandMapper, IMapper<Category, CategoryEntity> categoryMapper,
+                        IMapper<ProductVariant, ProductVariantEntity> variantMapper,
+                        IMapper<ProductOption, ProductOptionEntity> optionMapper) {
+        this.brandMapper = brandMapper;
+        this.categoryMapper = categoryMapper;
+        this.variantMapper = variantMapper;
+        this.optionMapper = optionMapper;
+    }
 
     @Override
     public Product toDomain(ProductEntity entity) {

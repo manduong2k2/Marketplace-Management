@@ -2,7 +2,6 @@ package com.StoreManagement.Order.Application.Security;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Order.Domain.Contracts.IOrderRepository;
@@ -12,8 +11,11 @@ import com.StoreManagement.Shared.Infrastructure.Security.SecurityUtils;
 @Component
 public class OrderSecurity {
 
-    @Autowired
-    private IOrderRepository orderRepository;
+    private final IOrderRepository orderRepository;
+
+    public OrderSecurity(IOrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     public boolean canViewOrder(UUID orderId) {
         UUID currentUserId = SecurityUtils.currentUserId();

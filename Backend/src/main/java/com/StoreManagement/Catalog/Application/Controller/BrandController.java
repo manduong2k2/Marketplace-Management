@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,8 +31,11 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/brands")
 public class BrandController {
-    @Autowired
-    private IBrandService brandService;
+    private final IBrandService brandService;
+
+    public BrandController(IBrandService brandService) {
+        this.brandService = brandService;
+    }
 
     @GetMapping
     public ResponseEntity<HashMap<String,Object>> getAll(@Valid @ModelAttribute GetListBrandRequest request) {

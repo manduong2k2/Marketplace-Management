@@ -5,7 +5,6 @@ import jakarta.mail.MessagingException;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -30,29 +29,25 @@ import com.StoreManagement.Auth.Domain.Contract.IRoleRepository;
 import com.StoreManagement.Auth.Domain.Contract.IUserRepository;
 import com.StoreManagement.Auth.Domain.Models.Role;
 import com.StoreManagement.Auth.Domain.Models.User;
-import com.StoreManagement.Auth.Infrastructure.Mapper.RoleMapper;
 import com.StoreManagement.Shared.Domain.Constants.UserRole;
 import com.StoreManagement.Shared.Infrastructure.Security.JwtService;
 
 @Service
 public class AuthService implements IAuthService {
-    @Autowired
-    public IUserRepository repo;
+    private final IUserRepository repo;
+    private final IRoleRepository roleRepo;
+    private final JwtService tokenService;
+    private final PasswordEncoder encoder;
+    private final EmailVerificationTokenService emailVerificationTokenService;
 
-    @Autowired
-    public IRoleRepository roleRepo;
-
-    @Autowired
-    public JwtService tokenService;
-
-    @Autowired
-    public PasswordEncoder encoder;
-
-    @Autowired
-    public EmailVerificationTokenService emailVerificationTokenService;
-    
-    @Autowired
-    public RoleMapper roleMapper;
+    public AuthService(IUserRepository repo, IRoleRepository roleRepo, JwtService tokenService,
+                      PasswordEncoder encoder, EmailVerificationTokenService emailVerificationTokenService) {
+        this.repo = repo;
+        this.roleRepo = roleRepo;
+        this.tokenService = tokenService;
+        this.encoder = encoder;
+        this.emailVerificationTokenService = emailVerificationTokenService;
+    }
 
     @Transactional
     public RegisterResponse register(RegisterCommand command) throws MessagingException {

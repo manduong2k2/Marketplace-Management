@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Cart.Application.Contracts.ICartService;
@@ -17,9 +16,11 @@ import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMqQueues.Pr
 public class ProductEventsConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductEventsConsumer.class);
+    private final ICartService cartService;
 
-    @Autowired
-    private ICartService cartService;
+    public ProductEventsConsumer(ICartService cartService) {
+        this.cartService = cartService;
+    }
 
     @RabbitListener(queues = ProductQueueConfig.PRODUCT_DELETED_QUEUE)
     public void handleProductDeletedEvent(ProductDeletedMessage message) {

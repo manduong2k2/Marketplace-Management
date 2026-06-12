@@ -2,7 +2,6 @@ package com.StoreManagement.Cart.Application.Services;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +19,13 @@ import com.StoreManagement.Cart.Domain.Models.Cart.CartItem;
 @Service
 public class CartService implements ICartService {
 
-    @Autowired
-    private ICartRepository repository;
+    private final ICartRepository repository;
+    private final IProductService productService;
 
-    @Autowired
-    private IProductService productService;
+    public CartService(ICartRepository repository, IProductService productService) {
+        this.repository = repository;
+        this.productService = productService;
+    }
 
     @Override
     public Cart addItem(AddToCartCommand command) {

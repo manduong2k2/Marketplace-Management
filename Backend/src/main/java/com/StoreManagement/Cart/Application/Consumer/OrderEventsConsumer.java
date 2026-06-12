@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Cart.Application.Contracts.ICartService;
@@ -14,10 +13,12 @@ import com.StoreManagement.Shared.Infrastructure.Configuration.RabbitMqQueues.Or
 
 @Component
 public class OrderEventsConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(ProductEventsConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderEventsConsumer.class);
+    private final ICartService cartService;
 
-    @Autowired
-    private ICartService cartService;
+    public OrderEventsConsumer(ICartService cartService) {
+        this.cartService = cartService;
+    }
 
     @RabbitListener(queues = OrderQueueConfig.ORDER_PLACED_QUEUE)
     public void handleOrderPlacedEvent(OrderPlacedMessage message) {

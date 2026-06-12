@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,17 +34,15 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class OrderService implements IOrderService{
-    @Autowired
-    private IOrderRepository repository;
+    private final IOrderRepository repository;
+    private final IEventPublisher eventPublisher;
+    private final ICartService cartService;
 
-    //@Autowired
-    //private IProductService productService;
-
-    @Autowired
-    private IEventPublisher eventPublisher;
-
-    @Autowired
-    private ICartService cartService;
+    public OrderService(IOrderRepository repository, IEventPublisher eventPublisher, ICartService cartService) {
+        this.repository = repository;
+        this.eventPublisher = eventPublisher;
+        this.cartService = cartService;
+    }
 
     public PaginatedResponse<HistoryResponse> list(ListOrderCommand command) {
         return repository.findAll(command);

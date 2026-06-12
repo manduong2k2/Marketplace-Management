@@ -2,7 +2,6 @@ package com.StoreManagement.Auth.Application.Service;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,14 +22,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationTokenService {
-    @Autowired
-    private IEmailVerifyTokenRepository repo;
-
-    @Autowired
-    public PasswordEncoder encoder;
-
+    private final IEmailVerifyTokenRepository repo;
+    private final PasswordEncoder encoder;
     private final JavaMailSender mailSender;
-
     private final SpringTemplateEngine templateEngine;
 
     @Value("${spring.application.base-url}")

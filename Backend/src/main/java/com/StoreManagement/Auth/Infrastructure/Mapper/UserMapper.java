@@ -1,6 +1,5 @@
 package com.StoreManagement.Auth.Infrastructure.Mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Auth.Domain.Models.User;
@@ -9,8 +8,11 @@ import com.StoreManagement.Shared.Domain.Contracts.IMapper;
 
 @Component
 public class UserMapper implements IMapper<User, UserEntity>{
-    @Autowired
-    private RoleMapper roleMapper;
+    private final RoleMapper roleMapper;
+
+    public UserMapper(RoleMapper roleMapper) {
+        this.roleMapper = roleMapper;
+    }
 
     @Override
     public User toDomain(UserEntity entity) {

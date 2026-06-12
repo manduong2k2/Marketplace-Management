@@ -3,7 +3,6 @@ package com.StoreManagement.Catalog.Application.Security;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.StoreManagement.Catalog.Domain.Contract.IProductRepository;
@@ -14,11 +13,13 @@ import com.StoreManagement.Vendor.Domain.Contract.IVendorService;
 
 @Component
 public class ProductSecurity {
-    @Autowired
-    private IProductRepository repository;
+    private final IProductRepository repository;
+    private final IVendorService vendorService;
 
-    @Autowired
-    private IVendorService vendorService;
+    public ProductSecurity(IProductRepository repository, IVendorService vendorService) {
+        this.repository = repository;
+        this.vendorService = vendorService;
+    }
 
     public boolean canView(Long productId) {
         return true;

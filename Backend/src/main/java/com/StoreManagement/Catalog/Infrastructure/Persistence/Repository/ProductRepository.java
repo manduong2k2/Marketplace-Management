@@ -1,6 +1,5 @@
 package com.StoreManagement.Catalog.Infrastructure.Persistence.Repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,14 +20,15 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 @Repository
 public class ProductRepository implements IProductRepository {
 
-    @Autowired
-    private ProductJpaRepository jpaRepository;
+    private final ProductJpaRepository jpaRepository;
+    private final IMapper<Product, ProductEntity> productMapper;
+    private final JPAQueryFactory jpaQueryFactory;
 
-    @Autowired
-    private IMapper<Product, ProductEntity> productMapper;
-
-    @Autowired
-    public JPAQueryFactory jpaQueryFactory;
+    public ProductRepository(ProductJpaRepository jpaRepository, IMapper<Product, ProductEntity> productMapper, JPAQueryFactory jpaQueryFactory) {
+        this.jpaRepository = jpaRepository;
+        this.productMapper = productMapper;
+        this.jpaQueryFactory = jpaQueryFactory;
+    }
 
     public PaginatedResponse<Product> findAll(GetListProductCommand command) {
 

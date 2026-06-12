@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,14 +35,18 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/vendors")
 public class VendorController extends BaseController{
 
-    @Autowired
-    private IVendorService vendorService;
-    @Autowired
-    private CreateVendorCommandMapper createMapper;
-    @Autowired
-    private UpdateVendorCommandMapper updateMapper;
-    @Autowired
-    private RegisterVendorCommandMapper registerMapper;
+    private final IVendorService vendorService;
+    private final CreateVendorCommandMapper createMapper;
+    private final UpdateVendorCommandMapper updateMapper;
+    private final RegisterVendorCommandMapper registerMapper;
+
+    public VendorController(IVendorService vendorService, CreateVendorCommandMapper createMapper,
+                          UpdateVendorCommandMapper updateMapper, RegisterVendorCommandMapper registerMapper) {
+        this.vendorService = vendorService;
+        this.createMapper = createMapper;
+        this.updateMapper = updateMapper;
+        this.registerMapper = registerMapper;
+    }
 
     @Authenticated
     @GetMapping

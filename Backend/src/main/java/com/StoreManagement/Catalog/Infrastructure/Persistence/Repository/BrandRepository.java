@@ -1,6 +1,5 @@
 package com.StoreManagement.Catalog.Infrastructure.Persistence.Repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -25,12 +24,11 @@ import jakarta.persistence.EntityManager;
 public class BrandRepository implements IBrandRepository {
 
     private final BrandJpaRepository jpaRepository;
+    private final EntityManager entityManager;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    public BrandRepository(BrandJpaRepository jpaRepository) {
+    public BrandRepository(BrandJpaRepository jpaRepository, EntityManager entityManager) {
         this.jpaRepository = jpaRepository;
+        this.entityManager = entityManager;
     }
 
     @Override

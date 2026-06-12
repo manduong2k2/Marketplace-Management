@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -27,15 +26,18 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class CategoryService implements ICategoryService {
-    @Autowired
-    public ICategoryRepository categoryRepository;
-    @Autowired
-    public IEventPublisher eventPublisher;
-    @Autowired
-    public IFileService fileService;
-    
+    private final ICategoryRepository categoryRepository;
+    private final IEventPublisher eventPublisher;
+    private final IFileService fileService;
+
     @Value("${spring.application.base-url:http://localhost:8080}")
-    private String baseUrl; 
+    private String baseUrl;
+
+    public CategoryService(ICategoryRepository categoryRepository, IEventPublisher eventPublisher, IFileService fileService) {
+        this.categoryRepository = categoryRepository;
+        this.eventPublisher = eventPublisher;
+        this.fileService = fileService;
+    } 
 
     public PaginatedResponse<CategoryResponse> getAllCategories(GetListCategoryCommand command) {
         PaginatedResponse<Category> categories = categoryRepository.findAll(command);

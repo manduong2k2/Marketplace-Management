@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,8 +32,11 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
-    @Autowired
-    private ICartService cartService;
+    private final ICartService cartService;
+
+    public CartController(ICartService cartService) {
+        this.cartService = cartService;
+    }
 
     @Authenticated
     @GetMapping

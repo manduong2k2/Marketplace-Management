@@ -1,6 +1,5 @@
 package com.StoreManagement.Catalog.Infrastructure.Persistence.Repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -27,13 +26,12 @@ public class CategoryRepository implements ICategoryRepository {
 
     private final CategoryJpaRepository jpaRepository;
     private final IMapper<Category, CategoryEntity> mapper;
+    private final EntityManager entityManager;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    public CategoryRepository(CategoryJpaRepository jpaRepository, IMapper<Category, CategoryEntity> mapper) {
+    public CategoryRepository(CategoryJpaRepository jpaRepository, IMapper<Category, CategoryEntity> mapper, EntityManager entityManager) {
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
+        this.entityManager = entityManager;
     }
 
     @Override

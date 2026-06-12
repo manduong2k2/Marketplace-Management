@@ -1,6 +1,5 @@
 package com.StoreManagement.Auth.Infrastructure.Persistence.Seeder;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -9,12 +8,14 @@ import jakarta.transaction.Transactional;
 
 @Component
 public class DatabaseSeeder {
-    
-    @Autowired
-    private AdminSeeder adminSeeder;
-    
-    @Autowired
-    private RoleSeeder roleSeeder;
+
+    private final AdminSeeder adminSeeder;
+    private final RoleSeeder roleSeeder;
+
+    public DatabaseSeeder(AdminSeeder adminSeeder, RoleSeeder roleSeeder) {
+        this.adminSeeder = adminSeeder;
+        this.roleSeeder = roleSeeder;
+    }
     
     @Bean
     @Transactional
