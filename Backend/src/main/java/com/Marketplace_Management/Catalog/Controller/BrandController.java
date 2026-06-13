@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Marketplace_Management.Catalog.Contracts.IBrandService;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.CreateBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.GetListBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.UpdateBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Requests.Brand.CreateBrandRequest;
-import com.Marketplace_Management.Catalog.DTO.Requests.Brand.GetListBrandRequest;
-import com.Marketplace_Management.Catalog.DTO.Requests.Brand.UpdateBrandRequest;
-import com.Marketplace_Management.Catalog.DTO.Response.BrandResponse;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Constants.UserRole;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.CreateBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.GetListBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.UpdateBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.CreateBrandRequest;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.GetListBrandRequest;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.UpdateBrandRequest;
+import com.Marketplace_Management.Catalog.DTOs.Response.BrandResponse;
+import com.Marketplace_Management.Shared.Constants.UserRole;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.validation.Valid;
 

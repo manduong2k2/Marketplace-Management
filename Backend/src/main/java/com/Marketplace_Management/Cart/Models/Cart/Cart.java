@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.Marketplace_Management.Cart.Constants.CartStatusEnum;
-import com.Marketplace_Management.Shared.Domain.AggregateRoot;
+import com.Marketplace_Management.Shared.Models.AggregateRoot;
 
 public class Cart extends AggregateRoot<UUID> {
     private UUID userId;

@@ -1,8 +1,8 @@
 package com.Marketplace_Management.Cart.Models.Order;
 
-import com.Marketplace_Management.Shared.Domain.ValueObject;
-
 import java.util.Objects;
+
+import com.Marketplace_Management.Shared.Models.ValueObject;
 
 public class Money extends ValueObject{
     private double amount;

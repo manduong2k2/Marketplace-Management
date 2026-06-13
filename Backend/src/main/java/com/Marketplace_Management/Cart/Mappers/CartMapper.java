@@ -9,7 +9,7 @@ import com.Marketplace_Management.Cart.Entities.CartEntity;
 import com.Marketplace_Management.Cart.Entities.CartItemEntity;
 import com.Marketplace_Management.Cart.Models.Cart.Cart;
 import com.Marketplace_Management.Cart.Models.Cart.CartItem;
-import com.Marketplace_Management.Shared.Domain.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.IMapper;
 
 @Component
 public class CartMapper implements IMapper<Cart, CartEntity> {

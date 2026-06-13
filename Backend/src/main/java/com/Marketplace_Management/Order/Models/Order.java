@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.Marketplace_Management.Shared.Domain.AggregateRoot;
+import com.Marketplace_Management.Shared.Models.AggregateRoot;
 
 public class Order extends AggregateRoot<UUID> {
     private UUID userId;

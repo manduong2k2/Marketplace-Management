@@ -2,11 +2,11 @@ package com.Marketplace_Management.Catalog.Contracts;
 
 import java.util.UUID;
 
-import com.Marketplace_Management.Catalog.DTO.Commands.Product.GetListProductCommand;
-import com.Marketplace_Management.Catalog.DTO.Response.Short.ProductShortResponse;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Product.GetListProductCommand;
+import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 
 public interface IProductRepository {

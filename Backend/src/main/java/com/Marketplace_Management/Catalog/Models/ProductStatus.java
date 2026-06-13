@@ -1,7 +1,7 @@
 package com.Marketplace_Management.Catalog.Models;
 
 import com.Marketplace_Management.Catalog.Constants.ProductStatusEnum;
-import com.Marketplace_Management.Shared.Domain.ValueObject;
+import com.Marketplace_Management.Shared.Models.ValueObject;
 
 public class ProductStatus extends ValueObject{
     private String value;

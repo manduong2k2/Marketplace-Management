@@ -3,9 +3,9 @@ package com.Marketplace_Management.Catalog.Contracts;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.GetListCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.GetListCategoryCommand;
 import com.Marketplace_Management.Catalog.Models.Category;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 public interface ICategoryRepository {
     Category save(Category Category);

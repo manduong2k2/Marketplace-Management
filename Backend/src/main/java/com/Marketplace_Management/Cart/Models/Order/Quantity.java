@@ -2,7 +2,7 @@ package com.Marketplace_Management.Cart.Models.Order;
 
 import java.util.Objects;
 
-import com.Marketplace_Management.Shared.Domain.ValueObject;
+import com.Marketplace_Management.Shared.Models.ValueObject;
 
 public class Quantity extends ValueObject{
     private int value;

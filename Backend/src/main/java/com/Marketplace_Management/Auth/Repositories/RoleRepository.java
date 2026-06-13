@@ -5,10 +5,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.Marketplace_Management.Auth.Contract.IRoleRepository;
-import com.Marketplace_Management.Auth.Entity.RoleEntity;
+import com.Marketplace_Management.Auth.Contracts.IRoleRepository;
+import com.Marketplace_Management.Auth.Entities.RoleEntity;
 import com.Marketplace_Management.Auth.Models.Role;
-import com.Marketplace_Management.Shared.Domain.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.IMapper;
 
 @Repository
 public class RoleRepository implements IRoleRepository {

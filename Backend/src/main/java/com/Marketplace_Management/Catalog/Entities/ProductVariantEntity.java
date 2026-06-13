@@ -7,9 +7,6 @@ import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.UuidEntity;
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.Entity.FileEntity;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +23,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import org.hibernate.annotations.SQLRestriction;
+
+import com.Marketplace_Management.Shared.Entities.FileEntity;
+import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 @Entity
 @Table(name = "product_variants")

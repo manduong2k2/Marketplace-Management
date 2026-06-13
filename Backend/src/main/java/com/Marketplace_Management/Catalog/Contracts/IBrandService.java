@@ -3,11 +3,11 @@ package com.Marketplace_Management.Catalog.Contracts;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.CreateBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.GetListBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.UpdateBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Response.BrandResponse;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.CreateBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.GetListBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.UpdateBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Response.BrandResponse;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 public interface IBrandService {
     public PaginatedResponse<BrandResponse> getAllBrands(GetListBrandCommand command);

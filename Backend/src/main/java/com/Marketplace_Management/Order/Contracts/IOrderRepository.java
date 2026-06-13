@@ -3,10 +3,10 @@ package com.Marketplace_Management.Order.Contracts;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.Marketplace_Management.Order.DTO.Commands.ListOrderCommand;
-import com.Marketplace_Management.Order.DTO.Responses.HistoryResponse;
+import com.Marketplace_Management.Order.DTOs.Commands.ListOrderCommand;
+import com.Marketplace_Management.Order.DTOs.Responses.HistoryResponse;
 import com.Marketplace_Management.Order.Models.Order;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 public interface IOrderRepository {
     PaginatedResponse<HistoryResponse> findAll(ListOrderCommand command);

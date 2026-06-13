@@ -8,7 +8,7 @@ import com.Marketplace_Management.Order.Entities.ProductSnapShotEntity;
 import com.Marketplace_Management.Order.Models.Order;
 import com.Marketplace_Management.Order.Models.OrderItem;
 import com.Marketplace_Management.Order.Models.ProductSnapShot;
-import com.Marketplace_Management.Shared.Domain.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.IMapper;
 
 @Component
 public class OrderMapper implements IMapper<Order, OrderEntity>{

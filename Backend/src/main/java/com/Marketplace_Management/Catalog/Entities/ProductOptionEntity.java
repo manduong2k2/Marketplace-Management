@@ -2,7 +2,7 @@ package com.Marketplace_Management.Catalog.Entities;
 
 import org.hibernate.annotations.Nationalized;
 
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.IntegerEntity;
+import com.Marketplace_Management.Shared.Entities.IntegerEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

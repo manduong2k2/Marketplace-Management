@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.UuidEntity;
+import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

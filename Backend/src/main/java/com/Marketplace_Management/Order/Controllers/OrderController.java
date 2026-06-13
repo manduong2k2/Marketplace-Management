@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Marketplace_Management.Order.Contracts.IOrderService;
-import com.Marketplace_Management.Order.DTO.Commands.ListOrderCommand;
-import com.Marketplace_Management.Order.DTO.Commands.PlaceOrderCommand;
-import com.Marketplace_Management.Order.DTO.Requests.ListOrderRequest;
-import com.Marketplace_Management.Order.DTO.Requests.PlaceOrderRequest;
-import com.Marketplace_Management.Order.DTO.Responses.HistoryResponse;
-import com.Marketplace_Management.Order.DTO.Responses.OrderResponse;
-import com.Marketplace_Management.Shared.Application.Annotation.Auth.Authenticated;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Constants.UserRole;
+import com.Marketplace_Management.Order.DTOs.Commands.ListOrderCommand;
+import com.Marketplace_Management.Order.DTOs.Commands.PlaceOrderCommand;
+import com.Marketplace_Management.Order.DTOs.Requests.ListOrderRequest;
+import com.Marketplace_Management.Order.DTOs.Requests.PlaceOrderRequest;
+import com.Marketplace_Management.Order.DTOs.Responses.HistoryResponse;
+import com.Marketplace_Management.Order.DTOs.Responses.OrderResponse;
+import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
+import com.Marketplace_Management.Shared.Constants.UserRole;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.validation.Valid;
 

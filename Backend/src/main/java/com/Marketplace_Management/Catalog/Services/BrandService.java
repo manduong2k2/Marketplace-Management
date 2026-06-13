@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 
 import com.Marketplace_Management.Catalog.Contracts.IBrandRepository;
 import com.Marketplace_Management.Catalog.Contracts.IBrandService;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.CreateBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.GetListBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.UpdateBrandCommand;
-import com.Marketplace_Management.Catalog.DTO.Response.BrandResponse;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.CreateBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.GetListBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.UpdateBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Response.BrandResponse;
 import com.Marketplace_Management.Catalog.Models.Brand;
-import com.Marketplace_Management.Shared.Application.Contracts.IFileService;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Contracts.IEventPublisher;
-import com.Marketplace_Management.Shared.Infrastructure.Event.EventOptions;
+import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
+import com.Marketplace_Management.Shared.Contracts.IFileService;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.Events.EventOptions;
 
 import jakarta.transaction.Transactional;
 

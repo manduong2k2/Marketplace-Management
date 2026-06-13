@@ -17,15 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.Marketplace_Management.Auth.Constants.Http;
 import com.Marketplace_Management.Cart.Constants.Message;
 import com.Marketplace_Management.Cart.Contracts.ICartService;
-import com.Marketplace_Management.Cart.DTO.Commands.AddToCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.RemoveFromCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.UpdateCartItemCommand;
-import com.Marketplace_Management.Cart.DTO.Requests.AddItemRequest;
-import com.Marketplace_Management.Cart.DTO.Requests.UpdateItemRequest;
-import com.Marketplace_Management.Cart.DTO.Responses.CartResponse;
+import com.Marketplace_Management.Cart.DTOs.Commands.AddToCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.RemoveFromCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.UpdateCartItemCommand;
+import com.Marketplace_Management.Cart.DTOs.Requests.AddItemRequest;
+import com.Marketplace_Management.Cart.DTOs.Requests.UpdateItemRequest;
+import com.Marketplace_Management.Cart.DTOs.Responses.CartResponse;
 import com.Marketplace_Management.Cart.Models.Cart.Cart;
-import com.Marketplace_Management.Shared.Application.Annotation.Auth.Authenticated;
-import com.Marketplace_Management.Shared.Infrastructure.Security.SecurityUtils;
+import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
+import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
 import jakarta.validation.Valid;
 

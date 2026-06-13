@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Marketplace_Management.Catalog.Contracts.ICategoryService;
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.CreateCategoryCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.GetListCategoryCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.UpdateCategoryCommand;
-import com.Marketplace_Management.Catalog.DTO.Requests.Category.CreateCategoryRequest;
-import com.Marketplace_Management.Catalog.DTO.Requests.Category.GetListCategoryRequest;
-import com.Marketplace_Management.Catalog.DTO.Requests.Category.UpdateCategoryRequest;
-import com.Marketplace_Management.Catalog.DTO.Response.CategoryResponse;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Constants.UserRole;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.CreateCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.GetListCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.UpdateCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Category.CreateCategoryRequest;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Category.GetListCategoryRequest;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Category.UpdateCategoryRequest;
+import com.Marketplace_Management.Catalog.DTOs.Response.CategoryResponse;
+import com.Marketplace_Management.Shared.Constants.UserRole;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.validation.Valid;
 

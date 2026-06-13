@@ -3,8 +3,8 @@ package com.Marketplace_Management.Catalog.Models;
 import java.util.List;
 import java.util.UUID;
 
-import com.Marketplace_Management.Shared.Domain.Entity;
-import com.Marketplace_Management.Shared.Domain.File;
+import com.Marketplace_Management.Shared.Models.Entity;
+import com.Marketplace_Management.Shared.Models.File;
 
 
 public class ProductVariant extends Entity<UUID> {

@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.UuidEntity;
+import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

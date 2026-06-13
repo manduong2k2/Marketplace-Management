@@ -17,18 +17,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Marketplace_Management.Catalog.Contracts.IProductService;
-import com.Marketplace_Management.Catalog.DTO.Commands.Product.CreateProductCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Product.GetListProductCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Product.UpdateProductCommand;
-import com.Marketplace_Management.Catalog.DTO.Requests.Product.CreateProductRequest;
-import com.Marketplace_Management.Catalog.DTO.Requests.Product.GetListProductRequest;
-import com.Marketplace_Management.Catalog.DTO.Requests.Product.UpdateProductRequest;
-import com.Marketplace_Management.Catalog.DTO.Response.ProductResponse;
-import com.Marketplace_Management.Catalog.DTO.Response.ProductVariantResponse;
-import com.Marketplace_Management.Catalog.DTO.Response.Short.ProductShortResponse;
-import com.Marketplace_Management.Shared.Application.Controllers.BaseController;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Constants.UserRole;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Product.CreateProductCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Product.GetListProductCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Product.UpdateProductCommand;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Product.CreateProductRequest;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Product.GetListProductRequest;
+import com.Marketplace_Management.Catalog.DTOs.Requests.Product.UpdateProductRequest;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductVariantResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
+import com.Marketplace_Management.Shared.Constants.UserRole;
+import com.Marketplace_Management.Shared.Controllers.BaseController;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.validation.Valid;
 

@@ -2,7 +2,8 @@ package com.Marketplace_Management.Cart.Models.Cart;
 
 import java.util.List;
 import java.util.UUID;
-import com.Marketplace_Management.Shared.Domain.Entity;
+
+import com.Marketplace_Management.Shared.Models.Entity;
 
 public class CartItem extends Entity<UUID> {
     private UUID productVariantId;

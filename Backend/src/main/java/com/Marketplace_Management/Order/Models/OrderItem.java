@@ -2,7 +2,7 @@ package com.Marketplace_Management.Order.Models;
 
 import java.util.UUID;
 
-import com.Marketplace_Management.Shared.Domain.Entity;
+import com.Marketplace_Management.Shared.Models.Entity;
 
 public class OrderItem extends Entity<UUID>{
     private UUID productId;

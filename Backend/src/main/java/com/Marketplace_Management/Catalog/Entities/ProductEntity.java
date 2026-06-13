@@ -5,7 +5,8 @@ import java.util.List;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.UuidEntity;
+
+import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

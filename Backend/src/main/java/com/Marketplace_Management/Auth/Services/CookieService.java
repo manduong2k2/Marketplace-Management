@@ -6,7 +6,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import com.Marketplace_Management.Auth.Constants.Http;
-import com.Marketplace_Management.Auth.Contract.ICookieService;
+import com.Marketplace_Management.Auth.Contracts.ICookieService;
 
 @Service
 public class CookieService implements ICookieService {

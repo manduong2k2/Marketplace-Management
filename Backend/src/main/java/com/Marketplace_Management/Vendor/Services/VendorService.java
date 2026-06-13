@@ -1,0 +1,150 @@
+package com.Marketplace_Management.Vendor.Services;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
+import com.Marketplace_Management.Shared.Events.EventOptions;
+import com.Marketplace_Management.Shared.Security.SecurityUtils;
+import com.Marketplace_Management.Vendor.Contracts.IVendorRepository;
+import com.Marketplace_Management.Vendor.Contracts.IVendorService;
+import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
+import com.Marketplace_Management.Vendor.Models.Vendor;
+import com.Marketplace_Management.Vendor.Models.VendorStatus;
+
+import jakarta.transaction.Transactional;
+
+@Service
+public class VendorService implements IVendorService {
+
+    private final IVendorRepository vendorRepository;
+    private final IEventPublisher eventPublisher;
+
+    public VendorService(IVendorRepository vendorRepository, IEventPublisher eventPublisher) {
+        this.vendorRepository = vendorRepository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    public List<VendorResponse> getAll() {
+        return vendorRepository.findAll().stream()
+                .map(VendorResponse::new)
+                .toList();
+    }
+
+    @Transactional
+    public VendorResponse create(CreateVendorCommand command) {
+        if (vendorRepository.existsByUserId(command.getUserId()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Vendor of this user already exists");
+
+        Vendor vendor = new Vendor(
+                null,
+                command.getUserId(),
+                command.getName(),
+                VendorStatus.PENDING,
+                command.getDescription(),
+                null,
+                null,
+                command.getTaxCode(),
+                command.getEmail(),
+                command.getAddressId(),
+                command.getPhone()
+        );
+
+        vendor = vendorRepository.save(vendor);
+
+        publishDomainEvents(vendor, "vendor.created");
+
+        return new VendorResponse(vendor);
+    }
+
+    @Transactional
+    public VendorResponse register(RegisterVendorCommand command) {
+        UUID userId = SecurityUtils.currentUserId();
+
+        CreateVendorCommand commandWithUser = new CreateVendorCommand(
+                userId,
+                command.getName(),
+                command.getDescription(),
+                command.getLogo(),
+                command.getBanner(),
+                command.getTaxCode(),
+                command.getEmail(),
+                command.getAddressId(),
+                command.getPhone()
+        );
+
+        return this.create(commandWithUser);
+    }
+
+    @Transactional
+    public void active(UUID vendorId) {
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+
+        vendor.activate();
+
+        vendor = vendorRepository.save(vendor);
+
+        publishDomainEvents(vendor, "vendor.activated");
+    }
+
+    @Transactional
+    public void ban(UUID vendorId) {
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+
+        vendor.ban();
+
+        vendor = vendorRepository.save(vendor);
+
+        publishDomainEvents(vendor, "vendor.banned");
+    }
+
+    @Transactional
+    public void update(UUID vendorId, UpdateVendorCommand command) {
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+
+        Vendor updated = new Vendor(
+                vendor.getId(),
+                vendor.getUserId(),
+                command.getName(),
+                vendor.getStatus(),
+                command.getDescription(),
+                null,
+                null,
+                command.getTaxCode(),
+                command.getEmail(),
+                command.getAddressId(),
+                command.getPhone()
+        );
+
+        updated = vendorRepository.save(updated);
+
+        publishDomainEvents(updated, "vendor.updated");
+    }
+
+    public VendorResponse getByUser(UUID userId) {
+
+        Vendor vendor = vendorRepository.findByUserId(userId)
+                .orElse(null);
+
+        return vendor != null ? new VendorResponse(vendor) : null;
+    }
+
+    @Async
+    private void publishDomainEvents(Vendor vendor, String queue) {
+        vendor.getDomainEvents()
+                .forEach(event -> eventPublisher.publish(event, new EventOptions(queue, false)));
+
+        vendor.clearDomainEvents();
+    }
+}

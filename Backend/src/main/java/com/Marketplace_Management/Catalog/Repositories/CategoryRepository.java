@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.Contracts.ICategoryRepository;
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.GetListCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.GetListCategoryCommand;
 import com.Marketplace_Management.Catalog.Entities.CategoryEntity;
 import com.Marketplace_Management.Catalog.Models.Category;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

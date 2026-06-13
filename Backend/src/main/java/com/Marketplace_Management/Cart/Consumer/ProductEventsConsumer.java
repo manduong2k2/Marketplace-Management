@@ -8,9 +8,9 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Cart.Contracts.ICartService;
-import com.Marketplace_Management.Cart.DTO.Messages.ProductDeletedMessage;
-import com.Marketplace_Management.Cart.DTO.Messages.ProductOutStockMessage;
-import com.Marketplace_Management.Shared.Infrastructure.Configuration.RabbitMqQueues.ProductQueueConfig;
+import com.Marketplace_Management.Cart.DTOs.Messages.ProductDeletedMessage;
+import com.Marketplace_Management.Cart.DTOs.Messages.ProductOutStockMessage;
+import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.ProductQueueConfig;
 
 @Component
 public class ProductEventsConsumer {

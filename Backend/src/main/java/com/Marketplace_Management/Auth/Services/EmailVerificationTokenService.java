@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import com.Marketplace_Management.Auth.Entity.EmailVerifyToken;
+import com.Marketplace_Management.Auth.Entities.EmailVerifyToken;
 import com.Marketplace_Management.Auth.Repositories.IEmailVerifyTokenRepository;
 
 import jakarta.mail.MessagingException;

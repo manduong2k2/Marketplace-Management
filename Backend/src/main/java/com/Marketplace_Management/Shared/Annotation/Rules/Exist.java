@@ -1,0 +1,31 @@
+package com.Marketplace_Management.Shared.Annotation.Rules;
+
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+
+import java.lang.annotation.*;
+
+import com.Marketplace_Management.Shared.Validation.Rules.ExistValidator;
+
+@Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = ExistValidator.class)
+@Repeatable(ExistList.class)
+public @interface Exist {
+    boolean when() default true;
+
+    String message() default "Value not exists";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+
+    String table();
+    String column();
+
+    Class<?> type() default String.class;
+    
+    String deletedAtColumn() default "";
+    
+    String whereClause() default "";
+}

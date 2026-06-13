@@ -3,7 +3,7 @@ package com.Marketplace_Management.Cart.Models.Order;
 import java.util.List;
 import java.util.UUID;
 
-import com.Marketplace_Management.Shared.Domain.Entity;
+import com.Marketplace_Management.Shared.Models.Entity;
 
 public class ProductSnapShot extends Entity<UUID>{
     private UUID productId;

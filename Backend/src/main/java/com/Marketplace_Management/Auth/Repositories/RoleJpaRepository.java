@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.Marketplace_Management.Auth.Entity.RoleEntity;
+import com.Marketplace_Management.Auth.Entities.RoleEntity;
 
 public interface RoleJpaRepository extends JpaRepository<RoleEntity, UUID> {
     Optional<RoleEntity> findByCode(String code);

@@ -15,22 +15,22 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Constants.UserStatus;
-import com.Marketplace_Management.Auth.Contract.IAuthService;
-import com.Marketplace_Management.Auth.Contract.IRoleRepository;
-import com.Marketplace_Management.Auth.Contract.IUserRepository;
-import com.Marketplace_Management.Auth.DTO.Commands.ActivateUserCommand;
-import com.Marketplace_Management.Auth.DTO.Commands.ForgotPasswordCommand;
-import com.Marketplace_Management.Auth.DTO.Commands.LoginCommand;
-import com.Marketplace_Management.Auth.DTO.Commands.RefreshTokenCommand;
-import com.Marketplace_Management.Auth.DTO.Commands.RegisterCommand;
-import com.Marketplace_Management.Auth.DTO.Commands.ResetPasswordCommand;
-import com.Marketplace_Management.Auth.DTO.Commands.UpdateProfileCommand;
-import com.Marketplace_Management.Auth.DTO.Response.AuthResponse;
-import com.Marketplace_Management.Auth.DTO.Response.RegisterResponse;
+import com.Marketplace_Management.Auth.Contracts.IAuthService;
+import com.Marketplace_Management.Auth.Contracts.IRoleRepository;
+import com.Marketplace_Management.Auth.Contracts.IUserRepository;
+import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.ForgotPasswordCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.RefreshTokenCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.RegisterCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.ResetPasswordCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.UpdateProfileCommand;
+import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
+import com.Marketplace_Management.Auth.DTOs.Response.RegisterResponse;
 import com.Marketplace_Management.Auth.Models.Role;
 import com.Marketplace_Management.Auth.Models.User;
-import com.Marketplace_Management.Shared.Domain.Constants.UserRole;
-import com.Marketplace_Management.Shared.Infrastructure.Security.JwtService;
+import com.Marketplace_Management.Shared.Constants.UserRole;
+import com.Marketplace_Management.Shared.Security.JwtService;
 
 @Service
 public class AuthService implements IAuthService {

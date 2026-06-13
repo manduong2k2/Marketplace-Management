@@ -2,10 +2,10 @@ package com.Marketplace_Management.Cart.Contracts;
 
 import java.util.UUID;
 
-import com.Marketplace_Management.Cart.DTO.Commands.AddToCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.CheckoutCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.RemoveFromCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.UpdateCartItemCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.AddToCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.CheckoutCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.RemoveFromCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.UpdateCartItemCommand;
 import com.Marketplace_Management.Cart.Models.Cart.Cart;
 
 public interface ICartService {

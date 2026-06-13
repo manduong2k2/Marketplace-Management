@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
 
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.UuidEntity;
+import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;

@@ -1,7 +1,7 @@
 package com.Marketplace_Management.Cart.Models.Cart;
 
 import com.Marketplace_Management.Cart.Constants.CartStatusEnum;
-import com.Marketplace_Management.Shared.Domain.ValueObject;
+import com.Marketplace_Management.Shared.Models.ValueObject;
 
 public class CartStatus extends ValueObject {
     private String value;

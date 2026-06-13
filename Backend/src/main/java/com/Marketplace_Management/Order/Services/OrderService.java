@@ -9,24 +9,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Cart.Contracts.ICartService;
-import com.Marketplace_Management.Cart.DTO.Responses.CartResponse;
+import com.Marketplace_Management.Cart.DTOs.Responses.CartResponse;
 import com.Marketplace_Management.Order.Constants.OrderStatusEnum;
 import com.Marketplace_Management.Order.Contracts.IOrderRepository;
 import com.Marketplace_Management.Order.Contracts.IOrderService;
-import com.Marketplace_Management.Order.DTO.Commands.ListOrderCommand;
-import com.Marketplace_Management.Order.DTO.Commands.OrderItemCommand;
-import com.Marketplace_Management.Order.DTO.Commands.PlaceOrderCommand;
-import com.Marketplace_Management.Order.DTO.Responses.HistoryResponse;
-import com.Marketplace_Management.Order.DTO.Responses.OrderResponse;
+import com.Marketplace_Management.Order.DTOs.Commands.ListOrderCommand;
+import com.Marketplace_Management.Order.DTOs.Commands.OrderItemCommand;
+import com.Marketplace_Management.Order.DTOs.Commands.PlaceOrderCommand;
+import com.Marketplace_Management.Order.DTOs.Responses.HistoryResponse;
+import com.Marketplace_Management.Order.DTOs.Responses.OrderResponse;
 import com.Marketplace_Management.Order.Events.OrderPlacedEvent;
 import com.Marketplace_Management.Order.Models.Order;
 import com.Marketplace_Management.Order.Models.OrderItem;
 import com.Marketplace_Management.Order.Models.ProductSnapShot;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Contracts.IEventPublisher;
-import com.Marketplace_Management.Shared.Infrastructure.Configuration.RabbitMqQueues.OrderQueueConfig;
-import com.Marketplace_Management.Shared.Infrastructure.Event.EventOptions;
-import com.Marketplace_Management.Shared.Infrastructure.Security.SecurityUtils;
+import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.OrderQueueConfig;
+import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.Events.EventOptions;
+import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
 import jakarta.transaction.Transactional;
 

@@ -2,7 +2,7 @@ package com.Marketplace_Management.Cart.Models.Order;
 
 
 import com.Marketplace_Management.Cart.Constants.OrderStatusEnum;
-import com.Marketplace_Management.Shared.Domain.ValueObject;
+import com.Marketplace_Management.Shared.Models.ValueObject;
 
 public class OrderStatus extends ValueObject{
     private String value;

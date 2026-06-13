@@ -6,13 +6,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.Marketplace_Management.Catalog.Contracts.IProductService;
-import com.Marketplace_Management.Catalog.DTO.Response.ProductResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductResponse;
 import com.Marketplace_Management.Cart.Contracts.ICartRepository;
 import com.Marketplace_Management.Cart.Contracts.ICartService;
-import com.Marketplace_Management.Cart.DTO.Commands.AddToCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.CheckoutCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.RemoveFromCartCommand;
-import com.Marketplace_Management.Cart.DTO.Commands.UpdateCartItemCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.AddToCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.CheckoutCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.RemoveFromCartCommand;
+import com.Marketplace_Management.Cart.DTOs.Commands.UpdateCartItemCommand;
 import com.Marketplace_Management.Cart.Models.Cart.Cart;
 import com.Marketplace_Management.Cart.Models.Cart.CartItem;
 

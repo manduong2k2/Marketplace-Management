@@ -3,7 +3,7 @@ package com.Marketplace_Management.Order.Entities;
 import java.util.List;
 import java.util.UUID;
 
-import com.Marketplace_Management.Shared.Infrastructure.Persistence.UuidEntity;
+import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

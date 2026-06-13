@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Catalog.Contracts.IProductRepository;
 import com.Marketplace_Management.Catalog.Models.Product;
-import com.Marketplace_Management.Shared.Infrastructure.Security.SecurityUtils;
-import com.Marketplace_Management.Vendor.Application.DTO.Response.VendorResponse;
-import com.Marketplace_Management.Vendor.Domain.Contract.IVendorService;
+import com.Marketplace_Management.Shared.Security.SecurityUtils;
+import com.Marketplace_Management.Vendor.Contracts.IVendorService;
+import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 
 @Component
 public class ProductSecurity {

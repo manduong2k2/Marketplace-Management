@@ -13,15 +13,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Catalog.Contracts.ICategoryRepository;
 import com.Marketplace_Management.Catalog.Contracts.ICategoryService;
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.CreateCategoryCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.GetListCategoryCommand;
-import com.Marketplace_Management.Catalog.DTO.Commands.Category.UpdateCategoryCommand;
-import com.Marketplace_Management.Catalog.DTO.Response.CategoryResponse;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.CreateCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.GetListCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Category.UpdateCategoryCommand;
+import com.Marketplace_Management.Catalog.DTOs.Response.CategoryResponse;
 import com.Marketplace_Management.Catalog.Models.Category;
-import com.Marketplace_Management.Shared.Application.Contracts.IFileService;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Domain.Contracts.IEventPublisher;
-import com.Marketplace_Management.Shared.Infrastructure.Event.EventOptions;
+import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
+import com.Marketplace_Management.Shared.Contracts.IFileService;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.Events.EventOptions;
 
 import jakarta.transaction.Transactional;
 

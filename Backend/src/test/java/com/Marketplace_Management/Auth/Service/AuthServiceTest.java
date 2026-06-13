@@ -12,12 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.Marketplace_Management.Auth.Contract.IUserRepository;
-import com.Marketplace_Management.Auth.DTO.Commands.LoginCommand;
-import com.Marketplace_Management.Auth.DTO.Response.AuthResponse;
+import com.Marketplace_Management.Auth.Contracts.IUserRepository;
+import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
+import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Auth.Services.AuthService;
-import com.Marketplace_Management.Shared.Infrastructure.Security.JwtService;
+import com.Marketplace_Management.Shared.Security.JwtService;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {

@@ -8,8 +8,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Cart.Contracts.ICartService;
-import com.Marketplace_Management.Cart.DTO.Messages.OrderPlacedMessage;
-import com.Marketplace_Management.Shared.Infrastructure.Configuration.RabbitMqQueues.OrderQueueConfig;
+import com.Marketplace_Management.Cart.DTOs.Messages.OrderPlacedMessage;
+import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.OrderQueueConfig;
 
 @Component
 public class OrderEventsConsumer {

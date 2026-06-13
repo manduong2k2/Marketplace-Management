@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
-import com.Marketplace_Management.Auth.Contract.IUserRepository;
-import com.Marketplace_Management.Auth.Entity.UserEntity;
+import com.Marketplace_Management.Auth.Contracts.IUserRepository;
+import com.Marketplace_Management.Auth.Entities.UserEntity;
 import com.Marketplace_Management.Auth.Models.User;
-import com.Marketplace_Management.Shared.Domain.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.IMapper;
 
 @Repository
 public class UserRepository implements IUserRepository{

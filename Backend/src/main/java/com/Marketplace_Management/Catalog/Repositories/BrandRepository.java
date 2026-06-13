@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.Contracts.IBrandRepository;
-import com.Marketplace_Management.Catalog.DTO.Commands.Brand.GetListBrandCommand;
+import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.GetListBrandCommand;
 import com.Marketplace_Management.Catalog.Entities.BrandEntity;
 import com.Marketplace_Management.Catalog.Models.Brand;
-import com.Marketplace_Management.Shared.Application.DTO.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

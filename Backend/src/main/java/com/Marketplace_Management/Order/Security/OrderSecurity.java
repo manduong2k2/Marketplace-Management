@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Order.Contracts.IOrderRepository;
 import com.Marketplace_Management.Order.Models.Order;
-import com.Marketplace_Management.Shared.Infrastructure.Security.SecurityUtils;
+import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
 @Component
 public class OrderSecurity {

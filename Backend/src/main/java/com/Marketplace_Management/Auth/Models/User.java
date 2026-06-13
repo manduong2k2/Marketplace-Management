@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.Marketplace_Management.Auth.Constants.UserStatus;
-import com.Marketplace_Management.Shared.Domain.AggregateRoot;
+import com.Marketplace_Management.Shared.Models.AggregateRoot;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
