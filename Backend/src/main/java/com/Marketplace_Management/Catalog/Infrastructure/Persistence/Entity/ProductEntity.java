@@ -43,7 +43,12 @@ public class ProductEntity extends UuidEntity {
     private BrandEntity brand;
 
     @ManyToMany
-    @JoinTable(name = "product_category", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JoinTable(
+        name = "product_category", 
+        joinColumns = @JoinColumn(name = "product_id"), 
+        inverseJoinColumns = @JoinColumn(name = "category_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "category_id"})
+    )
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<CategoryEntity> categories;
 

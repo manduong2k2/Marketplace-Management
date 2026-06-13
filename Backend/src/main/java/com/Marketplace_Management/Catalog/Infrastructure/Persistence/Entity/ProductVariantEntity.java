@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -60,7 +61,8 @@ public class ProductVariantEntity extends UuidEntity{
     @JoinTable(
         name = "product_variant_option", 
         joinColumns = @JoinColumn(name = "variant_id"), 
-        inverseJoinColumns = @JoinColumn(name = "option_id")
+        inverseJoinColumns = @JoinColumn(name = "option_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"variant_id", "option_id"})
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<ProductOptionEntity> options;
