@@ -1,6 +1,7 @@
 // src/components/product/ProductList.jsx
 import React, { useEffect, useState } from 'react';
 import ProductCard from '../card/ProductCard';
+import ProductVariantPopup from '../popup/ProductVariantPopup';
 import { productService } from '../../../services/productService';
 import './ProductList.css';
 
@@ -11,6 +12,7 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [sortBy, setSortBy] = useState('updatedAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [pagination, setPagination] = useState({
     currentPage: 0,
     pageSize: 16,
@@ -86,6 +88,14 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
       setSortOrder('asc');
     }
     setPagination(prev => ({ ...prev, currentPage: 0 }));
+  };
+
+  const handleOpenVariantPopup = (product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleCloseVariantPopup = () => {
+    setSelectedProduct(null);
   };
 
   if (loading) {
@@ -167,7 +177,11 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
         <>
           <div className="product-grid">
             {products.map(product => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onOpenVariantPopup={handleOpenVariantPopup}
+              />
             ))}
           </div>
           
@@ -203,6 +217,13 @@ function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSea
             </div>
           )}
         </>
+      )}
+
+      {selectedProduct && (
+        <ProductVariantPopup 
+          product={selectedProduct} 
+          onClose={handleCloseVariantPopup}
+        />
       )}
     </div>
   );

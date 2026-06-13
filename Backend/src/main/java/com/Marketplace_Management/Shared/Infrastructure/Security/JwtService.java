@@ -17,8 +17,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
 
-import com.Marketplace_Management.Auth.Domain.Constants.Message;
-import com.Marketplace_Management.Auth.Domain.Models.User;
+import com.Marketplace_Management.Auth.Constants.Message;
+import com.Marketplace_Management.Auth.Models.User;
 
 import org.springframework.security.core.AuthenticationException;
 import io.jsonwebtoken.Claims;

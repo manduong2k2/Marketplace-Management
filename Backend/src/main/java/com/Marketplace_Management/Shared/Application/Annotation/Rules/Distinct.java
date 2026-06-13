@@ -5,7 +5,7 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
-import com.Marketplace_Management.Shared.Application.Validator.Rules.DistinctValidator;
+import com.Marketplace_Management.Shared.Application.Validation.Rules.DistinctValidator;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

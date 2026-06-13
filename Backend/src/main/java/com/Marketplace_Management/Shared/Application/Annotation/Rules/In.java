@@ -2,7 +2,7 @@ package com.Marketplace_Management.Shared.Application.Annotation.Rules;
 
 import java.lang.annotation.*;
 
-import com.Marketplace_Management.Shared.Application.Validator.Rules.InValidator;
+import com.Marketplace_Management.Shared.Application.Validation.Rules.InValidator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

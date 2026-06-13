@@ -5,7 +5,7 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
-import com.Marketplace_Management.Shared.Application.Validator.Rules.ExistValidator;
+import com.Marketplace_Management.Shared.Application.Validation.Rules.ExistValidator;
 
 @Target({ElementType.FIELD, ElementType.TYPE_USE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

@@ -2,12 +2,11 @@
 import { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productService } from '../../services/productService';
-import { cartService } from '../../services/cartService';
 import { AuthContext } from '../../contexts/AuthContext';
-import { CartContext } from '../../contexts/CartContext';
-import { showSuccess, showError } from '../../components/master/popup';
+import ProductVariantPopup from '../../components/product/popup/ProductVariantPopup';
 import defaultProductImage from '../../assets/product.png';
 import './ProductDetailPage.css';
+import { CartContext } from '../../contexts/CartContext';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -18,10 +17,10 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const [adding, setAdding] = useState(false);
-
-  const amount = product ? product.price * quantity : 0;
+  const [showVariantPopup, setShowVariantPopup] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -30,6 +29,7 @@ export default function ProductDetailPage() {
         const res = await productService.getById(id);
         if (res.ok && res.data && res.data.data) {
           setProduct(res.data.data);
+          console.log('Product loaded:', res.data.data);
         } else {
           setError('Product not found');
         }
@@ -43,50 +43,97 @@ export default function ProductDetailPage() {
     fetchProduct();
   }, [id]);
 
-  const handleAddToCart = async () => {
+  // Initialize selectedVariant when product loads
+  useEffect(() => {
+    if (product && product.variants && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0]);
+      setCurrentImageIndex(0);
+    }
+  }, [product]);
+
+  // Reset image index when variant changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [selectedVariant]);
+
+  // Group options by name
+  const groupedOptions = product?.options ? product.options.reduce((acc, option) => {
+    if (!acc[option.name]) {
+      acc[option.name] = [];
+    }
+    acc[option.name].push(option);
+    return acc;
+  }, {}) : {};
+
+  // Find variant based on selected options
+  const findVariantByOptions = (options) => {
+    if (!product?.variants || product.variants.length === 0) return null;
+    
+    // If no options selected, return first variant
+    if (Object.keys(options).length === 0) {
+      return product.variants[0];
+    }
+    
+    const optionIds = Object.values(options).map(id => parseInt(id)).sort((a, b) => a - b);
+    const optionListString = optionIds.join(', ');
+    
+    const matchingVariant = product.variants.find(variant => {
+      // Handle different formats: "31, 32", "31,32", "31 32"
+      const variantOptionList = variant.optionList || '';
+      const variantOptionIds = variantOptionList
+        .split(/[, ]+/) // Split by comma or space
+        .map(id => parseInt(id.trim()))
+        .filter(id => !isNaN(id))
+        .sort((a, b) => a - b);
+      const variantOptionListString = variantOptionIds.join(', ');
+      return variantOptionListString === optionListString;
+    });
+    
+    return matchingVariant || product.variants[0];
+  };
+
+  const handleOptionChange = (optionName, optionId) => {
+    // Toggle: if clicking the same option, unselect it
+    const newSelectedOptions = { ...selectedOptions };
+    const currentSelected = newSelectedOptions[optionName];
+    
+    if (currentSelected == optionId) { // Use == for loose comparison to handle string/number mismatch
+      delete newSelectedOptions[optionName];
+    } else {
+      newSelectedOptions[optionName] = optionId;
+    }
+    setSelectedOptions(newSelectedOptions);
+    
+    const matchingVariant = findVariantByOptions(newSelectedOptions);
+    if (matchingVariant) {
+      setSelectedVariant(matchingVariant);
+    } else {
+      setSelectedVariant(product.variants[0]);
+    }
+  };
+
+  const handlePreviousImage = () => {
+    if (images.length > 0) {
+      setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
+    }
+  };
+
+  const handleNextImage = () => {
+    if (images.length > 0) {
+      setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
+    }
+  };
+
+  const handleAddToCart = () => {
     if (!user) {
       navigate('/login');
       return;
     }
-
-    if (adding) return;
-
-    setAdding(true);
-    try {
-      const res = await cartService.addItem(product.id, quantity);
-      if (res.ok) {
-        const cartData = await cartService.getCart();
-        if (cartData.data && cartData.data.cart) {
-          setCart(cartData.data.cart);
-        }
-        showSuccess(`Added ${quantity} item${quantity > 1 ? 's' : ''} to cart!`);
-      } else {
-        showError('Failed to add to cart!');
-      }
-    } catch {
-      showError('Failed to add to cart!');
-    } finally {
-      setAdding(false);
-    }
+    setShowVariantPopup(true);
   };
 
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value >= 1 && value <= product.stock) {
-      setQuantity(value);
-    }
-  };
-
-  const handleQuantityDecrease = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
-
-  const handleQuantityIncrease = () => {
-    if (quantity < product.stock) {
-      setQuantity(quantity + 1);
-    }
+  const handleCloseVariantPopup = () => {
+    setShowVariantPopup(false);
   };
 
   if (loading) {
@@ -113,7 +160,12 @@ export default function ProductDetailPage() {
     );
   }
 
-  const imageUrl = product.images && product.images.length > 0 ? product.images[0] : defaultProductImage;
+  const images = selectedVariant?.images || (product.images || []);
+  const currentImage = images[currentImageIndex] || defaultProductImage;
+
+  const price = selectedVariant?.price || product.price || 0;
+  const stock = selectedVariant?.stock || product.stock || 0;
+  const amount = price * stock;
 
   return (
     <div className="product-detail-page">
@@ -125,18 +177,24 @@ export default function ProductDetailPage() {
         <div className="product-image-section">
           <div className="main-image">
             <img
-              src={imageUrl}
+              src={currentImage}
               alt={product.name}
               onError={(e) => { e.target.src = defaultProductImage; }}
             />
+            {images.length > 1 && (
+              <>
+                <button className="image-nav-btn prev" onClick={handlePreviousImage}>‹</button>
+                <button className="image-nav-btn next" onClick={handleNextImage}>›</button>
+              </>
+            )}
           </div>
-          {product.images && product.images.length > 1 && (
+          {images.length > 1 && (
             <div className="thumbnail-gallery">
-              {product.images.map((img, idx) => (
+              {images.map((img, idx) => (
                 <div
                   key={idx}
-                  className={`thumbnail ${img === imageUrl ? 'active' : ''}`}
-                  onClick={() => {/* TODO: Implement image switching */ }}
+                  className={`thumbnail ${idx === currentImageIndex ? 'active' : ''}`}
+                  onClick={() => setCurrentImageIndex(idx)}
                 >
                   <img src={img} alt={`${product.name} ${idx + 1}`} />
                 </div>
@@ -147,17 +205,6 @@ export default function ProductDetailPage() {
 
         <div className="product-info-section">
           <h1 className="product-title">{product.name}</h1>
-          <p className="product-code">Code: {product.code}</p>
-
-          <div className="product-price-section">
-            <p className="product-detail-price">${Number(product.price).toLocaleString('en-US')}</p>
-            <p className={`product-detail-stock ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
-              {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-            </p>
-          </div>
-
-
-
           {product.description && (
             <div className="product-description">
               <h3>Description</h3>
@@ -185,48 +232,52 @@ export default function ProductDetailPage() {
             </div>
           )}
 
+          <div className="product-price-section">
+            <p className="product-detail-price">${Number(price).toLocaleString('en-US')}</p>
+          </div>
+
+          <div className="product-stock-section">
+            <span className="stock-label">Stock:</span>
+            <span className={`stock-value ${stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+              {stock > 0 ? `${stock} available` : 'Out of stock'}
+            </span>
+          </div>
+
+          {Object.keys(groupedOptions).length > 0 && (
+            <div className="product-options-section">
+              {Object.entries(groupedOptions).map(([optionName, options]) => (
+                <div key={optionName} className="option-group">
+                  <h4 className="option-label">{optionName}</h4>
+                  <div className="option-values">
+                    {options.map(option => {
+                      return (
+                        <button
+                          key={option.id}
+                          className={`option-value-btn ${selectedOptions[optionName] == option.id ? 'selected' : ''}`}
+                          onClick={() => handleOptionChange(optionName, option.id)}
+                        >
+                          {option.value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="product-amount-section">
+            <span className="amount-label">Total Amount (Price × Stock):</span>
+            <span className="amount-value">${Number(amount).toLocaleString('en-US')}</span>
+          </div>
+
           <div className="product-actions">
-            <div className="quantity-selector">
-              <button
-                className="quantity-btn"
-                onClick={handleQuantityDecrease}
-                disabled={quantity <= 1}
-              >
-                -
-              </button>
-              <input
-                type="number"
-                className="quantity-input"
-                value={quantity}
-                onChange={handleQuantityChange}
-                min="1"
-                max={product.stock}
-              />
-              <button
-                className="quantity-btn"
-                onClick={handleQuantityIncrease}
-                disabled={quantity >= product.stock}
-              >
-                +
-              </button>
-            </div>
-
-            <div className="product-amount-section">
-              <span className="amount-label">Total Amount:</span>
-              <span className="amount-value">${Number(amount).toLocaleString('en-US')}</span>
-            </div>
-
             <button
-              className={`btn-add-to-cart ${adding ? 'loading' : ''}`}
+              className="btn-add-to-cart"
               onClick={handleAddToCart}
-              disabled={adding || product.stock === 0}
+              disabled={stock === 0}
             >
-              {adding ? (
-                <>
-                  <i className="fas fa-spinner fa-spin"></i>
-                  Adding...
-                </>
-              ) : product.stock === 0 ? (
+              {stock === 0 ? (
                 'Out of Stock'
               ) : (
                 <>
@@ -238,6 +289,13 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {showVariantPopup && product && (
+        <ProductVariantPopup
+          product={product}
+          onClose={handleCloseVariantPopup}
+        />
+      )}
     </div>
   );
 }

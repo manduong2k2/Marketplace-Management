@@ -5,7 +5,7 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
-import com.Marketplace_Management.Shared.Application.Validator.Rules.ListValidator;
+import com.Marketplace_Management.Shared.Application.Validation.Rules.ListValidator;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
