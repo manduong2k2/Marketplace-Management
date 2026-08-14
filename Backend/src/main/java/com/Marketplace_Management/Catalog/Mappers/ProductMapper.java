@@ -55,6 +55,7 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                                 .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList())
                 .variants(entity.getVariants().stream().map(variantMapper::toDomain).toList())
                 .options(entity.getOptions().stream().map(optionMapper::toDomain).toList())
+                .vendorId(entity.getVendorId())
                 .build();
     }
 
@@ -84,6 +85,8 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                             variant.setOptions(optionEntities.stream().filter(o -> options.containsKey(o.getName()) && options.get(o.getName()).equals(o.getValue())).toList());
                         })
                         .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
+        
+        entity.setVendorId(domain.getVendorId());
         return entity;
     }
 }

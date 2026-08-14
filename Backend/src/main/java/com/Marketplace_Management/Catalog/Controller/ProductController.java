@@ -56,7 +56,7 @@ public class ProductController extends BaseController{
         return objectResponse(statuses);
     }
 
-    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + UserRole.ADMIN + "', '" + UserRole.VENDOR + "')")
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@Valid @ModelAttribute CreateProductRequest request) throws IOException {
         CreateProductCommand command = CreateProductCommand.fromRequest(request);
@@ -79,9 +79,9 @@ public class ProductController extends BaseController{
     }
     
 
-    @GetMapping("/{productId}/variants/{productVariantId}")
-    public ResponseEntity<Map<String, Object>> getProductVariant(@PathVariable UUID productId, @PathVariable UUID productVariantId) {
-        ProductVariantResponse productVariant = productService.getProductVariant(productId, productVariantId);
+    @GetMapping("/product-variants/{productVariantId}")
+    public ResponseEntity<Map<String, Object>> getProductVariant(@PathVariable UUID productVariantId) {
+        ProductVariantResponse productVariant = productService.getProductVariant(productVariantId);
         
         return objectResponse(productVariant);
     }

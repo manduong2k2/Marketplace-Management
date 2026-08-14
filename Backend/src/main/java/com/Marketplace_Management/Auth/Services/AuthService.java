@@ -5,6 +5,8 @@ import jakarta.mail.MessagingException;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -50,6 +52,7 @@ public class AuthService implements IAuthService {
     }
 
     @Transactional
+    @CacheEvict(value = "users", key = "#command.email")
     public RegisterResponse register(RegisterCommand command) throws MessagingException {
         User user = new User();
         user.setEmail(command.getEmail());
@@ -72,6 +75,7 @@ public class AuthService implements IAuthService {
     }
 
     @Transactional
+    @CacheEvict(value = "users", key = "#command.email")
     public AuthResponse activeUser(ActivateUserCommand command) {
         var user = repo.findByEmail(command.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
@@ -157,6 +161,7 @@ public class AuthService implements IAuthService {
         return true;
     }
 
+    @CacheEvict(value = "users", key = "#command.email")
     public boolean resetPassword(ResetPasswordCommand command) {
         var user = repo.findByEmail(command.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
@@ -175,17 +180,43 @@ public class AuthService implements IAuthService {
         tokenService.invalidateToken(token);
     }
 
+    @Cacheable(value = "users", key = "#userId")
     public User getUserById(UUID userId) {
         return repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
     }
 
     @Transactional
+    @CacheEvict(value = "users", key = "#userId")
     public void updateProfile(UUID userId, UpdateProfileCommand command) {
         var user = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
         user.setName(command.getName());
         user.setPhone(command.getPhone());
+        repo.save(user);
+    }
+    
+    @Transactional
+    @CacheEvict(value = "users", key = "#userId")
+    public void grantRole(UUID userId, String role) {
+        var user = repo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+
+        var roleEntity = roleRepo.findByCode(role)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.ROLE_NOT_FOUND));
+        user.getRoles().add(roleEntity);
+        repo.save(user);
+    }
+    
+    @Transactional
+    @CacheEvict(value = "users", key = "#userId")
+    public void revokeRole(UUID userId, String role) {
+        var user = repo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+
+        var roleEntity = roleRepo.findByCode(role)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.ROLE_NOT_FOUND));
+        user.getRoles().remove(roleEntity);
         repo.save(user);
     }
 }

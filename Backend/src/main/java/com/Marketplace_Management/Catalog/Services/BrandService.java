@@ -40,7 +40,7 @@ public class BrandService implements IBrandService {
     public PaginatedResponse<BrandResponse> getAllBrands(GetListBrandCommand command) {
         PaginatedResponse<Brand> brands = brandRepository.findAll(command);
         List<BrandResponse> brandResponses = brands.getData().stream()
-                .map(brand -> new BrandResponse(brand, baseUrl))
+                .map(brand -> new BrandResponse(brand).withUrl(baseUrl))
                 .toList();
         return new PaginatedResponse<>(
                 brandResponses,
@@ -52,7 +52,7 @@ public class BrandService implements IBrandService {
 
     public BrandResponse getBrand(UUID brandId) {
         return brandRepository.findById(brandId)
-                .map(brand -> new BrandResponse(brand, baseUrl))
+                .map(brand -> new BrandResponse(brand).withUrl(baseUrl))
                 .orElseThrow(() -> new RuntimeException("Brand not found"));
     }
 
@@ -75,7 +75,7 @@ public class BrandService implements IBrandService {
 
         publishDomainEvents(brand, "brand.created");
 
-        return new BrandResponse(brand, baseUrl);
+        return new BrandResponse(brand).withUrl(baseUrl);
     }
 
     @Transactional
@@ -99,7 +99,7 @@ public class BrandService implements IBrandService {
 
         publishDomainEvents(brand, "brand.updated");
         
-        return new BrandResponse(brand, baseUrl);
+        return new BrandResponse(brand).withUrl(baseUrl);
     }
 
     @Transactional

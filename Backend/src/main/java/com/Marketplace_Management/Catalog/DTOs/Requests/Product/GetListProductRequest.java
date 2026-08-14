@@ -37,5 +37,10 @@ public class GetListProductRequest {
     @org.hibernate.validator.constraints.UUID
     private String brandId;
 
+    @Nullable
+    @Exist(table = "vendors", column = "id", message = "Vendor not found", type = UUID.class)
+    @org.hibernate.validator.constraints.UUID
+    private String vendorId;
+
     private String status;
 }

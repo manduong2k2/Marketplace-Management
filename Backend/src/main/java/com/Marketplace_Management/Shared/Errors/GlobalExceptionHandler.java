@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import com.Marketplace_Management.Marketplace_ManagementApplication;
+import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -51,6 +52,16 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                                 .status(ex.getStatusCode())
+                                .body(errors);
+        }
+
+        @ExceptionHandler(ResourceNotFoundException.class)
+        public ResponseEntity<?> handleResourceNotFound(ResourceNotFoundException ex) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("message", ex.getMessage());
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
                                 .body(errors);
         }
 

@@ -32,21 +32,21 @@ function StatusBadge({ status }) {
 export default function VendorCard({ vendor, onClick }) {
   if (!vendor) return null;
 
-  const { name, email, description, phone, taxCode, logoUrl, bannerUrl, status } = vendor;
+  const { name, email, description, phone, taxCode, logo, banner, status } = vendor;
 
   return (
     <div className="vendor-card" onClick={onClick} style={onClick ? { cursor: 'pointer' } : {}}>
       {/* Banner */}
-      {bannerUrl
-        ? <img src={bannerUrl} alt={`${name} banner`} className="vendor-card-banner" />
+      {banner
+        ? <img src={banner} alt={`${name} banner`} className="vendor-card-banner" />
         : <div className="vendor-card-banner-placeholder" />
       }
 
       {/* Logo + name */}
       <div className="vendor-card-identity">
         <div className="vendor-card-logo-wrap">
-          {logoUrl
-            ? <img src={logoUrl} alt={`${name} logo`} className="vendor-card-logo" />
+          {logo
+            ? <img src={logo} alt={`${name} logo`} className="vendor-card-logo" />
             : <div className="vendor-card-logo-placeholder">🏪</div>
           }
         </div>

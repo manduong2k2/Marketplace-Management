@@ -5,9 +5,11 @@ A full-stack Marketplace Management application built with Spring Boot (Backend)
 ## Features
 
 ### User Features
-- **Authentication**: User registration, login, and profile management
+- **Authentication**: User registration, login, forgot password, and profile management
 - **Product Browsing**: View products with filtering by category and brand
 - **Product Details**: Detailed product information with images
+- **My Vendors**: Register and manage personal vendor with products, collections, and promotions
+- **Vendor Details**: View vendor information and products
 - **Shopping Cart**: Add items, update quantities, remove items
 - **Checkout**: Place orders with shipping information
 - **Order History**: View past orders with status tracking
@@ -15,9 +17,10 @@ A full-stack Marketplace Management application built with Spring Boot (Backend)
 
 ### Admin Features
 - **Admin Authentication**: Separate admin login system
-- **Brand Management**: Create, read, update, and delete brands
-- **Category Management**: Create, read, update, and delete categories
-- **Product Management**: Create, read, update, and delete products with images
+- **Brand Management**: Create, read, update brands
+- **Category Management**: Create, read, update categories
+- **Product Management**: Create, read, update products with images
+- **Vendor Management**: Register, read, update and change vendor status
 - **Order Management**: View all orders, search, filter by status, and view order details
 
 ## Tech Stack
@@ -25,12 +28,14 @@ A full-stack Marketplace Management application built with Spring Boot (Backend)
 ### Backend
 - **Java 21**
 - **Spring Boot 4.x**
-- **Spring Security** (Authentication & Authorization)
+- **Spring Security & JWT** (Authentication & Authorization)
 - **Spring Data JPA** (Database operations)
-- **PostgreSQL** (Database)
-- **Redis** (Caching)
 - **Lombok** (Code generation)
 - **Maven** (Build tool)
+- **PostgreSQL** (Database)
+- **Redis** (Caching)
+- **JUnit** (Testing)
+- **RabbitMQ** (Message Queue)
 
 ### Frontend
 - **React 19**

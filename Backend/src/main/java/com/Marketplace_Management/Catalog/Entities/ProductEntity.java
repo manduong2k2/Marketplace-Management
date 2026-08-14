@@ -1,6 +1,7 @@
 package com.Marketplace_Management.Catalog.Entities;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
@@ -61,7 +62,8 @@ public class ProductEntity extends UuidEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<ProductOptionEntity> options;
 
-    //
+    @Column(nullable = true)
+    private UUID vendorId;
 
     public ProductEntity() {
     }

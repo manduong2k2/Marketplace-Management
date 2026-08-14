@@ -26,4 +26,6 @@ public interface IAuthService {
     void logout(String key, String token);
     User getUserById(UUID userId);
     void updateProfile(UUID userId, UpdateProfileCommand command);
+    void grantRole(UUID userId, String role);
+    void revokeRole(UUID userId, String role);
 }

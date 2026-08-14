@@ -32,7 +32,7 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
             .id(entity.getId())
             .productId(entity.getProduct().getId())
             .name(entity.getName())
-            .code(entity.getCode())
+            .sku(entity.getSku())
             .price(entity.getPrice())
             .stock(entity.getStock())
             .optionList(entity.getOptionList())
@@ -59,7 +59,7 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
         return new ProductVariantEntity(
             domain.getId(),
             domain.getName(),
-            domain.getCode(),
+            domain.getSku(),
             domain.getPrice().getValue(),
             domain.getStock(),
             domain.getFiles() != null ? domain.getFiles().stream().map(fileMapper::toEntity).toList() : null,

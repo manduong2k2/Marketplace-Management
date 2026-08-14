@@ -1,0 +1,82 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: store-management-system
+    base-url: http://localhost:8083
+    auth-domain: localhost
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/store_management_db
+    username: postgres
+    password: 1
+    driver-class-name: org.postgresql.Driver
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  main:
+    banner-mode: off
+    
+  devtools:
+      restart:
+        enabled: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+
+  mail:
+    host: your-smtp-host
+    port: 587
+    username: your-email@gmail.com
+    password: your-app-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      timeout: 2000ms
+
+application:
+  frontend:
+    base-url: http://localhost:5173
+    
+# Logging Configuration
+logging:
+  level:
+    org:
+      springframework: OFF
+      hibernate: OFF
+      apache: OFF
+    com:
+      zaxxer:
+        hikari: OFF
+
+jwt:
+  issuer: auth-service
+  expiration: 7
+  refresh-token-expiration: 14
+  private-key: classpath:keys/private.pem
+  public-key: classpath:keys/public.pem
+
+
+  

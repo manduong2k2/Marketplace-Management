@@ -19,10 +19,15 @@ public class BrandResponse {
     private String image;
     private String description;
 
-    public BrandResponse(Brand brand, String baseUrl) {
+    public BrandResponse(Brand brand) {
         this.id = brand.getId();
         this.name = brand.getName();
-        this.image = brand.getImage() != null ? baseUrl + "/" + brand.getImage() : null;
+        this.image = brand.getImage() != null ? brand.getImage() : null;
         this.description = brand.getDescription();
+    }
+
+    public BrandResponse withUrl(String url) {
+        this.image =  url + "/" + this.image;
+        return this;
     }
 }

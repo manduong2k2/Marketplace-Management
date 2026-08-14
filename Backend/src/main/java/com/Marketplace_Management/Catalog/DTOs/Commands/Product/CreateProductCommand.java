@@ -21,6 +21,7 @@ public class CreateProductCommand extends BaseCommand{
     private String status;
     private List<CreateProductVariantCommand> variants;
     private List<CreateProductOptionCommand> options;
+    private UUID vendorId;
 
     public static CreateProductCommand fromRequest(CreateProductRequest request) {
         return new CreateProductCommand(
@@ -30,7 +31,8 @@ public class CreateProductCommand extends BaseCommand{
             request.getCategoryIds().stream().map(UUID::fromString).toList(),
             BaseCommand.safeTrim(request.getStatus()),
             request.getVariants().stream().map(CreateProductVariantCommand::fromRequest).toList(),
-            request.getOptions().stream().map(CreateProductOptionCommand::fromRequest).toList()
+            request.getOptions().stream().map(CreateProductOptionCommand::fromRequest).toList(),
+            request.getVendorId() != null ? UUID.fromString(request.getVendorId()) : null
         );
     }
 }

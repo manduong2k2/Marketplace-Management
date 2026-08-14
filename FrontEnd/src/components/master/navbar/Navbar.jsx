@@ -1,10 +1,11 @@
-import React, { useContext, useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useContext, useState, useRef, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { CartContext } from '../../../contexts/CartContext';
 import { authService } from '../../../services/authService';
 import './Navbar.css';
 import shopIcon from '../../../assets/shop-icon.png';
+import { APP_NAME, APP_SLOGAN } from '../../../configs/constants';
 
 function CartIcon({ count }) {
   return (
@@ -21,6 +22,7 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   const cartCount = cart?.totalItemCount || 0;
   const location = useLocation();
@@ -29,7 +31,7 @@ export default function Navbar() {
     try {
       await authService.logout();
       await setUser(null);
-      window.location.href = '/login';
+      navigate('/login');
     } catch (err) {
       alert('Logout failed!');
     }
@@ -41,12 +43,12 @@ export default function Navbar() {
 
   const handleMenuClick = (path) => {
     setShowDropdown(false);
-    window.location.href = path;
+    navigate(path);
   };
 
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
-      window.location.href = `/home?search=${encodeURIComponent(searchQuery.trim())}`;
+      navigate(`/home?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -77,8 +79,8 @@ export default function Navbar() {
         <Link to="/home" className="navbar-logo-link">
           <img src={shopIcon} alt="Logo" className="navbar-icon" />
           <span className="navbar-logo">
-            <span className="navbar-logo-title">My Store</span>
-            <span className="navbar-logo-subtitle">Buy everything you need</span>
+            <span className="navbar-logo-title">{APP_NAME}</span>
+            <span className="navbar-logo-subtitle">{APP_SLOGAN}</span>
           </span>
         </Link>
       </div>
@@ -97,7 +99,7 @@ export default function Navbar() {
           {searchQuery && (
             <button className="navbar-search-clear" onClick={() => {
               setSearchQuery('');
-              window.location.href = '/home';
+              navigate('/home');
             }}>
               ✕
             </button>

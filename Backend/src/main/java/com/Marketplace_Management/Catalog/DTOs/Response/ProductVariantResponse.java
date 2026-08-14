@@ -25,16 +25,20 @@ public class ProductVariantResponse {
     private ProductResponse product;
     private List<ProductOptionResponse> options;
 
-    public ProductVariantResponse(ProductVariant variant, String baseUrl) {
+    public ProductVariantResponse(ProductVariant variant) {
         this.id = variant.getId();
         this.name = variant.getName();
-        this.code = variant.getCode();
+        this.code = variant.getSku();
         this.stock = variant.getStock();
         this.price = variant.getPrice().getValue();
-        this.images = variant.getFiles() != null ? variant.getFiles().stream().map(file -> baseUrl + "/" + file.getUrl()).toList() : null;
+        this.images = variant.getFiles() != null ? variant.getFiles().stream().map(file -> file.getUrl()).toList() : null;
         this.optionList = variant.getOptionList();
-        System.out.println("optionList: "+ variant.getOptionList());
-        this.product = new ProductResponse(variant.getProduct(), baseUrl);
-        this.options = variant.getOptions() != null ? variant.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;
+        this.product = variant != null && variant.getProduct() != null ? new ProductResponse(variant.getProduct()) : null;
+        this.options = variant != null && variant.getOptions() != null ? variant.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;
+    }
+
+    public ProductVariantResponse withUrl(String url) {
+        this.images = this.images != null ? this.images.stream().map(image -> url + "/" + image).toList() : null;
+        return this;
     }
 }

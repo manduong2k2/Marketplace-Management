@@ -11,7 +11,7 @@ public class ProductVariant extends Entity<UUID> {
     
     private UUID productId;
     private String name;
-    private String code;
+    private String sku;
     private Money price = new Money(0);
     private int stock = 0;
     private List<File> files;
@@ -27,7 +27,7 @@ public class ProductVariant extends Entity<UUID> {
         super(builder.id);
         this.productId  = builder.productId;
         this.name       = builder.name;
-        this.code       = builder.code;
+        this.sku        = builder.sku;
         this.price      = builder.price;
         this.stock      = builder.stock;
         this.files      = builder.files;
@@ -47,7 +47,7 @@ public class ProductVariant extends Entity<UUID> {
         private UUID id;
         private UUID productId;
         private String name;
-        private String code;
+        private String sku;
         private Money price = new Money(0);
         private int stock = 0;
         private List<File> files;
@@ -70,8 +70,8 @@ public class ProductVariant extends Entity<UUID> {
             return this;
         }
 
-        public Builder code(String code) {
-            this.code = code;
+        public Builder sku(String sku) {
+            this.sku = sku;
             return this;
         }
 
@@ -132,12 +132,12 @@ public class ProductVariant extends Entity<UUID> {
         this.productId = productId;
     }
     
-    public String getCode() {
-        return code;
+    public String getSku() {
+        return sku;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setSku(String sku) {
+        this.sku = sku;
     }
     
     public Money getPrice() {

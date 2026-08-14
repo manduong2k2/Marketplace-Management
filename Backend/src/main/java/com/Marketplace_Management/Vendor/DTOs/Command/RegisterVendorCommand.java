@@ -25,8 +25,8 @@ public class RegisterVendorCommand {
         return new RegisterVendorCommand(
             request.getName(),
             request.getDescription(),
-            null,
-            null,
+            request.getLogo(),
+            request.getBanner(),
             request.getTaxCode(),
             request.getEmail(),
             request.getAddressId() != null ? UUID.fromString(request.getAddressId()) : null,

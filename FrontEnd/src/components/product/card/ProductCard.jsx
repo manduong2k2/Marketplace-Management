@@ -13,7 +13,14 @@ function ProductCard({ product, onOpenVariantPopup }) {
     ? variants[0].images[0]
     : (images && images.length > 0 ? images[0] : defaultProductImage);
 
-  const price = variants && variants.length > 0 ? variants[0].price : 0;
+  const prices = variants?.map(v => v.price) ?? [];
+
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+  const maxPrice = prices.length ? Math.max(...prices) : 0;
+  
+  const price = variants && variants.length > 0 ? 
+    minPrice + ' ~ ' + maxPrice : 
+    'N/A';
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
@@ -39,7 +46,7 @@ function ProductCard({ product, onOpenVariantPopup }) {
 
       <div className="product-info">
         <h3 className="product-name">{name}</h3>
-        {price >= 0 && <p className="product-price">${price}</p>}
+        {price !== 'N/A' && <p className="product-price">${price}</p>}
         <button
           className="add-to-cart-btn"
           onClick={handleAddToCart}

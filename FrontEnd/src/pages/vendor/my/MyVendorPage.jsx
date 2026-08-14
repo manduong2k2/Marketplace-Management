@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import VendorCard from '../../../components/vendor/card/VendorCard';
-import ProductList from '../../../components/product/list/ProductList';
+import VendorTab from './tabs/VendorTab';
+import ProductsTab from './tabs/ProductsTab';
+import RevenueTab from './tabs/RevenueTab';
 import { vendorService } from '../../../services/vendorService';
 import './MyVendorPage.css';
 
@@ -12,7 +12,6 @@ const TABS = [
 ];
 
 export default function MyVendorPage() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('vendor');
   const [vendor, setVendor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,86 +54,9 @@ export default function MyVendorPage() {
 
       {/* ── Content ── */}
       <div className="my-vendor-content">
-
-        {/* Tab: Vendor */}
-        {activeTab === 'vendor' && (
-          <>
-            <div className="my-vendor-tab-header">
-              <h2>My Vendor Store</h2>
-              {vendor && (
-                <button
-                  className="btn-edit-vendor"
-                  onClick={() => navigate('/vendor-edit')}
-                >
-                  ✏️ Edit Store
-                </button>
-              )}
-            </div>
-
-            {loading && (
-              <div className="my-vendor-loading">
-                <p>Loading your store...</p>
-              </div>
-            )}
-
-            {!loading && !vendor && (
-              <div className="my-vendor-empty">
-                <span className="my-vendor-empty-icon">🏪</span>
-                <h3>You haven't registered a store yet. Click the button below to create one! 🚀</h3>
-                <button
-                  className="btn-create-vendor"
-                  onClick={() => navigate('/vendor-create')}
-                >
-                  + Create Store
-                </button>
-              </div>
-            )}
-
-            {!loading && vendor && (
-              <VendorCard vendor={vendor} />
-            )}
-          </>
-        )}
-
-        {/* Tab: Product List */}
-        {activeTab === 'products' && (
-          <>
-          <div className="my-products-tab-header">
-              <h2>My Products</h2>
-              {vendor && (
-                <button
-                  className="btn-add-product"
-                  onClick={() => navigate('/product-create')}
-                >
-                  + Add Product
-                </button>
-              )}
-            </div>
-            {vendor ? (
-            <ProductList vendorId={vendor.id} />
-          ) : (
-            <div className="my-vendor-empty">
-                <span className="my-vendor-empty-icon">🏪</span>
-                <h3>You haven't registered a store yet. Create one to add, manage and sell your products! 🚀</h3>
-                <button
-                  className="btn-create-vendor"
-                  onClick={() => navigate('/vendor-create')}
-                >
-                  + Create Store
-                </button>
-              </div>
-          )}
-          </>
-        )}
-
-        {/* Tab: Revenue */}
-        {activeTab === 'revenue' && (
-          <div className="revenue-placeholder">
-            <span className="revenue-placeholder-icon">📊</span>
-            <p>Revenue analytics coming soon.</p>
-          </div>
-        )}
-
+        {activeTab === 'vendor' && <VendorTab vendor={vendor} loading={loading} />}
+        {activeTab === 'products' && <ProductsTab vendor={vendor} />}
+        {activeTab === 'revenue' && <RevenueTab />}
       </div>
     </div>
   );

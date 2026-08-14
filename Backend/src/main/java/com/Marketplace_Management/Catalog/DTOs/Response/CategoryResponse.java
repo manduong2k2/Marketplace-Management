@@ -22,14 +22,19 @@ public class CategoryResponse {
     private UUID parentId;
     private List<CategoryResponse> children;
 
-    public CategoryResponse(Category category, String baseUrl) {
+    public CategoryResponse(Category category) {
         this.id = category.getId();
         this.name = category.getName();
-        this.image = category.getImage() != null ? baseUrl + "/" + category.getImage() : null;
+        this.image = category.getImage() != null ? category.getImage() : null;
         this.description = category.getDescription();
         this.parentId = category.getParent() != null ? category.getParent().getId() : null;
         this.children = category.getChildren() != null ? category.getChildren().stream()
-                .map(child -> new CategoryResponse(child, baseUrl))
+                .map(child -> new CategoryResponse(child))
                 .toList() : null;
+    }
+
+    public CategoryResponse withUrl(String url) {
+        this.image = url + "/" + this.image;
+        return this;
     }
 }

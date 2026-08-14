@@ -44,7 +44,7 @@ public class CategoryService implements ICategoryService {
     public PaginatedResponse<CategoryResponse> getAllCategories(GetListCategoryCommand command) {
         PaginatedResponse<Category> categories = categoryRepository.findAll(command);
         List<CategoryResponse> categoryResponses = categories.getData().stream()
-                .map(category -> new CategoryResponse(category, baseUrl))
+                .map(category -> new CategoryResponse(category).withUrl(baseUrl))
                 .toList();
         return new PaginatedResponse<>(
                 categoryResponses,
@@ -56,7 +56,7 @@ public class CategoryService implements ICategoryService {
 
     public CategoryResponse getCategory(UUID CategoryId) {
         return categoryRepository.findById(CategoryId)
-                .map(category -> new CategoryResponse(category, baseUrl))
+                .map(category -> new CategoryResponse(category).withUrl(baseUrl))
                 .orElseThrow(() -> new RuntimeException("Category not found"));
     }
 
@@ -83,7 +83,7 @@ public class CategoryService implements ICategoryService {
 
         publishDomainEvents(category, "Category.created");
 
-        return new CategoryResponse(category, baseUrl);
+        return new CategoryResponse(category).withUrl(baseUrl);
     }
 
     @Transactional
@@ -110,7 +110,7 @@ public class CategoryService implements ICategoryService {
 
         publishDomainEvents(category, "Category.updated");
         
-        return new CategoryResponse(category, baseUrl);
+        return new CategoryResponse(category).withUrl(baseUrl);
     }
 
     private void validateCircularReference(UUID categoryId, UUID parentId) {

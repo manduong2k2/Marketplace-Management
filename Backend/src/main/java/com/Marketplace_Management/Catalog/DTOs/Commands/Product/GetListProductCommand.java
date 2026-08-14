@@ -21,6 +21,7 @@ public class GetListProductCommand extends BaseCommand {
     private String search;
     private List<UUID> categoryIds;
     private UUID brandId;
+    private UUID vendorId;
 
     public static GetListProductCommand fromRequest(GetListProductRequest request) {
         return new GetListProductCommand(
@@ -30,7 +31,8 @@ public class GetListProductCommand extends BaseCommand {
             BaseCommand.safeTrim(request.getSortOrder()),
             BaseCommand.safeTrim(request.getSearch()),
             request.getCategoryIds() != null ? request.getCategoryIds().stream().map(UUID::fromString).toList() : List.of(),
-            request.getBrandId() != null ? UUID.fromString(request.getBrandId()) : null
+            request.getBrandId() != null ? UUID.fromString(request.getBrandId()) : null,
+            request.getVendorId() != null ? UUID.fromString(request.getVendorId()) : null
         );
     }
 }

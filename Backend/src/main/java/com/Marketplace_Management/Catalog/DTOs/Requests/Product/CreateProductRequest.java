@@ -33,6 +33,10 @@ public class CreateProductRequest {
     @Nullable
     @Size(max = 500, message = "Description must be less than 500 characters")
     private String description;
+
+    @Nullable
+    @org.hibernate.validator.constraints.UUID(message = "Must be a valid UUID")
+    private String vendorId;
     
     @Nullable
     @Distinct(message = "Each category ID must be unique")
@@ -46,5 +50,3 @@ public class CreateProductRequest {
 
     private List<@Valid CreateProductOptionRequest> options;
 }
-
-

@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com</groupId>
-	<artifactId>StoreManagement</artifactId>
+	<artifactId>Marketplace_Management</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>StoreManagement</name>
-	<description>Store Management System</description>
+	<name>Marketplace_Management</name>
+	<description>Marketplace Management System</description>
 	<url />
 	<licenses>
 		<license />
@@ -143,6 +143,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
 		</dependency>
 	</dependencies>
 

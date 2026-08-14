@@ -1,4 +1,4 @@
-package com.Marketplace_Management.Cart.Consumer;
+package com.Marketplace_Management.Cart.Consumers;
 
 import java.util.UUID;
 

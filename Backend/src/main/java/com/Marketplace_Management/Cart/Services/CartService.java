@@ -6,7 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.Marketplace_Management.Catalog.Contracts.IProductService;
-import com.Marketplace_Management.Catalog.DTOs.Response.ProductResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductVariantResponse;
 import com.Marketplace_Management.Cart.Contracts.ICartRepository;
 import com.Marketplace_Management.Cart.Contracts.ICartService;
 import com.Marketplace_Management.Cart.DTOs.Commands.AddToCartCommand;
@@ -64,11 +64,14 @@ public class CartService implements ICartService {
         cart.updateItemQuantity(command.getProductVariantId(), command.getQuantity());
         Cart updated = repository.update(cart);
 
+        // Load product details for each item in the cart
         for (CartItem item : updated.getItems()) {
-            ProductResponse product = productService.getProduct(item.getProductVariantId());
-            item.setProductName(product.getName());
-            //item.setProductPrice(product.getPrice());
-            //item.setProductImage(product.getImages());
+            ProductVariantResponse productVariant = productService.getProductVariant(item.getProductVariantId());
+            item.setProductName(productVariant.getProduct().getName());
+            item.setProductPrice(productVariant.getPrice());
+            item.setProductImage(productVariant.getImages());
+            item.setProductCode(productVariant.getCode());
+            item.setProductOptions(productVariant.getOptions());
         }
 
         return updated;
@@ -80,11 +83,14 @@ public class CartService implements ICartService {
         cart.checkout();
         Cart updated = repository.update(cart);
 
+        // Load product details for each item in the cart
         for (CartItem item : updated.getItems()) {
-            ProductResponse product = productService.getProduct(item.getProductVariantId());
-            item.setProductName(product.getName());
-            //item.setProductPrice(product.getPrice());
-            //item.setProductImage(product.getImages());
+            ProductVariantResponse productVariant = productService.getProductVariant(item.getProductVariantId());
+            item.setProductName(productVariant.getProduct().getName());
+            item.setProductPrice(productVariant.getPrice());
+            item.setProductImage(productVariant.getImages());
+            item.setProductCode(productVariant.getCode());
+            item.setProductOptions(productVariant.getOptions());
         }
 
         return updated;
@@ -101,12 +107,14 @@ public class CartService implements ICartService {
         
         // Load product details for each item in the cart
         for (CartItem item : cart.getItems()) {
-            ProductResponse product = productService.getProduct(item.getProductVariantId());
-            item.setProductName(product.getName());
-            //item.setProductPrice(product.getPrice());
-            //item.setProductImage(product.getImages());
-            //item.setProductCode(product.getCode());
-            item.setProductDescription(product.getDescription());
+            ProductVariantResponse productVariant = productService.getProductVariant(item.getProductVariantId());
+            if(productVariant != null) {
+                item.setProductName(productVariant.getProduct().getName());
+                item.setProductPrice(productVariant.getPrice());
+                item.setProductImage(productVariant.getImages());
+                item.setProductCode(productVariant.getCode());
+                item.setProductOptions(productVariant.getOptions());
+            }
         }
         
         return cart;

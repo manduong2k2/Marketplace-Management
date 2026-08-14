@@ -1,9 +1,9 @@
 services:
-  store-management-backend:
+  marketplace-backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: store-management-backend
+    container_name: marketplace-backend
     ports:
       - "8083:8083"
     environment:
@@ -17,7 +17,7 @@ services:
       - SPRING_RABBITMQ_USERNAME=guest
       - SPRING_RABBITMQ_PASSWORD=guest
     networks:
-      - store-management-network
+      - marketplace-network
     depends_on:
       - db
 
@@ -33,19 +33,19 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - store-management-network
+      - marketplace-network
   
-  store-management-redis:
+  marketplace-redis:
     image: redis:7-alpine
-    container_name: store-management-redis
+    container_name: marketplace-redis
     ports:
       - "6379:6379"
     networks:
-      - store-management-network
+      - marketplace-network
 
 volumes:
   db_data:
 
 networks:
-  store-management-network:
+  marketplace-network:
     driver: bridge

@@ -5,7 +5,10 @@ import ProductVariantPopup from '../popup/ProductVariantPopup';
 import { productService } from '../../../services/productService';
 import './ProductList.css';
 
-function ProductList({ categoryIds = [], brandId = null, searchQuery: initialSearchQuery = '', vendorId = null }) {
+// Stable empty array to prevent reference changes
+const EMPTY_ARRAY = [];
+
+function ProductList({ categoryIds = EMPTY_ARRAY, brandId = null, searchQuery: initialSearchQuery = '', vendorId = null }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

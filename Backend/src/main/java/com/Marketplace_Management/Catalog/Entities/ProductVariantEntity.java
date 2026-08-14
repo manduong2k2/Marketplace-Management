@@ -39,7 +39,7 @@ public class ProductVariantEntity extends UuidEntity{
     private String name;
 
     @Column(nullable = false)
-    private String code;
+    private String sku;
 
     @Column(nullable = false)
     private double price;
@@ -69,10 +69,10 @@ public class ProductVariantEntity extends UuidEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<ProductOptionEntity> options;
 
-    public ProductVariantEntity(UUID id, String name, String code, double price, int stock, List<FileEntity> files, String optionList, List<ProductOptionEntity> options) {
+    public ProductVariantEntity(UUID id, String name, String sku, double price, int stock, List<FileEntity> files, String optionList, List<ProductOptionEntity> options) {
         this.setId(id);
         this.setName(name);
-        this.setCode(code);
+        this.setSku(sku);
         this.setPrice(price);
         this.setStock(stock);
         this.setFiles(files);

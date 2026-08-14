@@ -87,7 +87,7 @@
   color: #1a1a2e;
 }
 
-.btn-edit-vendor {
+.btn-edit-vendor, .btn-add-product {
   padding: 9px 20px;
   font-size: 13px;
   font-weight: 600;
@@ -99,7 +99,7 @@
   transition: all 0.2s;
 }
 
-.btn-edit-vendor:hover {
+.btn-edit-vendor:hover, .btn-add-product:hover {
   background: #667eea;
   color: #fff;
 }

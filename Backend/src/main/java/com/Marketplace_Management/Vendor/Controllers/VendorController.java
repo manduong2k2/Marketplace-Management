@@ -1,10 +1,12 @@
 package com.Marketplace_Management.Vendor.Controllers;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,21 +20,32 @@ import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
 import com.Marketplace_Management.Shared.Controllers.BaseController;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 import com.Marketplace_Management.Vendor.Contracts.IVendorService;
+import com.Marketplace_Management.Vendor.DTOs.Command.CreateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.UpdateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Request.CreateCollectionRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.CreateVendorRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.RegisterVendorRequest;
+import com.Marketplace_Management.Vendor.DTOs.Request.UpdateCollectionRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.UpdateVendorRequest;
+import com.Marketplace_Management.Vendor.DTOs.Response.CollectionResponse;
 import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
+
+
 
 @RestController
 @RequestMapping("/api/vendors")
 public class VendorController extends BaseController{
 
     private final IVendorService vendorService;
+
+    @Value("${spring.application.base-url}")
+    private String baseUrl;
 
     public VendorController(IVendorService vendorService) {
         this.vendorService = vendorService;
@@ -46,9 +59,41 @@ public class VendorController extends BaseController{
         return objectResponse(vendors);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getVendor(@PathVariable UUID id) {
+        VendorResponse vendor = vendorService.getById(id);
+        return objectResponse(vendor);
+    }
+
+    @GetMapping("/{id}/collections")
+    public ResponseEntity<Map<String, Object>> getCollections(@PathVariable UUID id) {
+        List<CollectionResponse> collections = vendorService.getCollections(id);
+        return objectResponse(collections);
+    }
+
+    @PostMapping("/{id}/collections")
+    public ResponseEntity<Map<String, Object>> createCollection(@PathVariable UUID id, @RequestBody CreateCollectionRequest request) {
+        CreateCollectionCommand command = CreateCollectionCommand.fromRequest(request);
+        CollectionResponse collection = vendorService.createCollection(id, command);
+        return createdResponse(collection);
+    }
+
+    @DeleteMapping("/{id}/collections/{collectionId}")
+    public ResponseEntity<Map<String, Object>> removeCollection(@PathVariable UUID id, @PathVariable UUID collectionId) {
+        vendorService.removeCollection(id, collectionId);
+        return objectResponse(Map.of("message", "Collection removed successfully"));
+    }
+
+    @PutMapping("/{id}/collections/{collectionId}")
+    public ResponseEntity<Map<String, Object>> updateCollection(@PathVariable UUID id, @PathVariable UUID collectionId, @RequestBody UpdateCollectionRequest request) {
+        UpdateCollectionCommand command = UpdateCollectionCommand.fromRequest(request);
+        CollectionResponse collection = vendorService.updateCollection(id, collectionId, command);
+        return objectResponse(collection);
+    }
+
     @Authenticated
     @PostMapping
-    public ResponseEntity<Map<String, Object>> create(@Valid @ModelAttribute CreateVendorRequest request) {
+    public ResponseEntity<Map<String, Object>> create(@Valid @ModelAttribute CreateVendorRequest request) throws IOException {
         CreateVendorCommand command = CreateVendorCommand.fromRequest(request);
         VendorResponse vendor = vendorService.create(command);
 
@@ -75,14 +120,14 @@ public class VendorController extends BaseController{
     @Authenticated
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getByUser() {
-        VendorResponse vendor = vendorService.getByUser(SecurityUtils.currentUserId());
+        VendorResponse vendor = vendorService.getByUser(SecurityUtils.currentUserId()).withUrl(baseUrl);
 
         return objectResponse(vendor);
     }
 
     @Authenticated
     @PostMapping("/me")
-    public ResponseEntity<Map<String, Object>> register(@Valid @ModelAttribute RegisterVendorRequest request) {
+    public ResponseEntity<Map<String, Object>> register(@Valid @ModelAttribute RegisterVendorRequest request) throws IOException {
         RegisterVendorCommand command = RegisterVendorCommand.fromRequest(request);
         VendorResponse vendor = vendorService.register(command);
 

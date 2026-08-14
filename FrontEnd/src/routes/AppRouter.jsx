@@ -93,16 +93,16 @@ export default function AppRouter() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/brand/:id" element={<BrandDetailPage />} />
-            <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-            <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
-            <Route path="/checkout" element={<PrivateRoute><CartCheckoutPage /></PrivateRoute>} />
-            <Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />
-            <Route path="/orders/:id" element={<PrivateRoute><OrderDetailPage /></PrivateRoute>} />
+            <Route path="/vendor/:id" element={<VendorDetailPage />} />
           </Route>
 
-          {/* Vendor routes */}
-          <Route element={<PublicRoute><MasterLayout /></PublicRoute>}>
-            <Route path="/vendor/:id" element={<VendorDetailPage />} />
+          {/* Routes for logged in users */}
+          <Route element={<PrivateRoute><MasterLayout /></PrivateRoute>}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CartCheckoutPage />} />
+            <Route path="/orders" element={<OrderHistoryPage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/my-vendor" element={<MyVendorPage />} />
             <Route path="/vendor-create" element={<VendorCreatePage />} />
           </Route>

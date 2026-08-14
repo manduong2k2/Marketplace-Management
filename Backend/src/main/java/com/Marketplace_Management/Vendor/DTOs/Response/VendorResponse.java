@@ -38,4 +38,10 @@ public class VendorResponse {
         this.addressId      = vendor.getAddressId();
         this.phone          = vendor.getPhone();
     }
+
+    public VendorResponse withUrl(String baseUrl) {
+        this.logo = baseUrl + "/" + this.logo;
+        this.banner = baseUrl + "/" + this.banner;
+        return this;
+    }
 }

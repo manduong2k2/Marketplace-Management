@@ -26,5 +26,5 @@ public interface IProductService {
     
     public List<String> getAllStatus();
 
-    public ProductVariantResponse getProductVariant(UUID productId, UUID productVariantId);
+    public ProductVariantResponse getProductVariant(UUID productVariantId);
 }

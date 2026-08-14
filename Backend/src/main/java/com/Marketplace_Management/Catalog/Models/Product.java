@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.Constants.ProductStatusEnum;
 import com.Marketplace_Management.Shared.Models.AggregateRoot;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Product extends AggregateRoot<UUID> {
@@ -18,11 +16,10 @@ public class Product extends AggregateRoot<UUID> {
     private ProductStatus status;
     private List<ProductVariant> variants;
     private List<ProductOption> options;
+    private UUID vendorId;
 
     public Product() {
         super(null);
-        this.status = new ProductStatus();
-        this.categoryIds = new ArrayList<>();
     }
 
     // Builder methods
@@ -42,6 +39,7 @@ public class Product extends AggregateRoot<UUID> {
         private ProductStatus status;
         private List<ProductVariant> variants;
         private List<ProductOption> options;
+        private UUID vendorId;
         
         public Builder id(UUID id) {
             this.id = id;
@@ -92,6 +90,11 @@ public class Product extends AggregateRoot<UUID> {
             this.options = options;
             return this;
         }
+
+        public Builder vendorId(UUID vendorId) {
+            this.vendorId = vendorId;
+            return this;
+        }
         
         public Product build() {
             Product product = new Product();
@@ -105,6 +108,7 @@ public class Product extends AggregateRoot<UUID> {
             product.setStatus(this.status);
             product.setVariants(this.variants);
             product.setOptions(this.options);
+            product.setVendorId(this.vendorId);
             return product;
         }
     }
@@ -193,5 +197,13 @@ public class Product extends AggregateRoot<UUID> {
 
     public void setOptions(List<ProductOption> options) {
         this.options = options;
+    }
+
+    public void setVendorId(UUID vendorId) {
+        this.vendorId = vendorId;
+    }
+
+    public UUID getVendorId() {
+        return this.vendorId;
     }
 }

@@ -38,5 +38,15 @@
     "name": "application.frontend.base-url",
     "type": "java.lang.String",
     "description": "Base URL for frontend application"
+  },
+  {
+    "name": "spring.liquibase.enabled",
+    "type": "java.lang.String",
+    "description": "Enable or disable Liquibase"
+  },
+  {
+    "name": "spring.liquibase.change-log",
+    "type": "java.lang.String",
+    "description": "Path to the Liquibase change log file"
   }
 ]}

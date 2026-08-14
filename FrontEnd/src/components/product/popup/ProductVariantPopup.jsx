@@ -1,14 +1,16 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { cartService } from '../../../services/cartService';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { CartContext } from '../../../contexts/CartContext';
 import { showSuccess, showError } from '../../master/popup';
 import defaultProductImage from '../../../assets/product.png';
+import { useNavigate } from 'react-router-dom';
 import './ProductVariantPopup.css';
 
 function ProductVariantPopup({ product, onClose }) {
   const { user } = useContext(AuthContext);
   const { setCart } = useContext(CartContext);
+  const navigate = useNavigate();
   
   const [selectedVariant, setSelectedVariant] = useState(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
@@ -115,12 +117,12 @@ function ProductVariantPopup({ product, onClose }) {
 
   const handleAddToCart = async () => {
     if (!user) {
-      showError('Please login to add items to cart');
+      navigate('/login');
       return;
     }
 
     if (!selectedVariant) {
-      showError('Please select a variant');
+      showError('Please select product options');
       return;
     }
 
@@ -128,7 +130,7 @@ function ProductVariantPopup({ product, onClose }) {
 
     setAdding(true);
     try {
-      const res = await cartService.addItem(product.id, quantity, selectedVariant.id);
+      const res = await cartService.addItem(selectedVariant.id, quantity);
       if (res.ok) {
         const cartData = await cartService.getCart();
         if (cartData.data && cartData.data.cart) {

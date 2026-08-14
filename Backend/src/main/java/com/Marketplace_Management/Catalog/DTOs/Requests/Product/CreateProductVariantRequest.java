@@ -19,9 +19,9 @@ public class CreateProductVariantRequest {
     @Size(min = 1, max = 100, message = "Product name must be between 1 and 100 characters")
     private String name;
 
-    @NotBlank(message = "Product code is required")
-    @Unique(table = "product_variants", column = "code", message = "Product variant code already exists")
-    private String code;
+    @NotBlank(message = "Product SKU is required")
+    @Unique(table = "product_variants", column = "sku", message = "Product variant SKU already exists")
+    private String sku;
 
     @NotNull(message = "Price is required")
     @Min(value = 0, message = "Price must be positive")

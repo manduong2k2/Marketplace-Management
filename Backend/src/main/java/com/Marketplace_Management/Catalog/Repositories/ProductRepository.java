@@ -1,9 +1,10 @@
 package com.Marketplace_Management.Catalog.Repositories;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,21 +15,11 @@ import com.Marketplace_Management.Catalog.DTOs.Response.ProductOptionResponse;
 import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
 import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductVariantShortResponse;
 import com.Marketplace_Management.Catalog.Entities.ProductEntity;
-import com.Marketplace_Management.Catalog.Entities.ProductOptionEntity;
 import com.Marketplace_Management.Catalog.Entities.ProductVariantEntity;
-import com.Marketplace_Management.Catalog.Entities.QCategoryEntity;
-import com.Marketplace_Management.Catalog.Entities.QProductEntity;
-import com.Marketplace_Management.Catalog.Entities.QProductOptionEntity;
-import com.Marketplace_Management.Catalog.Entities.QProductVariantEntity;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
 import com.Marketplace_Management.Shared.Contracts.IMapper;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Entities.FileEntity;
-import com.Marketplace_Management.Shared.Entity.QFileEntity;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 @Repository
@@ -36,161 +27,146 @@ public class ProductRepository implements IProductRepository {
 
     private final ProductJpaRepository jpaRepository;
     private final IMapper<Product, ProductEntity> productMapper;
-    private final JPAQueryFactory queryFactory;
+    private final IMapper<ProductVariant, ProductVariantEntity> variantMapper;
+    private final EntityManager entityManager;
+    private final ProductVariantJpaRepository productVariantJpaRepository;
 
     @Value("${spring.application.base-url}")
     private String baseUrl;
 
     public ProductRepository(ProductJpaRepository jpaRepository, IMapper<Product, ProductEntity> productMapper,
-            JPAQueryFactory queryFactory) {
+            EntityManager entityManager, ProductVariantJpaRepository productVariantJpaRepository,
+            IMapper<ProductVariant, ProductVariantEntity> variantMapper) {
         this.jpaRepository = jpaRepository;
         this.productMapper = productMapper;
-        this.queryFactory = queryFactory;
+        this.entityManager = entityManager;
+        this.productVariantJpaRepository = productVariantJpaRepository;
+        this.variantMapper = variantMapper;
     }
 
     @Override
     public PaginatedResponse<ProductShortResponse> findAll(GetListProductCommand command) {
-
-        QProductEntity product = QProductEntity.productEntity;
-        QProductVariantEntity variant = QProductVariantEntity.productVariantEntity;
-        QProductOptionEntity option = QProductOptionEntity.productOptionEntity;
-        QFileEntity file = QFileEntity.fileEntity;
-        QCategoryEntity category = QCategoryEntity.categoryEntity;
-
-        BooleanBuilder builder = new BooleanBuilder();
+        StringBuilder jpql = new StringBuilder();
+        jpql.append("SELECT DISTINCT p FROM ProductEntity p ");
+        jpql.append("LEFT JOIN FETCH p.variants v ");
+        jpql.append("LEFT JOIN FETCH v.options o ");
+        jpql.append("LEFT JOIN FETCH v.files f ");
+        jpql.append("LEFT JOIN FETCH p.categories c ");
+        jpql.append("WHERE 1=1 ");
 
         if (command.getSearch() != null && !command.getSearch().isBlank()) {
-            builder.and(product.name.containsIgnoreCase(command.getSearch()));
+            jpql.append("AND LOWER(p.name) LIKE LOWER(:search) ");
         }
 
         if (command.getBrandId() != null) {
-            builder.and(product.brand.id.eq(command.getBrandId()));
+            jpql.append("AND p.brand.id = :brandId ");
         }
 
         if (command.getCategoryIds() != null && !command.getCategoryIds().isEmpty()) {
-            builder.and(product.categories.any().id.in(command.getCategoryIds()));
+            jpql.append("AND c.id IN :categoryIds ");
         }
 
-        long total = queryFactory
-                .select(product.countDistinct())
-                .from(product)
-                .where(builder)
-                .fetchOne();
-
-        OrderSpecifier<?> orderSpecifier = "desc".equalsIgnoreCase(command.getSortOrder())
-                ? product.name.desc()
-                : product.name.asc();
-
-        List<ProductEntity> products = queryFactory
-                .selectFrom(product)
-                .distinct()
-                .leftJoin(product.categories, category)
-                .where(builder)
-                .orderBy(orderSpecifier)
-                .offset((long) command.getPage() * command.getSize())
-                .limit(command.getSize())
-                .fetch();
-
-        if (products.isEmpty()) {
-            return new PaginatedResponse<>(
-                    List.of(),
-                    command.getPage(),
-                    command.getSize(),
-                    0);
+        if (command.getVendorId() != null) {
+            jpql.append("AND p.vendorId = :vendorId ");
         }
 
-        List<UUID> productIds = products.stream()
-                .map(ProductEntity::getId)
-                .toList();
+        String countJpql = "SELECT COUNT(DISTINCT p.id) FROM ProductEntity p " +
+                "LEFT JOIN p.categories c WHERE 1=1 ";
 
-        List<ProductOptionEntity> productOptions = queryFactory
-                .selectFrom(option)
-                .where(option.product.id.in(productIds))
-                .fetch();
+        if (command.getSearch() != null && !command.getSearch().isBlank()) {
+            countJpql += "AND LOWER(p.name) LIKE LOWER(:search) ";
+        }
 
-        Map<UUID, Set<ProductOptionResponse>> productOptionMap = productOptions.stream()
-                .collect(Collectors.groupingBy(
-                        o -> o.getProduct().getId(),
-                        Collectors.mapping(
-                                o -> new ProductOptionResponse(
-                                        o.getId(),
-                                        o.getName(),
-                                        o.getValue()),
-                                Collectors.toSet())));
+        if (command.getBrandId() != null) {
+            countJpql += "AND p.brand.id = :brandId ";
+        }
 
-        List<ProductVariantEntity> variants = queryFactory
-                .selectFrom(variant)
-                .where(variant.product.id.in(productIds))
-                .fetch();
+        if (command.getCategoryIds() != null && !command.getCategoryIds().isEmpty()) {
+            countJpql += "AND c.id IN :categoryIds ";
+        }
 
-        List<UUID> variantIds = variants.stream()
-                .map(ProductVariantEntity::getId)
-                .toList();
+        if (command.getVendorId() != null) {
+            countJpql += "AND p.vendorId = :vendorId ";
+        }
 
-        List<FileEntity> files = variantIds.isEmpty()
-                ? List.of()
-                : queryFactory
-                        .selectFrom(file)
-                        .where(
-                                file.entityType.eq("ProductVariant")
-                                        .and(file.entityId.in(variantIds)))
-                        .fetch();
+        TypedQuery<Long> countQuery = entityManager.createQuery(countJpql, Long.class);
 
-        Map<UUID, Set<String>> imageMap = files.stream()
-                .collect(Collectors.groupingBy(
-                        FileEntity::getEntityId,
-                        Collectors.mapping(
-                                FileEntity::getUrl,
-                                Collectors.toSet())));
+        if (command.getSearch() != null && !command.getSearch().isBlank()) {
+            countQuery.setParameter("search", "%" + command.getSearch() + "%");
+        }
+        if (command.getBrandId() != null) {
+            countQuery.setParameter("brandId", command.getBrandId());
+        }
+        if (command.getCategoryIds() != null && !command.getCategoryIds().isEmpty()) {
+            countQuery.setParameter("categoryIds", command.getCategoryIds());
+        }
+        if (command.getVendorId() != null) {
+            countQuery.setParameter("vendorId", command.getVendorId());
+        }
 
-        Map<UUID, Set<ProductOptionResponse>> variantOptionMap = variants.stream()
-                .collect(Collectors.toMap(
-                        ProductVariantEntity::getId,
-                        v -> v.getOptions()
-                                .stream()
-                                .map(o -> new ProductOptionResponse(
-                                        o.getId(),
-                                        o.getName(),
-                                        o.getValue()))
-                                .collect(Collectors.toSet())));
+        long total = countQuery.getSingleResult();
 
-        Map<UUID, List<ProductVariantShortResponse>> variantMap = variants.stream()
-                .collect(Collectors.groupingBy(
-                        v -> v.getProduct().getId(),
-                        Collectors.mapping(
-                                v -> new ProductVariantShortResponse(
+        jpql.append("ORDER BY p.name ").append(command.getSortOrder().equalsIgnoreCase("desc") ? "DESC" : "ASC");
+
+        TypedQuery<ProductEntity> query = entityManager.createQuery(jpql.toString(), ProductEntity.class);
+        query.setFirstResult(command.getPage() * command.getSize());
+        query.setMaxResults(command.getSize());
+
+        if (command.getSearch() != null && !command.getSearch().isBlank()) {
+            query.setParameter("search", "%" + command.getSearch() + "%");
+        }
+        if (command.getBrandId() != null) {
+            query.setParameter("brandId", command.getBrandId());
+        }
+        if (command.getCategoryIds() != null && !command.getCategoryIds().isEmpty()) {
+            query.setParameter("categoryIds", command.getCategoryIds());
+        }
+        if (command.getVendorId() != null) {
+            query.setParameter("vendorId", command.getVendorId());
+        }
+
+        List<ProductEntity> products = query.getResultList();
+
+        List<ProductShortResponse> responses = products.stream()
+                .map(p -> {
+                    List<ProductVariantShortResponse> variantResponses = p.getVariants().stream()
+                            .map(v -> {
+                                Set<String> images = v.getFiles() != null
+                                        ? v.getFiles().stream()
+                                                .map(f -> baseUrl + "/" + f.getUrl())
+                                                .collect(Collectors.toSet())
+                                        : Set.of();
+
+                                Set<ProductOptionResponse> optionResponses = v.getOptions() != null
+                                        ? v.getOptions().stream()
+                                                .map(o -> new ProductOptionResponse(o.getId(), o.getName(), o.getValue()))
+                                                .collect(Collectors.toSet())
+                                        : Set.of();
+
+                                return new ProductVariantShortResponse(
                                         v.getId(),
                                         v.getName(),
-                                        v.getCode(),
+                                        v.getSku(),
                                         v.getStock(),
                                         v.getPrice(),
                                         v.getOptionList(),
-                                        imageMap.getOrDefault(
-                                                v.getId(),
-                                                Set.of()),
-                                        variantOptionMap.getOrDefault(
-                                                v.getId(),
-                                                Set.of()),
-                                        baseUrl),
-                                Collectors.toList())));
+                                        images,
+                                        optionResponses,
+                                        baseUrl);
+                            })
+                            .toList();
 
-        List<ProductShortResponse> responses = products.stream()
-                .map(p -> new ProductShortResponse(
-                        p.getId(),
-                        p.getName(),
-                        variantMap.getOrDefault(
-                                p.getId(),
-                                List.of()),
-                        productOptionMap.getOrDefault(
-                                p.getId(),
-                                Set.of())))
+                    Set<ProductOptionResponse> productOptionResponses = p.getOptions() != null
+                            ? p.getOptions().stream()
+                                    .map(o -> new ProductOptionResponse(o.getId(), o.getName(), o.getValue()))
+                                    .collect(Collectors.toSet())
+                            : Set.of();
+
+                    return new ProductShortResponse(p.getId(), p.getName(), variantResponses, productOptionResponses);
+                })
                 .toList();
 
-        return new PaginatedResponse<>(
-                responses,
-                command.getPage(),
-                command.getSize(),
-                total);
+        return new PaginatedResponse<>(responses, command.getPage(), command.getSize(), total);
     }
 
     public Product save(Product Product) {
@@ -227,14 +203,8 @@ public class ProductRepository implements IProductRepository {
         jpaRepository.deleteById(id);
     }
 
-    public ProductVariant findVariantById(UUID productId, UUID variantId) {
-        var product = findById(productId);
-        if (product == null) {
-            return null;
-        }
-        return product.getVariants().stream()
-                .filter(variant -> variant.getId().equals(variantId))
-                .findFirst()
-                .orElse(null);
+    public ProductVariant findVariantById(UUID variantId) {
+        ProductVariantEntity entity = productVariantJpaRepository.findById(variantId).orElse(null);
+        return entity != null ? variantMapper.toDomain(entity) : null;
     }
 }

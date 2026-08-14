@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class CreateProductVariantCommand extends BaseCommand {
     private String name;
-    private String code;
+    private String sku;
     private double price;
     private int stock;
     
@@ -26,7 +26,7 @@ public class CreateProductVariantCommand extends BaseCommand {
     public static CreateProductVariantCommand fromRequest(CreateProductVariantRequest request) {
         return new CreateProductVariantCommand(
             BaseCommand.safeTrim(request.getName()),
-            BaseCommand.safeTrim(request.getCode()),
+            BaseCommand.safeTrim(request.getSku()),
             request.getPrice(),
             request.getStock(),
             request.getImages(),

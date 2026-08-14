@@ -1,5 +1,6 @@
 package com.Marketplace_Management.Vendor.Services;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,16 +10,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
+import com.Marketplace_Management.Shared.Contracts.IFileService;
+import com.Marketplace_Management.Shared.Contracts.IMapper;
 import com.Marketplace_Management.Shared.Events.EventOptions;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 import com.Marketplace_Management.Vendor.Contracts.IVendorRepository;
 import com.Marketplace_Management.Vendor.Contracts.IVendorService;
+import com.Marketplace_Management.Vendor.DTOs.Command.CreateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.UpdateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Response.CollectionResponse;
 import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
+import com.Marketplace_Management.Vendor.Entities.CollectionEntity;
+import com.Marketplace_Management.Vendor.Models.Collection;
 import com.Marketplace_Management.Vendor.Models.Vendor;
 import com.Marketplace_Management.Vendor.Models.VendorStatus;
+import com.Marketplace_Management.Vendor.Repositories.CollectionJpaRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -26,11 +35,17 @@ import jakarta.transaction.Transactional;
 public class VendorService implements IVendorService {
 
     private final IVendorRepository vendorRepository;
+    private final CollectionJpaRepository collectionJpaRepository;
     private final IEventPublisher eventPublisher;
+    private final IFileService fileService;
+    private final IMapper<Collection, CollectionEntity> collectionMapper;
 
-    public VendorService(IVendorRepository vendorRepository, IEventPublisher eventPublisher) {
+    public VendorService(IVendorRepository vendorRepository, CollectionJpaRepository collectionJpaRepository, IEventPublisher eventPublisher, IFileService fileService, IMapper<Collection, CollectionEntity> collectionMapper) {
         this.vendorRepository = vendorRepository;
+        this.collectionJpaRepository = collectionJpaRepository;
         this.eventPublisher = eventPublisher;
+        this.fileService = fileService;
+        this.collectionMapper = collectionMapper;
     }
 
     public List<VendorResponse> getAll() {
@@ -38,11 +53,56 @@ public class VendorService implements IVendorService {
                 .map(VendorResponse::new)
                 .toList();
     }
+    
+    public VendorResponse getById(UUID vendorId) {
+        return vendorRepository.findById(vendorId)
+                .map(VendorResponse::new)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+    }
+
+    public List<CollectionResponse> getCollections(UUID vendorId) {
+        var collections = collectionJpaRepository.findByVendorId(vendorId);
+        return collections.stream()
+                .map(collectionMapper::toDomain)
+                .map(CollectionResponse::new)
+                .toList();
+    }
+
+    public CollectionResponse createCollection(UUID vendorId, CreateCollectionCommand command) {
+        Collection collection = Collection.builder()
+                .vendorId(vendorId)
+                .name(command.getName())
+                .displayOrder(command.getDisplayOrder())
+                .build();
+        CollectionEntity entity = collectionMapper.toEntity(collection);
+        CollectionEntity saved = collectionJpaRepository.save(entity);
+        return new CollectionResponse(collectionMapper.toDomain(saved));
+    }
+    
+    public CollectionResponse updateCollection(UUID vendorId, UUID collectionId, UpdateCollectionCommand command) {
+        Collection collection = Collection.builder()
+                .id(collectionId)
+                .vendorId(vendorId)
+                .name(command.getName())
+                .displayOrder(command.getDisplayOrder())
+                .build();
+        CollectionEntity entity = collectionMapper.toEntity(collection);
+        CollectionEntity saved = collectionJpaRepository.save(entity);
+        return new CollectionResponse(collectionMapper.toDomain(saved));
+    }
 
     @Transactional
-    public VendorResponse create(CreateVendorCommand command) {
+    public void removeCollection(UUID vendorId, UUID collectionId) {
+        collectionJpaRepository.deleteById(collectionId);
+    }
+
+    @Transactional
+    public VendorResponse create(CreateVendorCommand command) throws IOException{
         if (vendorRepository.existsByUserId(command.getUserId()))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Vendor of this user already exists");
+
+        String logoUrl = fileService.uploadFile(command.getLogo(), "vendors/logo");
+        String bannerUrl = fileService.uploadFile(command.getBanner(), "vendors/banner");
 
         Vendor vendor = new Vendor(
                 null,
@@ -50,8 +110,8 @@ public class VendorService implements IVendorService {
                 command.getName(),
                 VendorStatus.PENDING,
                 command.getDescription(),
-                null,
-                null,
+                logoUrl,
+                bannerUrl,
                 command.getTaxCode(),
                 command.getEmail(),
                 command.getAddressId(),
@@ -66,7 +126,7 @@ public class VendorService implements IVendorService {
     }
 
     @Transactional
-    public VendorResponse register(RegisterVendorCommand command) {
+    public VendorResponse register(RegisterVendorCommand command) throws IOException {
         UUID userId = SecurityUtils.currentUserId();
 
         CreateVendorCommand commandWithUser = new CreateVendorCommand(

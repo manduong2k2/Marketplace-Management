@@ -26,7 +26,10 @@ function CartPage() {
       [itemId]: Math.max(1, newQuantity)
     }));
     try {
-      const res = await cartService.updateItem(itemId, newQuantity);
+      const item = cart.items.find(i => i.id === itemId);
+      if (!item) return;
+      
+      const res = await cartService.updateItem(item.productVariantId, newQuantity);
       if (res.ok) {
         // Refresh cart data
         const cartData = await cartService.getCart();
@@ -39,9 +42,12 @@ function CartPage() {
     }
   };
 
-  const handleDeleteItem = async (productId) => {
+  const handleDeleteItem = async (itemId) => {
     try {
-      const res = await cartService.removeItem(productId);
+      const item = cart.items.find(i => i.id === itemId);
+      if (!item) return;
+      
+      const res = await cartService.removeItem(item.productVariantId);
       if (res.ok) {
         // Refresh cart data
         const cartData = await cartService.getCart();
@@ -119,6 +125,15 @@ function CartPage() {
 
               <div className="item-details">
                 <h3 className="item-name">{item.productName}</h3>
+                {item.productOptions && item.productOptions.length > 0 && (
+                  <div className="item-options">
+                    {item.productOptions.map(option => (
+                      <span key={option.id} className="option-tag">
+                        {option.name}: {option.value}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <p className="item-price">${item.productPrice.toFixed(2)}</p>
               </div>
 
@@ -127,8 +142,8 @@ function CartPage() {
                 <input
                   type="number"
                   min="1"
-                  value={quantities[item.productId] || item.quantity}
-                  onChange={(e) => handleQuantityChange(item.productId, parseInt(e.target.value))}
+                  value={quantities[item.id] || item.quantity}
+                  onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
                   className="quantity-input"
                 />
               </div>
@@ -138,7 +153,7 @@ function CartPage() {
                 <p className="subtotal-price">${item.subTotal.toFixed(2)}</p>
               </div>
 
-              <button className="delete-item-btn" onClick={() => handleDeleteItem(item.productId)}>
+              <button className="delete-item-btn" onClick={() => handleDeleteItem(item.id)}>
                 <i className="fas fa-trash"></i>
               </button>
             </div>
