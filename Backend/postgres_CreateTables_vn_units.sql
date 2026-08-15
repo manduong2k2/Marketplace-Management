@@ -6,31 +6,31 @@
 
 -- CREATE provinces TABLE
 CREATE TABLE provinces (
-	code varchar(20) NOT NULL,
+	id varchar(20) NOT NULL,
 	name varchar(255) NOT NULL,
 	name_en varchar(255) NULL,
 	full_name varchar(255) NOT NULL,
 	full_name_en varchar(255) NULL,
 	code_name varchar(255) NULL,
-	CONSTRAINT provinces_pkey PRIMARY KEY (code)
+	CONSTRAINT provinces_pkey PRIMARY KEY (id)
 );
 
 
 -- CREATE wards TABLE
 CREATE TABLE wards (
-	code varchar(20) NOT NULL,
+	id varchar(20) NOT NULL,
 	name varchar(255) NOT NULL,
 	name_en varchar(255) NULL,
 	full_name varchar(255) NULL,
 	full_name_en varchar(255) NULL,
 	code_name varchar(255) NULL,
-	province_code varchar(20) NULL,
-	CONSTRAINT wards_pkey PRIMARY KEY (code)
+	province_id varchar(20) NULL,
+	CONSTRAINT wards_pkey PRIMARY KEY (id)
 );
 
 
 -- wards foreign keys
 
-ALTER TABLE wards ADD CONSTRAINT wards_province_code_fkey FOREIGN KEY (province_code) REFERENCES provinces(code);
+ALTER TABLE wards ADD CONSTRAINT wards_province_id_fkey FOREIGN KEY (province_id) REFERENCES provinces(id);
 
-CREATE INDEX idx_wards_province ON wards(province_code);
+CREATE INDEX idx_wards_province ON wards(province_id);

@@ -86,11 +86,10 @@ public class OrderService implements IOrderService{
 
         command.setItems(items);
 
-        Order order = new Order(
-            null, 
-            SecurityUtils.currentUserId(), 
-            OrderStatusEnum.PENDING.getValue(),
-            command.getItems().stream().map(item -> new OrderItem(
+        Order order = Order.builder()
+            .userId(SecurityUtils.currentUserId())
+            .status(OrderStatusEnum.PENDING.getValue())
+            .items(command.getItems().stream().map(item -> new OrderItem(
                 null,
                 item.getProductId(), 
                 item.getQuantity(),
@@ -103,12 +102,12 @@ public class OrderService implements IOrderService{
                     item.getProductImages(),
                     item.getProductDescription()
                 )
-            )).toList(),
-            command.getName(), 
-            command.getPhone(), 
-            command.getAddress(), 
-            command.getNote()
-        );
+            )).toList())
+            .name(SecurityUtils.currentUserName())
+            .phone(command.getPhone())
+            .address(command.getAddress())
+            .note(command.getNote())
+            .build();
         
         Order created = repository.create(order);
 

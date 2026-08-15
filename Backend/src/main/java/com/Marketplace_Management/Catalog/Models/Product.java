@@ -1,5 +1,6 @@
 package com.Marketplace_Management.Catalog.Models;
 
+import java.util.Set;
 import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.Constants.ProductStatusEnum;
@@ -12,10 +13,10 @@ public class Product extends AggregateRoot<UUID> {
     private UUID brandId;
     private Brand brand;
     private List<UUID> categoryIds;
-    private List<Category> categories;
+    private Set<Category> categories;
     private ProductStatus status;
-    private List<ProductVariant> variants;
-    private List<ProductOption> options;
+    private Set<ProductVariant> variants;
+    private Set<ProductOption> options;
     private UUID vendorId;
 
     public Product() {
@@ -35,10 +36,10 @@ public class Product extends AggregateRoot<UUID> {
         private UUID brandId;
         private Brand brand;
         private List<UUID> categoryIds;
-        private List<Category> categories;
+        private Set<Category> categories;
         private ProductStatus status;
-        private List<ProductVariant> variants;
-        private List<ProductOption> options;
+        private Set<ProductVariant> variants;
+        private Set<ProductOption> options;
         private UUID vendorId;
         
         public Builder id(UUID id) {
@@ -71,7 +72,7 @@ public class Product extends AggregateRoot<UUID> {
             return this;
         }
         
-        public Builder categories(List<Category> categories) {
+        public Builder categories(Set<Category> categories) {
             this.categories = categories;
             return this;
         }
@@ -81,12 +82,12 @@ public class Product extends AggregateRoot<UUID> {
             return this;
         }
         
-        public Builder variants(List<ProductVariant> variants) {
+        public Builder variants(Set<ProductVariant> variants) {
             this.variants = variants;
             return this;
         }
         
-        public Builder options(List<ProductOption> options) {
+        public Builder options(Set<ProductOption> options) {
             this.options = options;
             return this;
         }
@@ -147,11 +148,11 @@ public class Product extends AggregateRoot<UUID> {
         this.brand = brand;
     }
 
-    public List<Category> getCategories() {
+    public Set<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(List<Category> categories) {
+    public void setCategories(Set<Category> categories) {
         this.categories = categories;
     }
 
@@ -183,19 +184,19 @@ public class Product extends AggregateRoot<UUID> {
         this.status.setValue(ProductStatusEnum.valueOf(status));
     }
 
-    public List<ProductVariant> getVariants() {
+    public Set<ProductVariant> getVariants() {
         return variants;
     }
 
-    public void setVariants(List<ProductVariant> variants) {
+    public void setVariants(Set<ProductVariant> variants) {
         this.variants = variants;
     }
 
-    public List<ProductOption> getOptions() {
+    public Set<ProductOption> getOptions() {
         return options;
     }
 
-    public void setOptions(List<ProductOption> options) {
+    public void setOptions(Set<ProductOption> options) {
         this.options = options;
     }
 

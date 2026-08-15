@@ -31,7 +31,7 @@ import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.ProductQue
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.Contracts.IFileRepository;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 import com.Marketplace_Management.Shared.Events.EventOptions;
@@ -54,7 +54,7 @@ public class ProductService implements IProductService {
 
     public ProductService(IProductRepository productRepository, IFileRepository fileRepository,
                         IEventPublisher eventPublisher, IFileService fileService,
-                        IMapper<Product, ProductEntity> productMapper, IVendorService vendorService) {
+                        EntityDomainMapper<Product, ProductEntity> productMapper, IVendorService vendorService) {
         this.productRepository = productRepository;
         this.eventPublisher = eventPublisher;
         this.fileService = fileService;
@@ -108,7 +108,7 @@ public class ProductService implements IProductService {
                 .brandId(command.getBrandId())
                 .status(command.getStatus())
                 .categoryIds(command.getCategoryIds())
-                .options(productOptions)
+                .options(new java.util.HashSet<>(productOptions))
                 .status(command.getStatus() != null ? command.getStatus() : ProductStatusEnum.PUBLISHED.name())
                 .vendorId(command.getVendorId())
                 .variants(command.getVariants().stream().map(variant -> 
@@ -126,9 +126,9 @@ public class ProductService implements IProductService {
                                     throw new RuntimeException("Failed to upload file", e);
                                 }
                             }).toList() : null)
-                            .options(productOptions.stream().filter(po -> variant.getOptionIds().contains(po.getId())).toList())
+                            .options(productOptions.stream().filter(po -> variant.getOptionIds().contains(po.getId())).collect(java.util.stream.Collectors.toSet()))
                             .build()
-                ).toList())
+                ).collect(java.util.stream.Collectors.toSet()))
                 .build();
 
         productOptions.forEach(option -> {

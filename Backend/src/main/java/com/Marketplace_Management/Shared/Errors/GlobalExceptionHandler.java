@@ -10,12 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import com.Marketplace_Management.Marketplace_ManagementApplication;
+import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
 import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 
 @RestControllerAdvice
@@ -65,21 +65,14 @@ public class GlobalExceptionHandler {
                                 .body(errors);
         }
 
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
+        @ExceptionHandler(BadRequestException.class)
+        public ResponseEntity<?> handleBadRequest(BadRequestException ex) {
                 Map<String, String> errors = new HashMap<>();
-
-                ex.getBindingResult().getFieldErrors().forEach(err -> {
-                        errors.put(err.getField(), err.getDefaultMessage());
-                });
-
-                ValidationError response = new ValidationError(
-                                "Validation failed",
-                                errors);
+                errors.put("message", ex.getMessage());
 
                 return ResponseEntity
-                                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                                .body(response);
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(errors);
         }
 
         @ExceptionHandler(RuntimeException.class)

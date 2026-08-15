@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import com.Marketplace_Management.Catalog.Entities.ProductOptionEntity;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductOption;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
-public class ProductOptionMapper implements IMapper<ProductOption, ProductOptionEntity> {
+public class ProductOptionMapper implements EntityDomainMapper<ProductOption, ProductOptionEntity> {
 
     public ProductOptionEntity toEntity(ProductOption domain) {
         return new ProductOptionEntity(

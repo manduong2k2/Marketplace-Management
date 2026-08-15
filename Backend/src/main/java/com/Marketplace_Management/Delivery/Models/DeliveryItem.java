@@ -17,7 +17,7 @@ public class DeliveryItem extends Entity<UUID> {
     private String productName;
     private String productSku;
     private int quantity;
-    private boolean delivered;
+    private int delivered;
 
     public DeliveryItem() {
         super(null);
@@ -35,7 +35,7 @@ public class DeliveryItem extends Entity<UUID> {
         private String productName;
         private String productSku;
         private int quantity;
-        private boolean delivered;
+        private int delivered;
         
         public Builder() {
         }
@@ -70,7 +70,7 @@ public class DeliveryItem extends Entity<UUID> {
             return this;
         }
         
-        public Builder delivered(boolean delivered) {
+        public Builder delivered(int delivered) {
             this.delivered = delivered;
             return this;
         }

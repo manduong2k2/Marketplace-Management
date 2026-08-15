@@ -4,10 +4,10 @@ import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Auth.Entities.UserEntity;
 import com.Marketplace_Management.Auth.Models.User;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
-public class UserMapper implements IMapper<User, UserEntity>{
+public class UserMapper implements EntityDomainMapper<User, UserEntity>{
     private final RoleMapper roleMapper;
 
     public UserMapper(RoleMapper roleMapper) {

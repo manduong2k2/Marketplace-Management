@@ -34,5 +34,5 @@ public class CreateProductVariantRequest {
     private List<MultipartFile> images;
 
     @Distinct
-    private List<Integer> optionIds;
+    private List<Long> optionIds;
 }

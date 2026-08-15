@@ -8,10 +8,10 @@ import com.Marketplace_Management.Order.Entities.ProductSnapShotEntity;
 import com.Marketplace_Management.Order.Models.Order;
 import com.Marketplace_Management.Order.Models.OrderItem;
 import com.Marketplace_Management.Order.Models.ProductSnapShot;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
-public class OrderMapper implements IMapper<Order, OrderEntity>{
+public class OrderMapper implements EntityDomainMapper<Order, OrderEntity>{
     public OrderEntity toEntity(Order order) {
         OrderEntity entity = new OrderEntity();
         entity.setId(order.getId());
@@ -61,16 +61,16 @@ public class OrderMapper implements IMapper<Order, OrderEntity>{
     }
 
     public Order toDomain(OrderEntity entity) {
-        return new Order(
-            entity.getId(),
-            entity.getUserId(),
-            entity.getStatus(),
-            entity.getItems().stream().map(this::toOrderItemDomain).toList(),
-            entity.getName(),
-            entity.getPhone(),
-            entity.getAddress(),
-            entity.getNote()
-        );
+        return Order.builder()
+            .id(entity.getId())
+            .userId(entity.getUserId())
+            .status(entity.getStatus())
+            .items(entity.getItems().stream().map(this::toOrderItemDomain).toList())
+            .name(entity.getName())
+            .phone(entity.getPhone())
+            .address(entity.getAddress())
+            .note(entity.getNote())
+            .build();
     }
 
     private OrderItem toOrderItemDomain(OrderItemEntity entity) {

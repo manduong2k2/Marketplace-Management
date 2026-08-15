@@ -146,19 +146,19 @@ function AdminOrderDetailPage() {
               {order.items && order.items.map((item) => (
                 <div key={item.id} className="order-item-card">
                   <div className="item-image">
-                    {item.snapShot?.image ? (
-                      <img src={item.snapShot.image} alt={item.snapShot.name} />
+                    {item.snapShot?.productImages ? (
+                      <img src={item.snapShot.productImages[0]} alt={item.snapShot.productName} />
                     ) : (
                       <img src={defaultProductImage} alt="Product" />
                     )}
                   </div>
 
                   <div className="item-details">
-                    <h3 className="item-name">{item.snapShot?.name || 'Product'}</h3>
+                    <h3 className="item-name">{item.snapShot?.productName || 'Product'}</h3>
                     <p className="item-meta">
                       ${item.snapShot?.price?.toFixed(2) || '0.00'} × {item.quantity}
                     </p>
-                    <p className="item-product-id">Product ID: {item.productId}</p>
+                    <p className="item-product-id">Code: {item.snapShot.productCode}</p>
                   </div>
 
                   <div className="item-total">

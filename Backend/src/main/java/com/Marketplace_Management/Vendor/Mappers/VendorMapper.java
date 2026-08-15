@@ -2,12 +2,12 @@ package com.Marketplace_Management.Vendor.Mappers;
 
 import org.springframework.stereotype.Component;
 
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Vendor.Entities.VendorEntity;
 import com.Marketplace_Management.Vendor.Models.Vendor;
 
 @Component
-public class VendorMapper implements IMapper<Vendor,VendorEntity> {
+public class VendorMapper implements EntityDomainMapper<Vendor,VendorEntity> {
     public Vendor toDomain(VendorEntity entity) {
         return new Vendor(
             entity.getId(), entity.getUserId(), entity.getName(), entity.getStatus(),

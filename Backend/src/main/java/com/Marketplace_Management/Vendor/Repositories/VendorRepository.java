@@ -3,7 +3,7 @@ package com.Marketplace_Management.Vendor.Repositories;
 import com.Marketplace_Management.Vendor.Contracts.IVendorRepository;
 import com.Marketplace_Management.Vendor.Entities.VendorEntity;
 import com.Marketplace_Management.Vendor.Models.Vendor;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 import org.springframework.stereotype.Repository;
 
@@ -16,9 +16,9 @@ public class VendorRepository implements IVendorRepository {
 
     private final VendorJpaRepository jpaRepository;
 
-    private IMapper<Vendor, VendorEntity> vendorMapper;
+    private EntityDomainMapper<Vendor, VendorEntity> vendorMapper;
 
-    public VendorRepository(VendorJpaRepository jpaRepository, IMapper<Vendor, VendorEntity> vendorMapper) {
+    public VendorRepository(VendorJpaRepository jpaRepository, EntityDomainMapper<Vendor, VendorEntity> vendorMapper) {
         this.jpaRepository = jpaRepository;
         this.vendorMapper = vendorMapper;
     }

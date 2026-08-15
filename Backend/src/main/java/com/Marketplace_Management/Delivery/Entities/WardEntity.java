@@ -15,7 +15,7 @@ public class WardEntity {
 
     @Id
     @Column(length = 20)
-    private String code;
+    private String id;
 
     @Column(nullable = false)
     private String name;
@@ -29,7 +29,7 @@ public class WardEntity {
     private String codeName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "province_code")
+    @JoinColumn(name = "province_id")
     private ProvinceEntity province;
 
     // getters/setters

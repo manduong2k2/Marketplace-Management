@@ -15,4 +15,5 @@ import lombok.RequiredArgsConstructor;
 public class UserPrincipal {
     private UUID id;
     private List<SimpleGrantedAuthority> roles;
+    private String name;
 }

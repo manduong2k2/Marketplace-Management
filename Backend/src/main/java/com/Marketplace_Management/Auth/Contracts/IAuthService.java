@@ -1,4 +1,5 @@
 package com.Marketplace_Management.Auth.Contracts;
+import java.io.IOException;
 import java.util.UUID;
 
 import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
@@ -25,7 +26,7 @@ public interface IAuthService {
     boolean resetPassword(ResetPasswordCommand command);
     void logout(String key, String token);
     User getUserById(UUID userId);
-    void updateProfile(UUID userId, UpdateProfileCommand command);
+    void updateProfile(UUID userId, UpdateProfileCommand command) throws IOException;
     void grantRole(UUID userId, String role);
     void revokeRole(UUID userId, String role);
 }

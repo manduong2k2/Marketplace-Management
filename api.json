@@ -1,0 +1,596 @@
+{
+  "api": {
+    "auth": {
+      "base_path": "/api/auth",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/register",
+          "description": "Register a new user",
+          "authentication": false,
+          "request_type": "FormData",
+          "response": "RegisterResponse",
+          "bodyFormat": {
+            "email": "String",
+            "password": "String",
+            "name": "String",
+            "phone": "String"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/login",
+          "description": "User login",
+          "authentication": false,
+          "request_type": "JSON",
+          "response": "AuthResponse with cookies",
+          "bodyFormat": {
+            "email": "String",
+            "password": "String"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/admin/login",
+          "description": "Admin login",
+          "authentication": false,
+          "request_type": "JSON",
+          "response": "AuthResponse with cookies",
+          "bodyFormat": {
+            "email": "String",
+            "password": "String"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/refresh-token",
+          "description": "Refresh access token",
+          "authentication": false,
+          "request_type": "JSON",
+          "response": "AuthResponse with cookies",
+          "bodyFormat": {
+            "refreshToken": "String"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/verify-email",
+          "description": "Verify and activate user email",
+          "authentication": false,
+          "request_type": "Query params",
+          "response": "Redirect with cookies"
+        },
+        {
+          "method": "POST",
+          "path": "/forgot-password",
+          "description": "Request password reset email",
+          "authentication": false,
+          "request_type": "JSON",
+          "response": "String message",
+          "bodyFormat": {
+            "email": "String"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/reset-password",
+          "description": "Reset password with token",
+          "authentication": false,
+          "request_type": "JSON",
+          "response": "String message",
+          "bodyFormat": {
+            "email": "String",
+            "token": "String",
+            "newPassword": "String"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/profile",
+          "description": "Get current user profile",
+          "authentication": true,
+          "request_type": "None",
+          "response": "ProfileResponse"
+        },
+        {
+          "method": "PUT",
+          "path": "/profile",
+          "description": "Update current user profile",
+          "authentication": true,
+          "request_type": "FormData",
+          "response": "Success message",
+          "bodyFormat": {
+            "name": "String",
+            "phone": "String",
+            "avatar": "MultipartFile"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/logout",
+          "description": "Logout current user",
+          "authentication": true,
+          "request_type": "None",
+          "response": "Success message with cleared cookies"
+        }
+      ]
+    },
+    "cart": {
+      "base_path": "/api/cart",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "description": "Get current user's cart",
+          "authentication": true,
+          "request_type": "None",
+          "response": "CartResponse"
+        },
+        {
+          "method": "POST",
+          "path": "/items",
+          "description": "Add item to cart",
+          "authentication": true,
+          "request_type": "JSON",
+          "response": "CartResponse",
+          "bodyFormat": {
+            "productVariantId": "UUID",
+            "quantity": "Integer"
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/items/{productVariantId}",
+          "description": "Update cart item quantity",
+          "authentication": true,
+          "request_type": "JSON",
+          "response": "CartResponse",
+          "bodyFormat": {
+            "quantity": "Integer"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/items/{productVariantId}",
+          "description": "Remove item from cart",
+          "authentication": true,
+          "request_type": "None",
+          "response": "CartResponse with message"
+        },
+        {
+          "method": "DELETE",
+          "path": "/",
+          "description": "Clear entire cart",
+          "authentication": true,
+          "request_type": "None",
+          "response": "Success message"
+        }
+      ]
+    },
+    "brands": {
+      "base_path": "/api/brands",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "description": "Get all brands with pagination",
+          "authentication": false,
+          "request_type": "Query params",
+          "response": "Paginated BrandResponse"
+        },
+        {
+          "method": "POST",
+          "path": "/",
+          "description": "Create a new brand",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "FormData",
+          "response": "BrandResponse",
+          "bodyFormat": {
+            "name": "String",
+            "description": "String",
+            "image": "MultipartFile"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/{brandId}",
+          "description": "Get brand details",
+          "authentication": false,
+          "request_type": "None",
+          "response": "BrandResponse"
+        },
+        {
+          "method": "PUT",
+          "path": "/{brandId}",
+          "description": "Update brand",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "FormData",
+          "response": "BrandResponse",
+          "bodyFormat": {
+            "name": "String",
+            "description": "String",
+            "image": "MultipartFile"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/{brandId}",
+          "description": "Delete brand",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "None",
+          "response": "Success message"
+        }
+      ]
+    },
+    "categories": {
+      "base_path": "/api/categories",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "description": "Get all categories with pagination",
+          "authentication": false,
+          "request_type": "Query params",
+          "response": "Paginated CategoryResponse"
+        },
+        {
+          "method": "POST",
+          "path": "/",
+          "description": "Create a new category",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "FormData",
+          "response": "CategoryResponse",
+          "bodyFormat": {
+            "name": "String",
+            "parentId": "UUID",
+            "image": "MultipartFile",
+            "description": "String"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/{categoryId}",
+          "description": "Get category details",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "None",
+          "response": "CategoryResponse"
+        },
+        {
+          "method": "PUT",
+          "path": "/{categoryId}",
+          "description": "Update category",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "FormData",
+          "response": "CategoryResponse",
+          "bodyFormat": {
+            "name": "String",
+            "description": "String",
+            "image": "MultipartFile",
+            "parentId": "UUID"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/{categoryId}",
+          "description": "Delete category",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "None",
+          "response": "Success message"
+        }
+      ]
+    },
+    "products": {
+      "base_path": "/api/products",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "description": "Get all products with pagination",
+          "authentication": false,
+          "request_type": "Query params",
+          "response": "Paginated ProductShortResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/statuses",
+          "description": "Get all product statuses",
+          "authentication": false,
+          "request_type": "None",
+          "response": "List of status strings"
+        },
+        {
+          "method": "POST",
+          "path": "/",
+          "description": "Create a new product",
+          "authentication": true,
+          "roles": ["ADMIN", "VENDOR"],
+          "request_type": "FormData",
+          "response": "ProductResponse",
+          "bodyFormat": {
+            "name": "String",
+            "brandId": "String (UUID)",
+            "description": "String",
+            "vendorId": "String (UUID)",
+            "categoryIds": "List<String> (UUIDs)",
+            "status": "String",
+            "variants": "List<CreateProductVariantRequest>",
+            "options": "List<CreateProductOptionRequest>"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/{productId}",
+          "description": "Get product details",
+          "authentication": false,
+          "request_type": "None",
+          "response": "ProductResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/{productId}/variants",
+          "description": "Get product variants",
+          "authentication": false,
+          "request_type": "None",
+          "response": "Not implemented"
+        },
+        {
+          "method": "GET",
+          "path": "/product-variants/{productVariantId}",
+          "description": "Get product variant details",
+          "authentication": false,
+          "request_type": "None",
+          "response": "ProductVariantResponse"
+        },
+        {
+          "method": "PUT",
+          "path": "/{productId}",
+          "description": "Update product",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "FormData",
+          "response": "ProductResponse",
+          "bodyFormat": {
+            "name": "String",
+            "brandId": "String (UUID)",
+            "description": "String",
+            "categoryIds": "List<String> (UUIDs)",
+            "status": "String",
+            "variants": "List<UpdateProductVariantRequest>"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/{productId}",
+          "description": "Delete product",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "None",
+          "response": "Success message"
+        }
+      ]
+    },
+    "orders": {
+      "base_path": "/api/orders",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "description": "List all orders (admin only)",
+          "authentication": true,
+          "roles": ["ADMIN"],
+          "request_type": "Query params",
+          "response": "Paginated HistoryResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "description": "List current user's orders",
+          "authentication": true,
+          "request_type": "Query params",
+          "response": "Paginated HistoryResponse"
+        },
+        {
+          "method": "POST",
+          "path": "/",
+          "description": "Place a new order",
+          "authentication": true,
+          "request_type": "JSON",
+          "response": "OrderResponse",
+          "bodyFormat": {
+            "name": "String",
+            "phone": "String",
+            "address": "String",
+            "note": "String"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/{id}",
+          "description": "Get order details",
+          "authentication": true,
+          "request_type": "None",
+          "response": "OrderResponse"
+        }
+      ]
+    },
+    "vendors": {
+      "base_path": "/api/vendors",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "description": "Get all vendors",
+          "authentication": true,
+          "request_type": "None",
+          "response": "List of VendorResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/{id}",
+          "description": "Get vendor details",
+          "authentication": false,
+          "request_type": "None",
+          "response": "VendorResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/{id}/collections",
+          "description": "Get vendor collections",
+          "authentication": false,
+          "request_type": "None",
+          "response": "List of CollectionResponse"
+        },
+        {
+          "method": "POST",
+          "path": "/{id}/collections",
+          "description": "Create collection for vendor",
+          "authentication": false,
+          "request_type": "JSON",
+          "response": "CollectionResponse",
+          "bodyFormat": {
+            "name": "String",
+            "displayOrder": "Integer"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/{id}/collections/{collectionId}",
+          "description": "Remove collection from vendor",
+          "authentication": false,
+          "request_type": "None",
+          "response": "Success message"
+        },
+        {
+          "method": "PUT",
+          "path": "/{id}/collections/{collectionId}",
+          "description": "Update vendor collection",
+          "authentication": false,
+          "request_type": "JSON",
+          "response": "CollectionResponse",
+          "bodyFormat": {
+            "name": "String",
+            "displayOrder": "Integer"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/",
+          "description": "Create a new vendor",
+          "authentication": true,
+          "request_type": "FormData",
+          "response": "VendorResponse",
+          "bodyFormat": {
+            "userId": "UUID",
+            "name": "String",
+            "description": "String",
+            "logo": "MultipartFile",
+            "banner": "MultipartFile",
+            "taxCode": "String",
+            "email": "String",
+            "addressId": "String (UUID)",
+            "phone": "String"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/{id}/activate",
+          "description": "Activate vendor",
+          "authentication": false,
+          "request_type": "None",
+          "response": "Success message"
+        },
+        {
+          "method": "PUT",
+          "path": "/{id}",
+          "description": "Update vendor",
+          "authentication": true,
+          "request_type": "JSON",
+          "response": "Success message",
+          "bodyFormat": {
+            "userId": "UUID",
+            "name": "String",
+            "description": "String",
+            "logo": "MultipartFile",
+            "banner": "MultipartFile",
+            "taxCode": "String",
+            "email": "String",
+            "addressId": "String (UUID)",
+            "phone": "String"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/me",
+          "description": "Get current user's vendor",
+          "authentication": true,
+          "request_type": "None",
+          "response": "VendorResponse"
+        },
+        {
+          "method": "POST",
+          "path": "/me",
+          "description": "Register as vendor",
+          "authentication": true,
+          "request_type": "FormData",
+          "response": "VendorResponse",
+          "bodyFormat": {
+            "name": "String",
+            "description": "String",
+            "logo": "MultipartFile",
+            "banner": "MultipartFile",
+            "taxCode": "String",
+            "email": "String",
+            "addressId": "String (UUID)",
+            "phone": "String"
+          }
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "generated_at": "2026-08-14",
+    "base_url": "http://localhost:8080",
+    "authentication": {
+      "type": "JWT",
+      "cookie_based": true,
+      "access_token_cookie": "access_token",
+      "refresh_token_cookie": "refresh_token"
+    },
+    "roles": [
+      "ADMIN",
+      "VENDOR",
+      "USER"
+    ],
+    "nested_objects": {
+      "CreateProductVariantRequest": {
+        "name": "String",
+        "sku": "String",
+        "price": "Double",
+        "stock": "Integer",
+        "images": "List<MultipartFile>",
+        "optionIds": "List<Integer>"
+      },
+      "CreateProductOptionRequest": {
+        "tempId": "Integer",
+        "name": "String",
+        "value": "String"
+      },
+      "UpdateProductVariantRequest": {
+        "name": "String",
+        "sku": "String",
+        "price": "Double",
+        "stock": "Integer",
+        "images": "List<MultipartFile>",
+        "optionIds": "List<Integer>"
+      }
+    }
+  }
+}

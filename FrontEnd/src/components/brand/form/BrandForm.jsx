@@ -80,74 +80,82 @@ export default function BrandForm({ brand, onSubmit, onCancel, loading = false }
       <form onSubmit={handleSubmit} className="brand-form">
         <h2>{brand ? 'Edit Brand' : 'Add New Brand'}</h2>
 
-        <div className="form-group">
-          <label htmlFor="brand-name">Brand Name *</label>
-          <input
-            type="text"
-            id="brand-name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className={errors.name ? 'error' : ''}
-            placeholder="Enter brand name"
-          />
-          {errors.name && <span className="error-message">{errors.name}</span>}
-        </div>
+        <div className="form-columns">
+          {/* Left Column - Image */}
+          <div className="form-column-left">
+            <div className="form-group">
+              <label>Brand Image *</label>
+              {/* Hidden real file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="brand-image"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="image-input-hidden"
+              />
 
-        <div className="form-group">
-          <label htmlFor="brand-description">Description</label>
-          <textarea
-            id="brand-description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Enter brand description"
-            rows="4"
-            className="form-textarea"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Brand Image *</label>
-          {/* Hidden real file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            id="brand-image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="image-input-hidden"
-          />
-
-          {imagePreview ? (
-            <div className="image-preview">
-              <img src={imagePreview} alt="Preview" className="preview-image" />
-              <button
-                type="button"
-                className="remove-image-btn"
-                onClick={() => {
-                  setImagePreview('');
-                  setFormData(prev => ({ ...prev, image: '', imageFile: undefined }));
-                  if (fileInputRef.current) fileInputRef.current.value = '';
-                }}
-              >
-                ×
-              </button>
+              {imagePreview ? (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" className="preview-image" />
+                  <button
+                    type="button"
+                    className="remove-image-btn"
+                    onClick={() => {
+                      setImagePreview('');
+                      setFormData(prev => ({ ...prev, image: '', imageFile: undefined }));
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className="upload-placeholder"
+                  onClick={() => fileInputRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+                >
+                  <div className="upload-icon">📷</div>
+                  <p>Click to select brand image</p>
+                  <small>Supported: JPG, PNG, GIF (max 5MB)</small>
+                </div>
+              )}
+              {errors.image && <span className="error-message">{errors.image}</span>}
             </div>
-          ) : (
-            <div
-              className="upload-placeholder"
-              onClick={() => fileInputRef.current?.click()}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-            >
-              <div className="upload-icon">📷</div>
-              <p>Click to select brand image</p>
-              <small>Supported: JPG, PNG, GIF (max 5MB)</small>
+          </div>
+
+          {/* Right Column - Information */}
+          <div className="form-column-right">
+            <div className="form-group">
+              <label htmlFor="brand-name">Brand Name *</label>
+              <input
+                type="text"
+                id="brand-name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className={errors.name ? 'error' : ''}
+                placeholder="Enter brand name"
+              />
+              {errors.name && <span className="error-message">{errors.name}</span>}
             </div>
-          )}
-          {errors.image && <span className="error-message">{errors.image}</span>}
+
+            <div className="form-group">
+              <label htmlFor="brand-description">Description</label>
+              <textarea
+                id="brand-description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Enter brand description"
+                rows="4"
+                className="form-textarea"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="form-actions">

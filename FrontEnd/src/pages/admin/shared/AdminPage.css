@@ -1,9 +1,6 @@
 /* AdminPage.css — shared styles for all admin CRUD pages */
 
 /* ── Page container ── */
-.admin-page {
-  max-width: 1100px;
-}
 
 .admin-page-header {
   display: flex;
@@ -45,13 +42,14 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.1s ease;
 }
 
 .admin-search-input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  background: none;
+  border-color: #f3f5f6;
+  box-shadow: 0 0 2px 3px rgba(243, 244, 244, 0.1);
 }
 
 .admin-search-clear {
@@ -149,9 +147,8 @@
 
 .btn-admin-edit {
   padding: 6px 14px;
-  background: #3498db;
-  color: #fff;
-  border: none;
+  border: #3498db 1px solid;
+  color: #0a0a0a;
   border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
@@ -164,9 +161,8 @@
 
 .btn-admin-delete {
   padding: 6px 14px;
-  background: #e74c3c;
-  color: #fff;
-  border: none;
+  border: #e74c3c 1px solid;
+  color: #070707;
   border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
@@ -373,7 +369,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1050;
   padding: 20px;
   overflow-y: auto;
 }
@@ -382,9 +378,8 @@
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-  max-width: 680px;
-  width: 100%;
-  max-height: 90vh;
+  max-width: 70%;
+  max-height: 95vh;
   overflow-y: auto;
   animation: modalIn 0.25s ease;
 }
@@ -396,6 +391,14 @@
   box-shadow: none;
   border-radius: 0;
   max-width: 100%;
+  padding: 20px;
+  margin: 0;
+}
+
+/* Adjust 3-column layout for modal */
+.admin-modal .form-columns {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
 }
 
 .admin-confirm-modal {
@@ -438,5 +441,95 @@
   .admin-table td {
     padding: 10px 12px;
     font-size: 13px;
+  }
+}
+
+/* ── 2-block split layout ── */
+.admin-split {
+  display: block; /* single column when form closed */
+}
+
+.admin-split--open {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 24px;
+  align-items: start;
+}
+
+.admin-split-table {
+  min-width: 0;
+}
+
+.admin-split-form {
+  position: sticky;
+  top: 88px; /* below sticky navbar */
+  max-height: calc(100vh - 108px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  animation: slideInRight 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Override inner form container so it fits flush */
+.admin-split-form .brand-form-container,
+.admin-split-form .category-form-container,
+.admin-split-form .product-form-container {
+  box-shadow: none;
+  border-radius: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Highlight selected row */
+.admin-row-active {
+  background: #eef4ff !important;
+}
+
+/* ── Inline delete confirm banner ── */
+.admin-confirm-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: #fff5f5;
+  border: 1px solid #f5c6cb;
+  border-radius: 10px;
+  animation: slideInRight 0.18s ease;
+}
+
+.admin-confirm-banner p {
+  margin: 0;
+  color: #721c24;
+  font-size: 14px;
+}
+
+/* Responsive: stack on narrow screens */
+@media (max-width: 900px) {
+  .admin-split--open {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-split-form {
+    position: static;
+    max-height: none;
+  }
+
+  .admin-modal .form-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-modal .form-columns {
+    grid-template-columns: 1fr;
   }
 }

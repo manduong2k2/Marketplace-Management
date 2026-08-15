@@ -4,13 +4,13 @@ import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Catalog.Entities.CategoryEntity;
 import com.Marketplace_Management.Catalog.Models.Category;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Component
-public class CategoryMapper implements IMapper<Category, CategoryEntity>{
+public class CategoryMapper implements EntityDomainMapper<Category, CategoryEntity>{
     @PersistenceContext
     private EntityManager entityManager;
 

@@ -23,14 +23,14 @@ public class ProductVariantShortResponse {
     private Set<String> images;
     private Set<ProductOptionResponse> options;
 
-    public ProductVariantShortResponse(UUID id, String name, String code, int stock, double price, String optionList, Set<String> images, Set<ProductOptionResponse> options, String baseUrl) {
+    public ProductVariantShortResponse(UUID id, String name, String code, int stock, double price, String optionList, Set<String> images, Set<ProductOptionResponse> options) {
         this.id = id;
         this.name = name;
         this.code = code;
         this.stock = stock;
         this.price = price;
         this.optionList = optionList;
-        this.images = images.stream().map(image -> baseUrl + "/" + image).collect(java.util.stream.Collectors.toSet());
+        this.images = images;
         this.options = options;
     }
 

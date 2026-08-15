@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"id", "name", "value"})
 @NoArgsConstructor // For Jackson deserialization
 public class ProductOptionResponse {
-    private Integer id;
+    private Long id;
     private String name;
     private String value;
 

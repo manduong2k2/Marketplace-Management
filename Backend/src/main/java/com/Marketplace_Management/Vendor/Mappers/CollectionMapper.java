@@ -2,7 +2,7 @@ package com.Marketplace_Management.Vendor.Mappers;
 
 import org.springframework.stereotype.Component;
 
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Vendor.Entities.CollectionEntity;
 import com.Marketplace_Management.Vendor.Entities.VendorEntity;
 import com.Marketplace_Management.Vendor.Models.Collection;
@@ -10,7 +10,7 @@ import com.Marketplace_Management.Vendor.Models.Collection;
 import jakarta.persistence.EntityManager;
 
 @Component
-public class CollectionMapper implements IMapper<Collection, CollectionEntity> {
+public class CollectionMapper implements EntityDomainMapper<Collection, CollectionEntity> {
     
     private final EntityManager entityManager;
 

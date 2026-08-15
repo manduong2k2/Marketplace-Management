@@ -5,16 +5,16 @@ import com.Marketplace_Management.Shared.Models.File;
 import org.springframework.stereotype.Repository;
 
 import com.Marketplace_Management.Shared.Contracts.IFileRepository;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.Entities.FileEntity;
 
 @Repository
 public class FileRepository implements IFileRepository {
 
-    private final IMapper<File, FileEntity> fileMapper;
+    private final EntityDomainMapper<File, FileEntity> fileMapper;
     private final FileJpaRepository fileJpaRepository;
 
-    public FileRepository(IMapper<File, FileEntity> fileMapper, FileJpaRepository fileJpaRepository) {
+    public FileRepository(EntityDomainMapper<File, FileEntity> fileMapper, FileJpaRepository fileJpaRepository) {
         this.fileMapper = fileMapper;
         this.fileJpaRepository = fileJpaRepository;
     }

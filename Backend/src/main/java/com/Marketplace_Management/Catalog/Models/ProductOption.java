@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.Marketplace_Management.Shared.Models.Entity;
 
-public class ProductOption extends Entity<Integer> {
+public class ProductOption extends Entity<Long> {
 
     private String name;
     private String value;
@@ -21,13 +21,13 @@ public class ProductOption extends Entity<Integer> {
 
     public static class Builder {
         
-        private Integer id;
+        private Long id;
         private String name;
         private String value;
         private UUID productId;
         private Product product;
 
-        public Builder id(Integer id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }

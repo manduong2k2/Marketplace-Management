@@ -1,6 +1,7 @@
 package com.Marketplace_Management.Catalog.Entities;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
@@ -67,9 +68,9 @@ public class ProductVariantEntity extends UuidEntity{
         uniqueConstraints = @UniqueConstraint(columnNames = {"variant_id", "option_id"})
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<ProductOptionEntity> options;
+    private Set<ProductOptionEntity> options;
 
-    public ProductVariantEntity(UUID id, String name, String sku, double price, int stock, List<FileEntity> files, String optionList, List<ProductOptionEntity> options) {
+    public ProductVariantEntity(UUID id, String name, String sku, double price, int stock, List<FileEntity> files, String optionList, Set<ProductOptionEntity> options) {
         this.setId(id);
         this.setName(name);
         this.setSku(sku);

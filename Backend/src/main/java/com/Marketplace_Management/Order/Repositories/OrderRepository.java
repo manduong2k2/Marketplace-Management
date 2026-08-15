@@ -12,7 +12,7 @@ import com.Marketplace_Management.Order.DTOs.Commands.ListOrderCommand;
 import com.Marketplace_Management.Order.DTOs.Responses.HistoryResponse;
 import com.Marketplace_Management.Order.Entities.OrderEntity;
 import com.Marketplace_Management.Order.Models.Order;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.persistence.EntityManager;
@@ -25,10 +25,10 @@ import jakarta.persistence.criteria.Root;
 public class OrderRepository implements IOrderRepository {
 
     private final OrderJpaRepository jpaRepository;
-    private final IMapper<Order, OrderEntity> mapper;
+    private final EntityDomainMapper<Order, OrderEntity> mapper;
     private final EntityManager entityManager;
 
-    public OrderRepository(OrderJpaRepository jpaRepository, IMapper<Order, OrderEntity> mapper, EntityManager entityManager) {
+    public OrderRepository(OrderJpaRepository jpaRepository, EntityDomainMapper<Order, OrderEntity> mapper, EntityManager entityManager) {
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
         this.entityManager = entityManager;

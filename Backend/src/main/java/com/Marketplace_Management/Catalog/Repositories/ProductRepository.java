@@ -18,7 +18,7 @@ import com.Marketplace_Management.Catalog.Entities.ProductEntity;
 import com.Marketplace_Management.Catalog.Entities.ProductVariantEntity;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -26,17 +26,17 @@ import org.springframework.beans.factory.annotation.Value;
 public class ProductRepository implements IProductRepository {
 
     private final ProductJpaRepository jpaRepository;
-    private final IMapper<Product, ProductEntity> productMapper;
-    private final IMapper<ProductVariant, ProductVariantEntity> variantMapper;
+    private final EntityDomainMapper<Product, ProductEntity> productMapper;
+    private final EntityDomainMapper<ProductVariant, ProductVariantEntity> variantMapper;
     private final EntityManager entityManager;
     private final ProductVariantJpaRepository productVariantJpaRepository;
 
     @Value("${spring.application.base-url}")
     private String baseUrl;
 
-    public ProductRepository(ProductJpaRepository jpaRepository, IMapper<Product, ProductEntity> productMapper,
+    public ProductRepository(ProductJpaRepository jpaRepository, EntityDomainMapper<Product, ProductEntity> productMapper,
             EntityManager entityManager, ProductVariantJpaRepository productVariantJpaRepository,
-            IMapper<ProductVariant, ProductVariantEntity> variantMapper) {
+            EntityDomainMapper<ProductVariant, ProductVariantEntity> variantMapper) {
         this.jpaRepository = jpaRepository;
         this.productMapper = productMapper;
         this.entityManager = entityManager;
@@ -151,8 +151,7 @@ public class ProductRepository implements IProductRepository {
                                         v.getPrice(),
                                         v.getOptionList(),
                                         images,
-                                        optionResponses,
-                                        baseUrl);
+                                        optionResponses);
                             })
                             .toList();
 
@@ -162,8 +161,8 @@ public class ProductRepository implements IProductRepository {
                                     .collect(Collectors.toSet())
                             : Set.of();
 
-                    return new ProductShortResponse(p.getId(), p.getName(), variantResponses, productOptionResponses);
-                })
+                    return new ProductShortResponse(p.getId(), p.getName(), p.getStatus(), p.getBrand().getName(), p.getDescription(), variantResponses, productOptionResponses);
+                })  
                 .toList();
 
         return new PaginatedResponse<>(responses, command.getPage(), command.getSize(), total);

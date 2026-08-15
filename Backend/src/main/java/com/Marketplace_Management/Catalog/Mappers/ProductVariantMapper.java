@@ -7,17 +7,17 @@ import com.Marketplace_Management.Catalog.Entities.ProductVariantEntity;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductOption;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.Entities.FileEntity;
 import com.Marketplace_Management.Shared.Models.File;
 
 @Component
-public class ProductVariantMapper implements IMapper<ProductVariant, ProductVariantEntity>{
+public class ProductVariantMapper implements EntityDomainMapper<ProductVariant, ProductVariantEntity>{
 
-    private final IMapper<File, FileEntity> fileMapper;
-    private final IMapper<ProductOption, ProductOptionEntity> optionMapper;
+    private final EntityDomainMapper<File, FileEntity> fileMapper;
+    private final EntityDomainMapper<ProductOption, ProductOptionEntity> optionMapper;
 
-    public ProductVariantMapper(IMapper<File, FileEntity> fileMapper, IMapper<ProductOption, ProductOptionEntity> optionMapper) {
+    public ProductVariantMapper(EntityDomainMapper<File, FileEntity> fileMapper, EntityDomainMapper<ProductOption, ProductOptionEntity> optionMapper) {
         this.fileMapper = fileMapper;
         this.optionMapper = optionMapper;
     }
@@ -46,7 +46,7 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
                 .categoryIds(entity.getProduct().getCategories().stream().map(category -> category.getId()).toList())
                 .build()
             )
-            .options(entity.getOptions() != null ? entity.getOptions().stream().map(optionMapper::toDomain).toList() : null)
+            .options(entity.getOptions() != null ? entity.getOptions().stream().map(optionMapper::toDomain).collect(java.util.stream.Collectors.toSet()) : null)
             .build();
     }
     
@@ -64,7 +64,7 @@ public class ProductVariantMapper implements IMapper<ProductVariant, ProductVari
             domain.getStock(),
             domain.getFiles() != null ? domain.getFiles().stream().map(fileMapper::toEntity).toList() : null,
             domain.getOptionList(),
-            domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity).toList() : null
+            domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity).collect(java.util.stream.Collectors.toSet()) : null
         );
     }
 }

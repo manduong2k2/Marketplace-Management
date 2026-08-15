@@ -91,7 +91,7 @@ function CartPage() {
     return <div className="cart-page">Loading...</div>;
   }
 
-  if (!cart.items || cart.items.length === 0) {
+  if (!cart?.items || cart?.items?.length === 0) {
     return (
       <div className="cart-page">
         <div className="cart-empty">

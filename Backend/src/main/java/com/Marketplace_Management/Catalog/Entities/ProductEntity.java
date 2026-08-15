@@ -1,6 +1,6 @@
 package com.Marketplace_Management.Catalog.Entities;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
@@ -13,6 +13,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(
@@ -22,9 +23,11 @@ import lombok.EqualsAndHashCode;
         @Index(name = "idx_product_status", columnList = "status")
     }
 )
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@ToString(onlyExplicitlyIncluded = true)
 @Data
 public class ProductEntity extends UuidEntity {
+    @EqualsAndHashCode.Include
     @Column(nullable = false)
     @Size(max = 100)
     @Nationalized
@@ -52,15 +55,13 @@ public class ProductEntity extends UuidEntity {
         uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "category_id"})
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<CategoryEntity> categories;
+    private Set<CategoryEntity> categories;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<ProductVariantEntity> variants;
+    private Set<ProductVariantEntity> variants;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<ProductOptionEntity> options;
+    private Set<ProductOptionEntity> options;
 
     @Column(nullable = true)
     private UUID vendorId;

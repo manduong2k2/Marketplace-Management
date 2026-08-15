@@ -11,7 +11,7 @@ import com.Marketplace_Management.Catalog.Contracts.ICategoryRepository;
 import com.Marketplace_Management.Catalog.DTOs.Commands.Category.GetListCategoryCommand;
 import com.Marketplace_Management.Catalog.Entities.CategoryEntity;
 import com.Marketplace_Management.Catalog.Models.Category;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -25,10 +25,10 @@ import jakarta.persistence.EntityManager;
 public class CategoryRepository implements ICategoryRepository {
 
     private final CategoryJpaRepository jpaRepository;
-    private final IMapper<Category, CategoryEntity> mapper;
+    private final EntityDomainMapper<Category, CategoryEntity> mapper;
     private final EntityManager entityManager;
 
-    public CategoryRepository(CategoryJpaRepository jpaRepository, IMapper<Category, CategoryEntity> mapper, EntityManager entityManager) {
+    public CategoryRepository(CategoryJpaRepository jpaRepository, EntityDomainMapper<Category, CategoryEntity> mapper, EntityManager entityManager) {
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
         this.entityManager = entityManager;

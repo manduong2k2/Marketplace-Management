@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -61,6 +62,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse createCategory(CreateCategoryCommand command) throws IOException {
         Category category = new Category(
                 null,
@@ -87,6 +89,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse updateCategory(UUID categoryId, UpdateCategoryCommand command) throws IOException {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -128,6 +131,7 @@ public class CategoryService implements ICategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "categories", allEntries = true)
     public void deleteCategory(UUID categoryId) {
         categoryRepository.delete(categoryId);
     }

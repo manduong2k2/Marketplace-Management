@@ -23,6 +23,19 @@ public class SecurityUtils {
         return ((UserPrincipal) authentication.getPrincipal()).getId();
     }
 
+    public static String currentUserName() {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (authentication == null
+                || !(authentication.getPrincipal() instanceof UserPrincipal)) {
+            return null;
+        }
+
+        return ((UserPrincipal) authentication.getPrincipal()).getName();
+    }
+
     public static List<String> currentUserRoles() {
         Authentication authentication = SecurityContextHolder
                 .getContext()

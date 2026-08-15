@@ -12,7 +12,7 @@ public class ProvinceEntity {
 
     @Id
     @Column(length = 20)
-    private String code;
+    private String id;
 
     @Column(nullable = false)
     private String name;

@@ -12,7 +12,7 @@
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
     background: linear-gradient(90deg, #b1427f, #12332e, #0b1d1f);
 }
 
@@ -52,9 +52,9 @@
 }
 
 .navbar-icon {
-    width: 30px;
-    height: 30px;
-    margin-right: 8px;
+    width: 60px;
+    height: 60px;
+    margin-right: 5px;
 }
 
 .navbar-logo-link {
@@ -139,120 +139,178 @@
     box-shadow: 0 4px 8px #b1427f;
 }
 
-/* Dropdown Styles */
-.dropdown {
+/* ── User dropdown (hover-based, styled after admin profile-dropdown) ── */
+.user-dropdown {
     position: relative;
-    display: inline-block;
 }
 
-.dropdown-toggle {
-    background: none;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
+.user-dropdown-toggle {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s ease;
+    min-height: 38px;
+    padding: 5px 12px 5px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     white-space: nowrap;
 }
 
-.dropdown-toggle:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
+.user-dropdown:hover .user-dropdown-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
-.dropdown-menu {
-    position: fixed;
-    top: 60px;
-    right: 20px;
-    background-color: white;
-    min-width: 220px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    z-index: 10000;
+.user-dropdown-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+}
+
+.user-dropdown-avatar--fallback {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-dropdown-name {
+    max-width: 120px;
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-dropdown-caret {
+    font-size: 10px;
+    opacity: 0.7;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-dropdown:hover .user-dropdown-caret {
+    transform: rotate(180deg);
+}
+
+/* Menu panel */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 2000;
+    min-width: 220px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 10px;
+    box-shadow: 0 18px 46px rgba(15, 23, 42, 0.14);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(-8px) scale(0.97);
+    transform-origin: top right;
+    transition:
+        opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0.22s;
 }
 
-.dropdown-menu.show {
+.user-dropdown:hover .user-dropdown-menu,
+.user-dropdown-menu:hover {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
-.dropdown-item {
-    width: 100%;
-    padding: 12px 16px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
+.user-dropdown-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px 6px;
+}
+
+.user-dropdown-header-name {
+    font-weight: 700;
     font-size: 14px;
-    color: #333;
-    transition: all 0.2s ease;
-    border-bottom: 1px solid #f0f0f0;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-dropdown-header-email {
+    font-size: 12px;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-dropdown-divider {
+    margin: 4px 6px;
+    border: none;
+    border-top: 1px solid #f0f0f0;
+}
+
+.user-dropdown-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    text-align: left;
 }
 
-.dropdown-item:last-child {
-    border-bottom: none;
+.user-dropdown-item:hover {
+    background: #f3f4f6;
+    color: #111827;
 }
 
-.dropdown-item:hover {
-    background-color: #f8f9fa;
-    color: #007bff;
-    padding-left: 20px;
-}
-
-.dropdown-item i {
-    font-size: 16px;
-    width: 18px;
+.user-dropdown-item i {
+    width: 16px;
     text-align: center;
-    color: #6c757d;
+    color: #6b7280;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
 }
 
-.dropdown-divider {
-    height: 1px;
-    background-color: #e9ecef;
-    margin: 4px 0;
+.user-dropdown-item:hover i {
+    color: #374151;
 }
 
-/* Animations */
-@keyframes dropdownFadeIn {
-    0% {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.95);
-        visibility: hidden;
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        visibility: visible;
-    }
+.user-dropdown-item--danger {
+    color: #dc2626;
 }
 
-@keyframes dropdownFadeOut {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        visibility: visible;
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.95);
-        visibility: hidden;
-    }
+.user-dropdown-item--danger i,
+.user-dropdown-item--danger:hover i {
+    color: #dc2626;
+}
+
+.user-dropdown-item--danger:hover {
+    background: #fff0f0;
+    color: #dc2626;
 }
 
 /* Cart Icon */

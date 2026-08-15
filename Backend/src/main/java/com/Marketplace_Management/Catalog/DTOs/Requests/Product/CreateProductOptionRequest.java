@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class CreateProductOptionRequest {
     @NotNull(message = "Temporary ID is required")
-    private Integer tempId;
+    private Long tempId;
 
     @NotBlank(message = "Option name is required")
     @Size(min = 1, max = 100, message = "Option name must be between 1 and 100 characters")

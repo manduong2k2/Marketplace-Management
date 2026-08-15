@@ -81,92 +81,100 @@ export default function CategoryForm({ category, categories = [], onSubmit, onCa
       <form onSubmit={handleSubmit} className="category-form">
         <h2>{category ? 'Edit Category' : 'Add New Category'}</h2>
 
-        <div className="form-group">
-          <label htmlFor="cat-name">Category Name *</label>
-          <input
-            type="text"
-            id="cat-name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className={errors.name ? 'error' : ''}
-            placeholder="Enter category name"
-          />
-          {errors.name && <span className="error-message">{errors.name}</span>}
-        </div>
+        <div className="form-columns">
+          {/* Left Column - Basic Information */}
+          <div className="form-column-left">
+            <div className="form-group">
+              <label htmlFor="cat-name">Category Name *</label>
+              <input
+                type="text"
+                id="cat-name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className={errors.name ? 'error' : ''}
+                placeholder="Enter category name"
+              />
+              {errors.name && <span className="error-message">{errors.name}</span>}
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="cat-parent">Parent Category</label>
-          <select
-            id="cat-parent"
-            name="parentId"
-            value={formData.parentId}
-            onChange={handleChange}
-            className="form-select"
-          >
-            <option value="">-- None (top-level) --</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="cat-description">Description</label>
-          <textarea
-            id="cat-description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Enter category description"
-            rows="4"
-            className="form-textarea"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Category Image *</label>
-          {/* Hidden real file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            id="cat-image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="image-input-hidden"
-          />
-
-          {imagePreview ? (
-            <div className="image-preview">
-              <img src={imagePreview} alt="Preview" className="preview-image" />
-              <button
-                type="button"
-                className="remove-image-btn"
-                onClick={() => {
-                  setImagePreview('');
-                  setFormData(prev => ({ ...prev, image: '', imageFile: undefined }));
-                  if (fileInputRef.current) fileInputRef.current.value = '';
-                }}
+            <div className="form-group">
+              <label htmlFor="cat-parent">Parent Category</label>
+              <select
+                id="cat-parent"
+                name="parentId"
+                value={formData.parentId}
+                onChange={handleChange}
+                className="form-select"
               >
-                ×
-              </button>
+                <option value="">-- None (top-level) --</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          ) : (
-            <div
-              className="upload-placeholder"
-              onClick={() => fileInputRef.current?.click()}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-            >
-              <div className="upload-icon">📷</div>
-              <p>Click to select category image</p>
-              <small>Supported: JPG, PNG, GIF (max 5MB)</small>
+
+            <div className="form-group">
+              <label htmlFor="cat-description">Description</label>
+              <textarea
+                id="cat-description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Enter category description"
+                rows="4"
+                className="form-textarea"
+              />
             </div>
-          )}
-          {errors.image && <span className="error-message">{errors.image}</span>}
+          </div>
+
+          {/* Right Column - Image */}
+          <div className="form-column-right">
+            <div className="form-group">
+              <label>Category Image *</label>
+              {/* Hidden real file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="cat-image"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="image-input-hidden"
+              />
+
+              {imagePreview ? (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" className="preview-image" />
+                  <button
+                    type="button"
+                    className="remove-image-btn"
+                    onClick={() => {
+                      setImagePreview('');
+                      setFormData(prev => ({ ...prev, image: '', imageFile: undefined }));
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className="upload-placeholder"
+                  onClick={() => fileInputRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+                >
+                  <div className="upload-icon">📷</div>
+                  <p>Click to select category image</p>
+                  <small>Supported: JPG, PNG, GIF (max 5MB)</small>
+                </div>
+              )}
+              {errors.image && <span className="error-message">{errors.image}</span>}
+            </div>
+          </div>
         </div>
 
         <div className="form-actions">

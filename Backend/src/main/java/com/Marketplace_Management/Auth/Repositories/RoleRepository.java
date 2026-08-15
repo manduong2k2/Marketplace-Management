@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import com.Marketplace_Management.Auth.Contracts.IRoleRepository;
 import com.Marketplace_Management.Auth.Entities.RoleEntity;
 import com.Marketplace_Management.Auth.Models.Role;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Repository
 public class RoleRepository implements IRoleRepository {
     private final RoleJpaRepository roleJpaRepository;
-    private final IMapper<Role, RoleEntity> roleMapper;
+    private final EntityDomainMapper<Role, RoleEntity> roleMapper;
 
-    public RoleRepository(RoleJpaRepository roleJpaRepository, IMapper<Role, RoleEntity> roleMapper) {
+    public RoleRepository(RoleJpaRepository roleJpaRepository, EntityDomainMapper<Role, RoleEntity> roleMapper) {
         this.roleJpaRepository = roleJpaRepository;
         this.roleMapper = roleMapper;
     }

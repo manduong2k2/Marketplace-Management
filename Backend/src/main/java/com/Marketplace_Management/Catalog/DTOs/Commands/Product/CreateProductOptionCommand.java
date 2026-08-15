@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class CreateProductOptionCommand extends BaseCommand {
-    private int tempId;
+    private Long tempId;
     private String name;
     private String value;
 

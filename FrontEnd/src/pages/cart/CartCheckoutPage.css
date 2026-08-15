@@ -377,3 +377,57 @@
     gap: 8px;
   }
 }
+
+/* ── Saved address select ── */
+.address-select-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.address-select {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: #f8f9fa;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.address-select:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+}
+
+.address-select:hover {
+  border-color: #b0b8f0;
+}
+
+.address-manage-link {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  letter-spacing: 0.2px;
+  align-self: flex-start;
+}
+
+.address-manage-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}

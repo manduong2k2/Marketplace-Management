@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.Events.EventOptions;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 import com.Marketplace_Management.Vendor.Contracts.IVendorRepository;
@@ -38,9 +38,9 @@ public class VendorService implements IVendorService {
     private final CollectionJpaRepository collectionJpaRepository;
     private final IEventPublisher eventPublisher;
     private final IFileService fileService;
-    private final IMapper<Collection, CollectionEntity> collectionMapper;
+    private final EntityDomainMapper<Collection, CollectionEntity> collectionMapper;
 
-    public VendorService(IVendorRepository vendorRepository, CollectionJpaRepository collectionJpaRepository, IEventPublisher eventPublisher, IFileService fileService, IMapper<Collection, CollectionEntity> collectionMapper) {
+    public VendorService(IVendorRepository vendorRepository, CollectionJpaRepository collectionJpaRepository, IEventPublisher eventPublisher, IFileService fileService, EntityDomainMapper<Collection, CollectionEntity> collectionMapper) {
         this.vendorRepository = vendorRepository;
         this.collectionJpaRepository = collectionJpaRepository;
         this.eventPublisher = eventPublisher;

@@ -9,10 +9,10 @@ import com.Marketplace_Management.Cart.Entities.CartEntity;
 import com.Marketplace_Management.Cart.Entities.CartItemEntity;
 import com.Marketplace_Management.Cart.Models.Cart.Cart;
 import com.Marketplace_Management.Cart.Models.Cart.CartItem;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
-public class CartMapper implements IMapper<Cart, CartEntity> {
+public class CartMapper implements EntityDomainMapper<Cart, CartEntity> {
 
     @Override
     public Cart toDomain(CartEntity entity) {

@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import com.Marketplace_Management.Auth.Contracts.IUserRepository;
 import com.Marketplace_Management.Auth.Entities.UserEntity;
 import com.Marketplace_Management.Auth.Models.User;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Repository
 public class UserRepository implements IUserRepository{
     private final UserJpaRepository userJpaRepository;
-    private final IMapper<User, UserEntity> userMapper;
+    private final EntityDomainMapper<User, UserEntity> userMapper;
     
-    public UserRepository(UserJpaRepository userJpaRepository, IMapper<User, UserEntity> userMapper) {
+    public UserRepository(UserJpaRepository userJpaRepository, EntityDomainMapper<User, UserEntity> userMapper) {
         this.userJpaRepository = userJpaRepository;
         this.userMapper = userMapper;
     }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.UUID;
@@ -51,6 +52,9 @@ public class AuthController {
 
     @Value("${spring.application.auth-domain}")
     private String authDomain;
+
+    @Value("${spring.application.base-url}")
+    private String baseUrl;
 
     @Value("${application.frontend.base-url}")
     private String frontendBaseUrl;
@@ -154,13 +158,13 @@ public class AuthController {
         UUID userId = SecurityUtils.currentUserId();
         User user = auth.getUserById(userId);
         HashMap<String, Object> response = new HashMap<>();
-        response.put("data", new ProfileResponse(user));
+        response.put("data", new ProfileResponse(user).withUrl(baseUrl));
         return ResponseEntity.ok(response);
     }
 
     @Authenticated
     @PutMapping("/profile")
-    public ResponseEntity<HashMap<String, Object>> updateProfile(@Valid @RequestBody UpdateProfileRequest req) {
+    public ResponseEntity<HashMap<String, Object>> updateProfile(@Valid @ModelAttribute UpdateProfileRequest req) throws IOException {
         UUID userId = SecurityUtils.currentUserId();
         UpdateProfileCommand command = UpdateProfileCommand.fromRequest(req);
         auth.updateProfile(userId, command);

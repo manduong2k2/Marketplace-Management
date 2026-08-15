@@ -2,6 +2,7 @@ package com.Marketplace_Management.Auth.Services;
 
 import jakarta.mail.MessagingException;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,10 +33,12 @@ import com.Marketplace_Management.Auth.DTOs.Response.RegisterResponse;
 import com.Marketplace_Management.Auth.Models.Role;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Shared.Constants.UserRole;
+import com.Marketplace_Management.Shared.Contracts.IFileService;
 import com.Marketplace_Management.Shared.Security.JwtService;
 
 @Service
 public class AuthService implements IAuthService {
+    private final IFileService fileService;
     private final IUserRepository repo;
     private final IRoleRepository roleRepo;
     private final JwtService tokenService;
@@ -43,12 +46,13 @@ public class AuthService implements IAuthService {
     private final EmailVerificationTokenService emailVerificationTokenService;
 
     public AuthService(IUserRepository repo, IRoleRepository roleRepo, JwtService tokenService,
-                      PasswordEncoder encoder, EmailVerificationTokenService emailVerificationTokenService) {
+                      PasswordEncoder encoder, EmailVerificationTokenService emailVerificationTokenService, IFileService fileService) {
         this.repo = repo;
         this.roleRepo = roleRepo;
         this.tokenService = tokenService;
         this.encoder = encoder;
         this.emailVerificationTokenService = emailVerificationTokenService;
+        this.fileService = fileService;
     }
 
     @Transactional
@@ -188,11 +192,15 @@ public class AuthService implements IAuthService {
 
     @Transactional
     @CacheEvict(value = "users", key = "#userId")
-    public void updateProfile(UUID userId, UpdateProfileCommand command) {
+    public void updateProfile(UUID userId, UpdateProfileCommand command) throws IOException {
         var user = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
         user.setName(command.getName());
-        user.setPhone(command.getPhone());
+        user.setPhone(command.getPhone().isBlank() ? user.getPhone() : command.getPhone());
+        if(command.getAvatar() != null) {
+            String url = fileService.uploadFile(command.getAvatar(), "users/avatars");
+            user.setAvatar(url);
+        }
         repo.save(user);
     }
     

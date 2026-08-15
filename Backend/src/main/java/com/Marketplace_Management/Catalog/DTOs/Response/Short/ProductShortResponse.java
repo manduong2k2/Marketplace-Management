@@ -14,10 +14,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor // For Jackson deserialization
-@JsonPropertyOrder({"id", "name", "brand", "categories", "description", "status", "options", "variants"})
+@JsonPropertyOrder({"id", "name", "brand", "description", "status", "options", "variants"})
 public class ProductShortResponse {
     private UUID id;
     private String name;
+    private String status;
+    private String brand;
+    private String description;
     private List<ProductVariantShortResponse> variants;
     private Set<ProductOptionResponse> options;
 }

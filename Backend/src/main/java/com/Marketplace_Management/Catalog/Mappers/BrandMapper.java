@@ -4,10 +4,10 @@ import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Catalog.Entities.BrandEntity;
 import com.Marketplace_Management.Catalog.Models.Brand;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
-public class BrandMapper implements IMapper<Brand, BrandEntity>{
+public class BrandMapper implements EntityDomainMapper<Brand, BrandEntity>{
     
     @Override
     public Brand toDomain(BrandEntity entity) {

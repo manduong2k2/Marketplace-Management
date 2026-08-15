@@ -20,5 +20,5 @@ public interface IProductRepository {
 
     void delete(UUID id);
 
-    public ProductVariant findVariantById(UUID variantId);
+    ProductVariant findVariantById(UUID variantId);
 }

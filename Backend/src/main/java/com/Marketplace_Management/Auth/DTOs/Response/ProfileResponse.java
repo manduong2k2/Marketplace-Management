@@ -34,4 +34,11 @@ public class ProfileResponse {
         this.roles = user.getRoles().stream().map(Role::getName).collect(java.util.stream.Collectors.toSet());
         this.createdAt = user.getCreatedAt();
     }
+
+    public ProfileResponse withUrl(String baseUrl) {
+        if (this.avatar != null && !this.avatar.isEmpty()) {
+            this.avatar = baseUrl + "/" + this.avatar;
+        }
+        return this;
+    }
 }

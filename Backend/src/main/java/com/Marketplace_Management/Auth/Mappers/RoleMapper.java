@@ -4,10 +4,10 @@ import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Auth.Entities.RoleEntity;
 import com.Marketplace_Management.Auth.Models.Role;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
-public class RoleMapper implements IMapper<Role, RoleEntity>{
+public class RoleMapper implements EntityDomainMapper<Role, RoleEntity>{
     @Override
     public Role toDomain(RoleEntity entity) {
         return new Role(

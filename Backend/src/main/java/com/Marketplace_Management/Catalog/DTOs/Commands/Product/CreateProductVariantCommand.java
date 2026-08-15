@@ -21,7 +21,7 @@ public class CreateProductVariantCommand extends BaseCommand {
     private int stock;
     
     private List<MultipartFile> images;
-    private List<Integer> optionIds;
+    private List<Long> optionIds;
 
     public static CreateProductVariantCommand fromRequest(CreateProductVariantRequest request) {
         return new CreateProductVariantCommand(

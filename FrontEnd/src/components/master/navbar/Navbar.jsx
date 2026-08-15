@@ -1,10 +1,10 @@
-import { useContext, useState, useRef, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { CartContext } from '../../../contexts/CartContext';
 import { authService } from '../../../services/authService';
 import './Navbar.css';
-import shopIcon from '../../../assets/shop-icon.png';
+import shopIcon from '../../../../public/logo1.png';
 import { APP_NAME, APP_SLOGAN } from '../../../configs/constants';
 
 function CartIcon({ count }) {
@@ -19,9 +19,7 @@ function CartIcon({ count }) {
 export default function Navbar() {
   const { user, setUser } = useContext(AuthContext);
   const { cart } = useContext(CartContext);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   const cartCount = cart?.totalItemCount || 0;
@@ -37,15 +35,6 @@ export default function Navbar() {
     }
   };
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
-  const handleMenuClick = (path) => {
-    setShowDropdown(false);
-    navigate(path);
-  };
-
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       navigate(`/home?search=${encodeURIComponent(searchQuery.trim())}`);
@@ -58,20 +47,6 @@ export default function Navbar() {
       setSearchQuery(searchParam);
     }
   }, [location.search]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showDropdown && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showDropdown]);
 
   return (
     <nav className="navbar">
@@ -111,27 +86,51 @@ export default function Navbar() {
         {user ? (
           <>
             <CartIcon count={cartCount} />
-            <div className="dropdown" ref={dropdownRef}>
-              <button className="dropdown-toggle" onClick={toggleDropdown}>
-                Welcome, {user.name} <i className="fas fa-chevron-down"></i>
+            <div className="user-dropdown">
+              <button className="user-dropdown-toggle" type="button" aria-label="User menu">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Avatar" className="user-dropdown-avatar" />
+                ) : (
+                  <span className="user-dropdown-avatar user-dropdown-avatar--fallback">
+                    {user.name?.charAt(0)?.toUpperCase() || '?'}
+                  </span>
+                )}
+                <span className="user-dropdown-name">
+                  {user.name}
+                </span>
+                <i className="fas fa-chevron-down user-dropdown-caret"></i>
               </button>
-              {showDropdown && (
-                <div className={`dropdown-menu ${showDropdown ? 'show' : ''} animate`}>
-                  <button className="dropdown-item" onClick={() => handleMenuClick('/profile')}>
+
+              <ul className="user-dropdown-menu">
+                <li>
+                  <div className="user-dropdown-header">
+                    <span className="user-dropdown-header-name">{user.name}</span>
+                    <span className="user-dropdown-header-email">{user.email}</span>
+                  </div>
+                </li>
+                <li><hr className="user-dropdown-divider" /></li>
+                <li>
+                  <button className="user-dropdown-item" onClick={() => navigate('/profile')}>
                     <i className="fas fa-user"></i> Profile
                   </button>
-                  <button className="dropdown-item" onClick={() => handleMenuClick('/orders')}>
+                </li>
+                <li>
+                  <button className="user-dropdown-item" onClick={() => navigate('/orders')}>
                     <i className="fas fa-shopping-cart"></i> Order History
                   </button>
-                  <button className="dropdown-item" onClick={() => handleMenuClick('/my-vendor')}>
+                </li>
+                <li>
+                  <button className="user-dropdown-item" onClick={() => navigate('/my-vendor')}>
                     <i className="fas fa-store"></i> Vendor Management
                   </button>
-                  <div className="dropdown-divider"></div>
-                  <button className="dropdown-item" onClick={handleLogout}>
+                </li>
+                <li><hr className="user-dropdown-divider" /></li>
+                <li>
+                  <button className="user-dropdown-item user-dropdown-item--danger" onClick={handleLogout}>
                     <i className="fas fa-sign-out-alt"></i> Logout
                   </button>
-                </div>
-              )}
+                </li>
+              </ul>
             </div>
           </>
         ) : (

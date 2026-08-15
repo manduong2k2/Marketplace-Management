@@ -1,7 +1,7 @@
 package com.Marketplace_Management.Catalog.Mappers;
 
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,21 +18,21 @@ import com.Marketplace_Management.Catalog.Models.Category;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductOption;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
-import com.Marketplace_Management.Shared.Contracts.IMapper;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
-public class ProductMapper implements IMapper<Product, ProductEntity> {
+public class ProductMapper implements EntityDomainMapper<Product, ProductEntity> {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final IMapper<Brand, BrandEntity> brandMapper;
-    private final IMapper<Category, CategoryEntity> categoryMapper;
-    private final IMapper<ProductVariant, ProductVariantEntity> variantMapper;
-    private final IMapper<ProductOption, ProductOptionEntity> optionMapper;
+    private final EntityDomainMapper<Brand, BrandEntity> brandMapper;
+    private final EntityDomainMapper<Category, CategoryEntity> categoryMapper;
+    private final EntityDomainMapper<ProductVariant, ProductVariantEntity> variantMapper;
+    private final EntityDomainMapper<ProductOption, ProductOptionEntity> optionMapper;
 
-    public ProductMapper(IMapper<Brand, BrandEntity> brandMapper, IMapper<Category, CategoryEntity> categoryMapper,
-                        IMapper<ProductVariant, ProductVariantEntity> variantMapper,
-                        IMapper<ProductOption, ProductOptionEntity> optionMapper) {
+    public ProductMapper(EntityDomainMapper<Brand, BrandEntity> brandMapper, EntityDomainMapper<Category, CategoryEntity> categoryMapper,
+                        EntityDomainMapper<ProductVariant, ProductVariantEntity> variantMapper,
+                        EntityDomainMapper<ProductOption, ProductOptionEntity> optionMapper) {
         this.brandMapper = brandMapper;
         this.categoryMapper = categoryMapper;
         this.variantMapper = variantMapper;
@@ -49,12 +49,12 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                 .brand(brandMapper.toDomain(entity.getBrand()))
                 .status(entity.getStatus())
                 .categories(entity.getCategories() != null ? entity.getCategories().stream().map(category -> categoryMapper.toDomain(category))
-                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList())
+                        .collect(java.util.stream.Collectors.toSet()) : java.util.Collections.emptySet())
                 .categoryIds(
                         entity.getCategories() != null ? entity.getCategories().stream().map(category -> category.getId())
                                 .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList())
-                .variants(entity.getVariants().stream().map(variantMapper::toDomain).toList())
-                .options(entity.getOptions().stream().map(optionMapper::toDomain).toList())
+                .variants(entity.getVariants().stream().map(variantMapper::toDomain).collect(java.util.stream.Collectors.toSet()))
+                .options(entity.getOptions().stream().map(optionMapper::toDomain).collect(java.util.stream.Collectors.toSet()))
                 .vendorId(entity.getVendorId())
                 .build();
     }
@@ -68,12 +68,12 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
         entity.setCategories(
                 domain.getCategoryIds() != null ? domain.getCategoryIds().stream()
                         .map(categoryId -> entityManager.find(CategoryEntity.class, categoryId))
-                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
+                        .collect(java.util.stream.Collectors.toSet()) : java.util.Collections.emptySet());
         entity.setStatus(domain.getStatus());
         
-        List<ProductOptionEntity> optionEntities = domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity)
+        Set<ProductOptionEntity> optionEntities = domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity)
                         .peek(option -> option.setProduct(entity))
-                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList();
+                        .collect(java.util.stream.Collectors.toSet()) : java.util.Collections.emptySet();
         entity.setOptions(optionEntities);
 
         entity.setVariants(
@@ -82,9 +82,9 @@ public class ProductMapper implements IMapper<Product, ProductEntity> {
                             variant.setProduct(entity);
                             HashMap<String, String> options = new HashMap<>();
                             variant.getOptions().forEach(o -> options.put(o.getName(), o.getValue()));
-                            variant.setOptions(optionEntities.stream().filter(o -> options.containsKey(o.getName()) && options.get(o.getName()).equals(o.getValue())).toList());
+                            variant.setOptions(optionEntities.stream().filter(o -> options.containsKey(o.getName()) && options.get(o.getName()).equals(o.getValue())).collect(java.util.stream.Collectors.toSet()));
                         })
-                        .collect(java.util.stream.Collectors.toList()) : java.util.Collections.emptyList());
+                        .collect(java.util.stream.Collectors.toSet()) : java.util.Collections.emptySet());
         
         entity.setVendorId(domain.getVendorId());
         return entity;

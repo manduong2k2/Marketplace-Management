@@ -1,6 +1,7 @@
 package com.Marketplace_Management.Catalog.Models;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.Marketplace_Management.Shared.Models.Entity;
@@ -16,7 +17,7 @@ public class ProductVariant extends Entity<UUID> {
     private int stock = 0;
     private List<File> files;
     private Product product;
-    private List<ProductOption> options;
+    private Set<ProductOption> options;
     private String optionList;
 
     public ProductVariant() {
@@ -52,7 +53,7 @@ public class ProductVariant extends Entity<UUID> {
         private int stock = 0;
         private List<File> files;
         private Product product;
-        private List<ProductOption> options;
+        private Set<ProductOption> options;
         private String optionList;
 
         public Builder id(UUID id) {
@@ -95,7 +96,7 @@ public class ProductVariant extends Entity<UUID> {
             return this;
         }
 
-        public Builder options(List<ProductOption> options) {
+        public Builder options(Set<ProductOption> options) {
             this.options = options;
             return this;
         }
@@ -172,11 +173,11 @@ public class ProductVariant extends Entity<UUID> {
         this.product = product;
     }
 
-    public List<ProductOption> getOptions() {
+    public Set<ProductOption> getOptions() {
         return options;
     }
     
-    public void setOptions(List<ProductOption> options) {
+    public void setOptions(Set<ProductOption> options) {
         this.options = options;
     }
 

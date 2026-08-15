@@ -10,11 +10,13 @@ import LoginPage from '../pages/auth/login/LoginPage';
 import RegisterPage from '../pages/auth/register/RegisterPage';
 import ForgotPasswordPage from '../pages/auth/forgot/ForgotPasswordPage';
 import ProfilePage from '../pages/auth/profile/ProfilePage';
+import AddressPage from '../pages/auth/address/AddressPage';
 import HomePage from '../pages/home/HomePage';
 import CartPage from '../pages/cart/CartPage';
 import CartCheckoutPage from '../pages/cart/CartCheckoutPage';
 
 import AdminLoginPage from '../pages/admin/login/AdminLoginPage';
+import AdminDashboardPage from '../pages/admin/dashboard/AdminDashboardPage';
 import AdminBrandsPage from '../pages/admin/brands/AdminBrandsPage';
 import AdminCategoriesPage from '../pages/admin/categories/AdminCategoriesPage';
 import AdminProductsPage from '../pages/admin/products/AdminProductsPage';
@@ -78,6 +80,7 @@ export default function AppRouter() {
               </AdminRoute>
             }
           >
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/brands" element={<AdminBrandsPage />} />
             <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             <Route path="/admin/products" element={<AdminProductsPage />} />
@@ -85,7 +88,7 @@ export default function AppRouter() {
             <Route path="/admin/orders" element={<AdminOrderHistoryPage />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetailPage />} />
             {/* Default admin redirect */}
-            <Route path="/admin" element={<Navigate to="/admin/brands" replace />} />
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           </Route>
 
           {/* Route for all users */}
@@ -99,6 +102,7 @@ export default function AppRouter() {
           {/* Routes for logged in users */}
           <Route element={<PrivateRoute><MasterLayout /></PrivateRoute>}>
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/addresses" element={<AddressPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CartCheckoutPage />} />
             <Route path="/orders" element={<OrderHistoryPage />} />

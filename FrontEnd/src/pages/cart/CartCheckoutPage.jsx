@@ -1,10 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { showSuccess, showError } from '../../components/master/popup';
 import { orderService } from '../../services/orderService';
 import { cartService } from '../../services/cartService';
+import { addressService } from '../../services/addressService';
 import './CartCheckoutPage.css';
 
 export default function CartCheckoutPage() {
@@ -21,6 +22,10 @@ export default function CartCheckoutPage() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Saved addresses
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState('');
+
   // Pre-fill from user context
   useEffect(() => {
     if (user) {
@@ -28,10 +33,63 @@ export default function CartCheckoutPage() {
         ...prev,
         name: user.name || '',
         phone: user.phone || '',
-        address: user.address || '',
       }));
     }
   }, [user]);
+
+  // Fetch saved addresses and pre-select default
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const res = await addressService.getMyAddresses();
+        if (res.ok) {
+          const list = res.data.data || [];
+          setAddresses(list);
+          const defaultAddr = list.find(a => a.isDefault) || list[0] || null;
+          if (defaultAddr) {
+            setSelectedAddressId(String(defaultAddr.id));
+            setShippingInfo(prev => ({
+              ...prev,
+              address: formatAddress(defaultAddr),
+            }));
+          }
+        }
+      } catch {
+        // silently fail — user can still type manually
+      }
+    };
+    fetchAddresses();
+  }, []);
+
+  // Format address object into a readable string
+  const formatAddress = (addr) => {
+    const ward = typeof addr.ward === 'object'
+      ? (addr.ward?.fullName || addr.ward?.name || '')
+      : (addr.ward || '');
+    const province = typeof addr.province === 'object'
+      ? (addr.province?.name || addr.province?.fullName || '')
+      : (addr.province || '');
+    return [addr.houseNumber, addr.streetName, ward, province]
+      .filter(Boolean)
+      .join(', ');
+  };
+
+  const handleAddressSelect = (e) => {
+    const id = e.target.value;
+    setSelectedAddressId(id);
+    if (id === '') {
+      setShippingInfo(prev => ({ ...prev, address: '' }));
+    } else {
+      const addr = addresses.find(a => String(a.id) === id);
+      if (addr) {
+        setShippingInfo(prev => ({
+          ...prev,
+          address: formatAddress(addr),
+        }));
+        if (errors.address) setErrors(prev => ({ ...prev, address: '' }));
+      }
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -201,6 +259,29 @@ export default function CartCheckoutPage() {
               <label htmlFor="co-address">
                 Delivery Address <span className="required">*</span>
               </label>
+
+              {/* Address select — shown when saved addresses exist */}
+              {addresses.length > 0 && (
+                <div className="address-select-wrap">
+                  <select
+                    id="co-address-select"
+                    value={selectedAddressId}
+                    onChange={handleAddressSelect}
+                    className="address-select"
+                  >
+                    <option value="">— Type address manually —</option>
+                    {addresses.map(addr => (
+                      <option key={addr.id} value={String(addr.id)}>
+                        {addr.isDefault ? '★ ' : ''}{addr.title ? `[${addr.title}] ` : ''}{formatAddress(addr)}
+                      </option>
+                    ))}
+                  </select>
+                  <Link to="/addresses" className="address-manage-link">
+                    Manage my addresses →
+                  </Link>
+                </div>
+              )}
+
               <textarea
                 id="co-address"
                 name="address"
