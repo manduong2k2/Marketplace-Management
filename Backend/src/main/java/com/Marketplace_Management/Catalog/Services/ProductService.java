@@ -117,7 +117,7 @@ public class ProductService implements IProductService {
                             .sku(variant.getSku())
                             .price(variant.getPrice())
                             .stock(variant.getStock())
-                            .files(variant.getImages() != null ? variant.getImages().stream().map(img -> {
+                            .images(variant.getImages() != null ? variant.getImages().stream().map(img -> {
                                 try {
                                     String imageUrl = fileService.uploadFile(img, "catalog/product_variants");
                                     File file = new File(null, imageUrl, "ProductVariant");

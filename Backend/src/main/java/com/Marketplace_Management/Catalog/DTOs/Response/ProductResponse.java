@@ -1,20 +1,19 @@
 package com.Marketplace_Management.Catalog.DTOs.Response;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductVariantShortResponse;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor // For Jackson deserialization
-@JsonPropertyOrder({"id", "name", "brand", "categories", "description", "status", "options", "variants"})
+@JsonPropertyOrder({ "id", "name", "brand", "categories", "description", "status", "options", "variants" })
 public class ProductResponse {
     private UUID id;
     private String name;
@@ -22,26 +21,59 @@ public class ProductResponse {
     private List<CategoryResponse> categories;
     private String description;
     private String status;
-    private List<ProductVariantShortResponse> variants;
+    private List<Variant> variants;
     private List<ProductOptionResponse> options;
-    
+
     public ProductResponse(Product product) {
-        if(product == null) {
+        if (product == null) {
             return;
         }
 
         this.id = product.getId();
         this.name = product.getName();
         this.brand = product.getBrand() != null ? new BrandResponse(product.getBrand()) : null;
-        this.categories = product.getCategories() != null ? product.getCategories().stream().map(category -> new CategoryResponse(category)).toList() : null;
+        this.categories = product.getCategories() != null
+                ? product.getCategories().stream().map(category -> new CategoryResponse(category)).toList()
+                : null;
         this.description = product.getDescription();
         this.status = product.getStatus();
-        this.options = product.getOptions() != null ? product.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;
-        this.variants = product.getVariants() != null ? product.getVariants().stream().map(variant -> new ProductVariantShortResponse(variant)).toList() : null;
+        this.options = product.getOptions() != null
+                ? product.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList()
+                : null;
+        // this.variants = product.getVariants() != null ?
+        // product.getVariants().stream().map(variant -> new
+        // ProductVariantShortResponse(variant)).toList() : null;
     }
 
     public ProductResponse withUrl(String url) {
         this.getVariants().forEach(v -> v.withUrl(url));
         return this;
+    }
+
+    @Data
+    private static class Variant {
+        private UUID id;
+        private String name;
+        private String sku;
+        private int stock;
+        private double price;
+        private String optionList;
+        private Set<Image> images;
+        private Set<ProductOptionResponse> options;
+
+        @Data
+        private static class Image {
+            private UUID id;
+            private String url;
+
+            public String getUrl() {
+                return url;
+            }
+        }
+
+        public Variant withUrl(String url) {
+            this.images.forEach(image -> image.setUrl(url + image.getUrl()));
+            return this;
+        }
     }
 }

@@ -1,17 +1,15 @@
 package com.Marketplace_Management.Shared.Repositories.QueryBuilder;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.hibernate.annotations.SoftDelete;
 
 public class EntityMetadata<T> {
 
@@ -27,48 +25,43 @@ public class EntityMetadata<T> {
         this.relationships = resolveRelationships(entityClass);
     }
 
-    private String resolveTableName(Class<?> entityClass) {
-        Table table = entityClass.getAnnotation(Table.class);
+    private String resolveTableName(Class<?> type) {
+        Table table = type.getAnnotation(Table.class);
 
-        if (table != null && !table.name().isBlank()) {
-            return table.name();
-        }
-
-        return entityClass.getSimpleName();
+        return table != null && !table.name().isBlank()
+                ? table.name()
+                : type.getSimpleName();
     }
 
-    private List<ColumnMetadata> resolveColumns(Class<?> entityClass) {
-        List<ColumnMetadata> columns = new ArrayList<>();
+    private List<ColumnMetadata> resolveColumns(Class<?> type) {
+        List<ColumnMetadata> result = new ArrayList<>();
 
-        Class<?> currentClass = entityClass;
-        while (currentClass != null && currentClass != Object.class) {
-
-            Arrays.stream(currentClass.getDeclaredFields())
-                    .filter(this::isColumn)
-                    .forEach(field -> columns.add(
-                            new ColumnMetadata(
-                                    resolveColumnName(field),
-                                    field.getType())));
-
-            currentClass = currentClass.getSuperclass();
+        for (Field field : getAllFields(type)) {
+            if (isColumn(field)) {
+                result.add(new ColumnMetadata(
+                        resolveColumnName(field),
+                        field.getType()));
+            }
         }
 
-        return columns;
+        return result;
     }
 
     private boolean isColumn(Field field) {
-        return field.isAnnotationPresent(Column.class)
-                || field.getAnnotation(jakarta.persistence.Id.class) != null
+        return field.isAnnotationPresent(Id.class)
+                || field.isAnnotationPresent(Column.class)
                 || field.isAnnotationPresent(JoinColumn.class);
     }
 
     private String resolveColumnName(Field field) {
+
         Column column = field.getAnnotation(Column.class);
-        JoinColumn joinColumn = field.getAnnotation(JoinColumn.class);
 
         if (column != null && !column.name().isBlank()) {
             return column.name();
         }
+
+        JoinColumn joinColumn = field.getAnnotation(JoinColumn.class);
 
         if (joinColumn != null && !joinColumn.name().isBlank()) {
             return joinColumn.name();
@@ -77,74 +70,51 @@ public class EntityMetadata<T> {
         return field.getName();
     }
 
-    private List<RelationshipMetadata> resolveRelationships(Class<?> entityClass) {
-        List<RelationshipMetadata> relationships = new ArrayList<>();
-
-        Class<?> currentClass = entityClass;
-
-        while (currentClass != null && currentClass != Object.class) {
-
-            for (Field field : currentClass.getDeclaredFields()) {
-
-                if (field.isAnnotationPresent(OneToOne.class)) {
-                    relationships.add(
-                            new RelationshipMetadata(
-                                    field,
-                                    resolveTargetEntity(field),
-                                    RelationshipType.ONE_TO_ONE));
-                }
-
-                if (field.isAnnotationPresent(OneToMany.class)) {
-                    relationships.add(
-                            new RelationshipMetadata(
-                                    field,
-                                    resolveTargetEntity(field),
-                                    RelationshipType.ONE_TO_MANY));
-                }
-
-                if (field.isAnnotationPresent(ManyToOne.class)) {
-                    relationships.add(
-                            new RelationshipMetadata(
-                                    field,
-                                    resolveTargetEntity(field),
-                                    RelationshipType.MANY_TO_ONE));
-                }
-
-                if (field.isAnnotationPresent(ManyToMany.class)) {
-                    relationships.add(
-                            new RelationshipMetadata(
-                                    field,
-                                    resolveTargetEntity(field),
-                                    RelationshipType.MANY_TO_MANY));
-                }
-            }
-
-            currentClass = currentClass.getSuperclass();
-        }
-
-        return relationships;
+    private List<RelationshipMetadata> resolveRelationships(Class<?> type) {
+        return getAllFields(type).stream()
+                .filter(this::isRelationship)
+                .map(RelationshipMetadata::new)
+                .toList();
     }
 
-    private Class<?> resolveTargetEntity(Field field) {
-        Class<?> type = field.getType();
+    private boolean isRelationship(Field field) {
+        return field.isAnnotationPresent(OneToOne.class)
+                || field.isAnnotationPresent(OneToMany.class)
+                || field.isAnnotationPresent(ManyToOne.class)
+                || field.isAnnotationPresent(ManyToMany.class);
+    }
 
-        if (!java.util.Collection.class.isAssignableFrom(type)) {
-            return type;
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+
+        Class<?> current = type;
+
+        while (current != null && current != Object.class) {
+            fields.addAll(Arrays.asList(current.getDeclaredFields()));
+            current = current.getSuperclass();
         }
 
-        java.lang.reflect.Type genericType = field.getGenericType();
+        return fields;
+    }
 
-        if (genericType instanceof java.lang.reflect.ParameterizedType parameterizedType) {
-            java.lang.reflect.Type[] arguments = parameterizedType.getActualTypeArguments();
+    public RelationshipMetadata getRelationship(String name) {
+        return relationships.stream()
+                .filter(relationship -> relationship.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Relationship " + name
+                                + " is not allowed for "
+                                + entityClass.getSimpleName()));
+    }
 
-            if (arguments.length == 1
-                    && arguments[0] instanceof Class<?> clazz) {
-                return clazz;
+    public void validateColumns(String... selectedColumns) {
+        for (String column : selectedColumns) {
+            if (!getColumnNames().contains(column)) {
+                throw new IllegalArgumentException(
+                        "Column " + column + " is not allowed for "
+                                + entityClass.getSimpleName() + ". Allowed columns: " + getColumnNames());
             }
         }
-
-        throw new IllegalArgumentException(
-                "Cannot resolve target entity for field: " + field.getName());
     }
 
     public Class<?> getEntityClass() {
@@ -156,19 +126,13 @@ public class EntityMetadata<T> {
     }
 
     public String getIdentifier() {
-        Class<?> currentClass = entityClass;
-
-        while (currentClass != null && currentClass != Object.class) {
-            for (Field field : currentClass.getDeclaredFields()) {
-                if (field.isAnnotationPresent(jakarta.persistence.Id.class)) {
-                    return resolveColumnName(field);
-                }
-            }
-
-            currentClass = currentClass.getSuperclass();
-        }
-
-        return null;
+        return getAllFields(entityClass).stream()
+                .filter(field -> field.isAnnotationPresent(Id.class))
+                .map(this::resolveColumnName)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "No @Id found for "
+                                + entityClass.getSimpleName()));
     }
 
     public List<ColumnMetadata> getColumns() {
@@ -176,10 +140,75 @@ public class EntityMetadata<T> {
     }
 
     public List<String> getColumnNames() {
-        return columns.stream().map(ColumnMetadata::getName).toList();
+        return columns.stream()
+                .map(ColumnMetadata::getName)
+                .toList();
     }
 
     public List<RelationshipMetadata> getRelationships() {
         return relationships;
+    }
+
+    public static Class<?> resolveTargetEntity(Field field) {
+
+        Class<?> fieldType = field.getType();
+
+        if (!java.util.Collection.class.isAssignableFrom(fieldType)) {
+            return fieldType;
+        }
+
+        Type genericType = field.getGenericType();
+
+        if (genericType instanceof ParameterizedType parameterizedType) {
+
+            Type[] arguments = parameterizedType.getActualTypeArguments();
+
+            if (arguments.length == 1
+                    && arguments[0] instanceof Class<?> clazz) {
+                return clazz;
+            }
+        }
+
+        throw new IllegalArgumentException(
+                "Cannot resolve target entity for field: "
+                        + field.getName());
+    }
+
+    public boolean hasSoftDelete() {
+        return getSoftDelete() != null;
+    }
+
+    public String getSoftDeleteColumn() {
+
+        SoftDelete softDelete = getSoftDelete();
+
+        if (softDelete == null) {
+            return null;
+        }
+
+        String columnName = softDelete.columnName();
+
+        return columnName.isBlank()
+                ? "deleted"
+                : columnName;
+    }
+
+    private SoftDelete getSoftDelete() {
+
+        Class<?> current = entityClass;
+
+        while (current != null
+                && current != Object.class) {
+
+            SoftDelete annotation = current.getAnnotation(SoftDelete.class);
+
+            if (annotation != null) {
+                return annotation;
+            }
+
+            current = current.getSuperclass();
+        }
+
+        return null;
     }
 }

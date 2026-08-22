@@ -51,7 +51,7 @@ public class ProductVariantEntity extends UuidEntity{
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "entity_id", referencedColumnName = "id", insertable = false, updatable = false)
     @SQLRestriction("entity_type = 'ProductVariant'")
-    private List<FileEntity> files;
+    private List<FileEntity> images;
 
     @Column(nullable = true)
     private String optionList;
@@ -76,7 +76,7 @@ public class ProductVariantEntity extends UuidEntity{
         this.setSku(sku);
         this.setPrice(price);
         this.setStock(stock);
-        this.setFiles(files);
+        this.setImages(files);
         this.setOptions(options);
         this.setOptionList(optionList);
     }

@@ -31,7 +31,7 @@ public class ProductVariantResponse {
         this.code = variant.getSku();
         this.stock = variant.getStock();
         this.price = variant.getPrice().getValue();
-        this.images = variant.getFiles() != null ? variant.getFiles().stream().map(file -> file.getUrl()).toList() : null;
+        this.images = variant.getImages() != null ? variant.getImages().stream().map(image -> image.getUrl()).toList() : null;
         this.optionList = variant.getOptionList();
         this.product = variant != null && variant.getProduct() != null ? new ProductResponse(variant.getProduct()) : null;
         this.options = variant != null && variant.getOptions() != null ? variant.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;

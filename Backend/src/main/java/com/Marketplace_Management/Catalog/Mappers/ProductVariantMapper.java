@@ -36,7 +36,7 @@ public class ProductVariantMapper implements EntityDomainMapper<ProductVariant, 
             .price(entity.getPrice())
             .stock(entity.getStock())
             .optionList(entity.getOptionList())
-            .files(entity.getFiles() != null ? entity.getFiles().stream().map(fileMapper::toDomain).toList() : null)
+            .images(entity.getImages() != null ? entity.getImages().stream().map(fileMapper::toDomain).toList() : null)
             .product(Product.builder()
                 .id(entity.getProduct().getId())
                 .name(entity.getProduct().getName())
@@ -62,7 +62,7 @@ public class ProductVariantMapper implements EntityDomainMapper<ProductVariant, 
             domain.getSku(),
             domain.getPrice().getValue(),
             domain.getStock(),
-            domain.getFiles() != null ? domain.getFiles().stream().map(fileMapper::toEntity).toList() : null,
+            domain.getImages() != null ? domain.getImages().stream().map(fileMapper::toEntity).toList() : null,
             domain.getOptionList(),
             domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity).collect(java.util.stream.Collectors.toSet()) : null
         );

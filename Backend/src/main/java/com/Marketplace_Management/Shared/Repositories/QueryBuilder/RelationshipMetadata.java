@@ -11,32 +11,49 @@ public class RelationshipMetadata {
     private final RelationshipType type;
 
     private final String mappedBy;
-
     private final String joinTable;
     private final String joinColumn;
     private final String inverseJoinColumn;
-
     private final String joinColumnName;
 
-    public RelationshipMetadata(
-            Field field,
-            Class<?> targetEntity,
-            RelationshipType type
-    ) {
+    public RelationshipMetadata(Field field) {
         this.field = field;
-        this.targetEntity = targetEntity;
-        this.type = type;
+        this.targetEntity = EntityMetadata.resolveTargetEntity(field);
+        this.type = resolveType(field);
 
         this.mappedBy = resolveMappedBy(field);
-
         this.joinTable = resolveJoinTable(field);
         this.joinColumn = resolveJoinColumn(field);
         this.inverseJoinColumn = resolveInverseJoinColumn(field);
-
         this.joinColumnName = resolveJoinColumnName(field);
     }
 
+    private RelationshipType resolveType(Field field) {
+
+        if (field.isAnnotationPresent(OneToOne.class)) {
+            return RelationshipType.ONE_TO_ONE;
+        }
+
+        if (field.isAnnotationPresent(OneToMany.class)) {
+            return RelationshipType.ONE_TO_MANY;
+        }
+
+        if (field.isAnnotationPresent(ManyToOne.class)) {
+            return RelationshipType.MANY_TO_ONE;
+        }
+
+        if (field.isAnnotationPresent(ManyToMany.class)) {
+            return RelationshipType.MANY_TO_MANY;
+        }
+
+        throw new IllegalArgumentException(
+                "Field is not a relationship: "
+                        + field.getName()
+        );
+    }
+
     private String resolveMappedBy(Field field) {
+
         if (field.isAnnotationPresent(OneToOne.class)) {
             return field.getAnnotation(OneToOne.class).mappedBy();
         }
@@ -52,56 +69,108 @@ public class RelationshipMetadata {
         return "";
     }
 
-    private String resolveJoinTable(Field field) {
-        JoinTable annotation = field.getAnnotation(JoinTable.class);
+    private JoinTable getJoinTableAnnotation() {
+        return field.getAnnotation(JoinTable.class);
+    }
 
-        return annotation != null
-                ? annotation.name()
+    private String resolveJoinTable(Field field) {
+
+        JoinTable table = getJoinTableAnnotation();
+
+        return table != null && !table.name().isBlank()
+                ? table.name()
                 : null;
     }
 
     private String resolveJoinColumn(Field field) {
-        JoinTable annotation = field.getAnnotation(JoinTable.class);
 
-        if (annotation == null || annotation.joinColumns().length == 0) {
+        JoinTable table = getJoinTableAnnotation();
+
+        if (table == null || table.joinColumns().length == 0) {
             return null;
         }
 
-        return annotation.joinColumns()[0].name();
+        return table.joinColumns()[0].name();
     }
 
     private String resolveInverseJoinColumn(Field field) {
-        JoinTable annotation = field.getAnnotation(JoinTable.class);
 
-        if (annotation == null || annotation.inverseJoinColumns().length == 0) {
+        JoinTable table = getJoinTableAnnotation();
+
+        if (table == null || table.inverseJoinColumns().length == 0) {
             return null;
         }
 
-        return annotation.inverseJoinColumns()[0].name();
+        return table.inverseJoinColumns()[0].name();
     }
 
     private String resolveJoinColumnName(Field field) {
-        JoinColumn annotation = field.getAnnotation(JoinColumn.class);
 
-        if (annotation != null) {
-            return annotation.name();
+        JoinColumn joinColumn =
+                field.getAnnotation(JoinColumn.class);
+
+        if (joinColumn != null && !joinColumn.name().isBlank()) {
+            return joinColumn.name();
         }
 
-        // Handle mappedBy relationships - look at the target entity
-        String mappedBy = resolveMappedBy(field);
-        if (!mappedBy.isEmpty()) {
+        if (mappedBy.isBlank()) {
+            return null;
+        }
+
+        return resolveMappedByJoinColumn();
+    }
+
+    private String resolveMappedByJoinColumn() {
+
+        Field mappedField = findField(
+                targetEntity,
+                mappedBy
+        );
+
+        if (mappedField == null) {
+            return null;
+        }
+
+        JoinColumn joinColumn =
+                mappedField.getAnnotation(JoinColumn.class);
+
+        return joinColumn != null
+                ? joinColumn.name()
+                : null;
+    }
+
+    private Field findField(
+            Class<?> type,
+            String fieldName) {
+
+        Class<?> current = type;
+
+        while (current != null && current != Object.class) {
+
             try {
-                Field mappedByField = targetEntity.getDeclaredField(mappedBy);
-                JoinColumn mappedByAnnotation = mappedByField.getAnnotation(JoinColumn.class);
-                if (mappedByAnnotation != null) {
-                    return mappedByAnnotation.name();
-                }
-            } catch (NoSuchFieldException e) {
-                // Field not found, return null
+                return current.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
             }
         }
 
         return null;
+    }
+
+    public boolean isManyToMany() {
+        return type == RelationshipType.MANY_TO_MANY;
+    }
+
+    public boolean isManyToOne() {
+        return type == RelationshipType.MANY_TO_ONE;
+    }
+
+    public boolean isOneToMany() {
+        return type == RelationshipType.ONE_TO_MANY;
+    }
+
+    public boolean isOneToOne() {
+        return type == RelationshipType.ONE_TO_ONE;
     }
 
     public Field getField() {
