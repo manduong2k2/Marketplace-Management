@@ -4,15 +4,18 @@ import java.util.UUID;
 
 import com.Marketplace_Management.Shared.Models.Entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+
+@Data 
+@EqualsAndHashCode(callSuper = false)
+@SuperBuilder 
 public class OrderItem extends Entity<UUID>{
     private UUID productId;
     private Quantity quantity;
     private ProductSnapShot snapShot;
     private double total;
-
-    public OrderItem() {
-        super(null);
-    }
 
     public OrderItem(UUID id, UUID productId, int quantity, ProductSnapShot snapShot) {
         super(id);

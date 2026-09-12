@@ -30,11 +30,12 @@ public class AdminSeeder {
     @Transactional
     public void seedAdmin() {
         if (userRepository.findByEmail("admin@Marketplace_Management.com").isEmpty()) {
-            User admin = new User();
-            admin.setEmail("admin@Marketplace_Management.com");
-            admin.setPassword(passwordEncoder.encode("123456"));
-            admin.setStatus(UserStatus.ACTIVE);
-            admin.setName("Admin");
+            User admin = User.builder()
+                .email("admin@Marketplace_Management.com")
+                .password(passwordEncoder.encode("123456"))
+                .status(UserStatus.ACTIVE)
+                .name("Admin")
+                .build();
             Set<Role> roles = new HashSet<>();
             roles.add(roleRepository.findByCode("ADMIN").orElseThrow(() -> new RuntimeException(Message.ROLE_NOT_FOUND)));
             admin.setRoles(roles);

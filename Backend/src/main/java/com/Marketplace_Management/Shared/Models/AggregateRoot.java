@@ -3,8 +3,13 @@ package com.Marketplace_Management.Shared.Models;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder 
 public abstract class AggregateRoot<T> extends Entity<T> {
     private final List<DomainEvent> domainEvents = new ArrayList<>();
+
+    protected AggregateRoot() {}
 
     protected AggregateRoot(T id) {
         super(id);

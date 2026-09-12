@@ -16,18 +16,18 @@ public class UserMapper implements EntityDomainMapper<User, UserEntity>{
 
     @Override
     public User toDomain(UserEntity entity) {
-        return new User(
-            entity.getId(),
-            entity.getEmail(),
-            entity.getPassword(),
-            entity.getName(),
-            entity.getAvatar(),
-            entity.getPhone(),
-            entity.getStatus(),
-            entity.getCreatedAt(),
-            entity.getUpdatedAt(),
-            entity.getRoles().stream().map(roleMapper::toDomain).collect(java.util.stream.Collectors.toSet())
-        );
+        return User.builder()
+            .id(entity.getId())
+            .email(entity.getEmail())
+            .password(entity.getPassword())
+            .name(entity.getName())
+            .avatar(entity.getAvatar())
+            .phone(entity.getPhone())
+            .status(entity.getStatus())
+            .createdAt(entity.getCreatedAt())
+            .updatedAt(entity.getUpdatedAt())
+            .roles(entity.getRoles().stream().map(roleMapper::toDomain).collect(java.util.stream.Collectors.toSet()))
+            .build();
     }
     
     @Override

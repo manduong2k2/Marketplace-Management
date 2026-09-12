@@ -1,6 +1,7 @@
 package com.Marketplace_Management.Catalog.DTOs.Requests.Product;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.Constants.ProductStatusEnum;
 import com.Marketplace_Management.Shared.Annotation.Rules.Distinct;
@@ -11,7 +12,6 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,8 +26,8 @@ public class UpdateProductRequest {
     private String name;
 
     @NotNull(message = "Brand ID is required")
-    @Exist(table = "brands", column = "id", message = "Brand not found")
-    @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", message = "Brand ID must be a valid UUID")
+    @Exist(table = "brands", column = "id", message = "Brand not found", type = UUID.class)
+    @org.hibernate.validator.constraints.UUID
     private String brandId;
     
     @Nullable
@@ -36,7 +36,7 @@ public class UpdateProductRequest {
     
     @Nullable
     @Distinct(message = "Each category ID must be unique")
-    private List<@Exist(table = "categories", column = "id", message = "Category not found") String> categoryIds;
+    private List<@Exist(table = "categories", column = "id", message = "Category not found", type = UUID.class) @org.hibernate.validator.constraints.UUID String> categoryIds;
     
     @In(enumClass = ProductStatusEnum.class, message = "Invalid product status")
     private String status;

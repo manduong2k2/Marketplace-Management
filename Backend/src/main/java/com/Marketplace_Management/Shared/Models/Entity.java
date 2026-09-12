@@ -3,10 +3,15 @@ package com.Marketplace_Management.Shared.Models;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
 public abstract class Entity<T> {
     protected T id;
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;
+
+    protected Entity() {}
 
     protected Entity(T id) {
         this.id = id;
@@ -25,7 +30,7 @@ public abstract class Entity<T> {
     }
 
     public LocalDateTime getUpdatedAt() {
-        return this.createdAt;
+        return this.updatedAt;
     }
 
     @Override

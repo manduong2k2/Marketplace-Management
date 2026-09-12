@@ -42,10 +42,11 @@ class AuthServiceTest {
         String rawPassword = "123456";
         String encodedPassword = "encodedPassword";
 
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(encodedPassword);
-        user.setStatus("ACTIVE");
+        User user = User.builder()
+                .email(email)
+                .password(encodedPassword)
+                .status("ACTIVE")
+                .build();
 
         when(userRepository.findByEmail(email))
                 .thenReturn(Optional.of(user));

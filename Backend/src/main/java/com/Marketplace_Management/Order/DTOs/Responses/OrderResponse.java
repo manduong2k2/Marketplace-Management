@@ -28,7 +28,7 @@ public class OrderResponse {
         OrderResponse r = new OrderResponse();
         r.id        = order.getId();
         r.userId    = order.getUserId();
-        r.status    = order.getStatus().getValue();
+        r.status    = order.getStatus();
         r.total     = order.getTotal();
         r.items     = order.getItems().stream().map(OrderItemResponse::from).toList();
         r.createdAt = order.getCreatedAt();

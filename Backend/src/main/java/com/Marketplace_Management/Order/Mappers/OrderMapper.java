@@ -16,7 +16,7 @@ public class OrderMapper implements EntityDomainMapper<Order, OrderEntity>{
         OrderEntity entity = new OrderEntity();
         entity.setId(order.getId());
         entity.setUserId(order.getUserId());
-        entity.setStatus(order.getStatus().getValue());
+        entity.setStatus(order.getStatus());
         entity.setName(order.getName());
         entity.setPhone(order.getPhone());
         entity.setAddress(order.getAddress());

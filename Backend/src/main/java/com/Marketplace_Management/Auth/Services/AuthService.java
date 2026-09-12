@@ -58,12 +58,13 @@ public class AuthService implements IAuthService {
     @Transactional
     @CacheEvict(value = "users", key = "#command.email")
     public RegisterResponse register(RegisterCommand command) throws MessagingException {
-        User user = new User();
-        user.setEmail(command.getEmail());
-        user.setPassword(encoder.encode(command.getPassword()));
-        user.setName(command.getName());
-        user.setPhone(command.getPhone());
-        user.setStatus(UserStatus.DEFAULT);
+        User user = User.builder()
+            .email(command.getEmail())
+            .password(encoder.encode(command.getPassword()))
+            .name(command.getName())
+            .phone(command.getPhone())
+            .status(UserStatus.DEFAULT)
+            .build();
 
         Role userRole = this.roleRepo.findByCode("USER").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.ROLE_NOT_FOUND));
         Set<Role> roles = new java.util.HashSet<Role>();

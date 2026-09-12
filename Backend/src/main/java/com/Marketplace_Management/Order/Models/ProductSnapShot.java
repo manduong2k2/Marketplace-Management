@@ -13,10 +13,6 @@ public class ProductSnapShot extends Entity<UUID>{
     private List<String> productImages;
     private String productDescription;
 
-    public ProductSnapShot() {
-        super(null);
-    }
-
     public ProductSnapShot(UUID id, UUID productId, String productName, String productCode, 
             double productPrice, List<String> productImages, String productDescription) {
         super(id);

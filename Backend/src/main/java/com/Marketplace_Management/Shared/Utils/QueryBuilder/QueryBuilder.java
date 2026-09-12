@@ -258,6 +258,8 @@ public class QueryBuilder<E> {
 				query.addConditions(condition);
 			}
 
+			query.addConditions(softDeleteCondition());
+
 			return query;
 		}
 

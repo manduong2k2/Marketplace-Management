@@ -14,11 +14,6 @@ public class Cart extends AggregateRoot<UUID> {
     private CartStatus status;
     private List<CartItem> items;
 
-    public Cart() {
-        super(null);
-        this.items = new ArrayList<>();
-    }
-
     public Cart(UUID id, UUID userId) {
         super(id);
         this.userId = userId;

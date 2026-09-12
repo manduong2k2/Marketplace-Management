@@ -53,7 +53,9 @@ public class ProductResponse {
                                 .map(image -> image.getUrl())
                                 .collect(java.util.stream.Collectors.toSet())
                         : null)
-                .options(null)
+                .options(variant.getOptions() != null
+                        ? variant.getOptions().stream().map(option -> new ProductOptionResponse(option)).collect(java.util.stream.Collectors.toSet())
+                        : null)
                 .build()).toList() : null;
     }
 
@@ -64,6 +66,8 @@ public class ProductResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     private static class Variant {
         private UUID id;
         private String name;

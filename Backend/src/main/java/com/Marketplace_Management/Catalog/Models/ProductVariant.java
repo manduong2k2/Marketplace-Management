@@ -20,10 +20,6 @@ public class ProductVariant extends Entity<UUID> {
     private Set<ProductOption> options;
     private String optionList;
 
-    public ProductVariant() {
-        super(null);
-    }
-
     private ProductVariant(Builder builder) {
         super(builder.id);
         this.productId  = builder.productId;

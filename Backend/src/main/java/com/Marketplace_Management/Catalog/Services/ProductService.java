@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -96,7 +97,7 @@ public class ProductService implements IProductService {
                     .name(option.getName())
                     .value(option.getValue())
                     .build()
-        ).toList();
+        ).collect(java.util.stream.Collectors.toList());
 
         if(command.getVendorId() == null) {
             VendorResponse vendor = vendorService.getByUser(SecurityUtils.currentUserId());
@@ -146,6 +147,7 @@ public class ProductService implements IProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "product", key = "#productId")
     public ProductResponse updateProduct(UUID productId, UpdateProductCommand command) throws IOException {
         Product product = productRepository.findById(productId);
 
@@ -167,6 +169,7 @@ public class ProductService implements IProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "product", key = "#productId")
     public void deleteProduct(UUID productId) {
         productRepository.delete(productId);
         ProductDeletedEvent event = new ProductDeletedEvent(productId);

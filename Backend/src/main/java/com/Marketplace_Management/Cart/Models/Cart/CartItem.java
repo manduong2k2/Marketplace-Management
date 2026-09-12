@@ -16,10 +16,6 @@ public class CartItem extends Entity<UUID> {
     private List<ProductOptionResponse> productOptions;
     private List<String> productImage;
 
-    public CartItem() {
-        super(null);
-    }
-
     public CartItem(UUID id, UUID productVariantId, int quantity) {
         super(id);
         this.productVariantId = productVariantId;
