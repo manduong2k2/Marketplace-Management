@@ -1,28 +1,23 @@
 package com.Marketplace_Management.Catalog.Repositories;
 
-import jakarta.persistence.EntityManager;
-import tools.jackson.databind.ObjectMapper;
-
+import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.Marketplace_Management.Catalog.Contracts.IProductRepository;
 import com.Marketplace_Management.Catalog.DTOs.Commands.Product.GetListProductCommand;
-import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
-import com.Marketplace_Management.Catalog.Entities.BrandEntity;
-import com.Marketplace_Management.Catalog.Entities.CategoryEntity;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductShortResponse;
 import com.Marketplace_Management.Catalog.Entities.ProductEntity;
-import com.Marketplace_Management.Catalog.Entities.ProductOptionEntity;
 import com.Marketplace_Management.Catalog.Entities.ProductVariantEntity;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
 import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
-import com.Marketplace_Management.Shared.Entities.FileEntity;
-import com.Marketplace_Management.Shared.Repositories.QueryBuilder.QueryBuilder;
+import com.Marketplace_Management.Shared.Utils.QueryBuilder.EntityMetadataRegistry;
+import com.Marketplace_Management.Shared.Utils.QueryBuilder.QueryBuilder;
+
+import tools.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -32,8 +27,9 @@ public class ProductRepository implements IProductRepository {
     private final ProductJpaRepository jpaRepository;
     private final EntityDomainMapper<Product, ProductEntity> productMapper;
     private final EntityDomainMapper<ProductVariant, ProductVariantEntity> variantMapper;
-    private final EntityManager entityManager;
     private final ProductVariantJpaRepository productVariantJpaRepository;
+    private final DSLContext dslContext;
+    private final EntityMetadataRegistry metadataRegistry;
     private final ObjectMapper objectMapper;
 
     @Value("${spring.application.base-url}")
@@ -41,45 +37,73 @@ public class ProductRepository implements IProductRepository {
 
     public ProductRepository(ProductJpaRepository jpaRepository,
             EntityDomainMapper<Product, ProductEntity> productMapper,
-            EntityManager entityManager, ProductVariantJpaRepository productVariantJpaRepository,
+            ProductVariantJpaRepository productVariantJpaRepository,
             EntityDomainMapper<ProductVariant, ProductVariantEntity> variantMapper,
+            DSLContext dslContext,
+            EntityMetadataRegistry metadataRegistry,
             ObjectMapper objectMapper) {
         this.jpaRepository = jpaRepository;
         this.productMapper = productMapper;
-        this.entityManager = entityManager;
         this.productVariantJpaRepository = productVariantJpaRepository;
         this.variantMapper = variantMapper;
+        this.dslContext = dslContext;
+        this.metadataRegistry = metadataRegistry;
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public PaginatedResponse<ProductShortResponse> findAll(
-            GetListProductCommand command) {
+    public PaginatedResponse<ProductShortResponse> findAll(GetListProductCommand command) {
 
-        QueryBuilder<ProductEntity> query = QueryBuilder.query(ProductEntity.class)
-                .select("id", "name", "description")
-                .with(List.of(
-                        QueryBuilder.child(BrandEntity.class, "brand").select("id", "name"),
-                        QueryBuilder.child(CategoryEntity.class, "categories").select("id", "name"),
-                        QueryBuilder.child(ProductVariantEntity.class,"variants").select("id", "name", "stock", "price")
-                                .with(List.of(
-                                        QueryBuilder.child(ProductOptionEntity.class,"options")
-                                                .select("id", "name", "value"),
-                                        QueryBuilder.child(FileEntity.class,"images")
-                                                .select("id", "url"))),
-                        QueryBuilder.child(ProductOptionEntity.class, "options").select("id", "name", "value")
-                    ));
+        QueryBuilder<?> queryBuilder = new QueryBuilder<>(dslContext, metadataRegistry, objectMapper);
+        queryBuilder.query(ProductEntity.class)
+                .select("id", "name", "status")
+                .with("brand", brand -> {
+                    brand.select("id", "name");
+                })
+                .with("options", options -> {
+                    options.select("id", "name", "value");
+                })
+                .with("variants", variant -> {
+                    variant
+                            .with("options", option -> {
+                                option.select("id", "name", "value");
+                            })
+                            .with("images", image -> {
+                                image.select("id", "url");
+                            });
+                })
+                .when(command.getBrandId() != null, query -> {
+                    query.where("brand.id", "=",command.getBrandId());
+                })
+                .when(command.getCategoryIds() != null && !command.getCategoryIds().isEmpty(), query -> {
+                    query.where("categories.id", "in", command.getCategoryIds());
+                })
+                .when(command.getVendorId() != null, query -> {
+                    query.where("vendorId", "=", command.getVendorId());
+                })
+                .when(command.getSearch() != null, query -> {
+                    query.where("name", "like", "%" + command.getSearch() + "%")
+                        .orWhere("variants.name", "like", "%" + command.getSearch() + "%")
+                        .orWhere("brand.name", "like", "%" + command.getSearch() + "%");
+                })
+                .when(command.getSortBy() != null && command.getSortOrder() != null, query -> {
+                    query.orderBy(command.getSortBy(), command.getSortOrder());
+                });
 
-        List<ProductShortResponse> responses = query
-                .entityManager(entityManager)
-                .objectMapper(objectMapper)
-                .execute(ProductShortResponse.class);
+        long total = queryBuilder.count();
+
+        // Execute and get structured result with pagination
+        int offset = command.getPage() * command.getSize();
+        var data = queryBuilder.get(command.getSize(), offset)
+                .stream()
+                .map(item -> queryBuilder.to(item, ProductShortResponse.class))
+                .collect(Collectors.toList());
 
         return new PaginatedResponse<>(
-                responses,
+                data,
                 command.getPage(),
                 command.getSize(),
-                responses.size());
+                total);
     }
 
     public Product save(Product Product) {

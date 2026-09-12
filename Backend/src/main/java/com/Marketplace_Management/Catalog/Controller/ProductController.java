@@ -24,8 +24,8 @@ import com.Marketplace_Management.Catalog.DTOs.Requests.Product.CreateProductReq
 import com.Marketplace_Management.Catalog.DTOs.Requests.Product.GetListProductRequest;
 import com.Marketplace_Management.Catalog.DTOs.Requests.Product.UpdateProductRequest;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductShortResponse;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductVariantResponse;
-import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
 import com.Marketplace_Management.Shared.Constants.UserRole;
 import com.Marketplace_Management.Shared.Controllers.BaseController;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;

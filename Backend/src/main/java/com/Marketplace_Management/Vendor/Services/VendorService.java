@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class VendorService implements IVendorService {
     private final IFileService fileService;
     private final EntityDomainMapper<Collection, CollectionEntity> collectionMapper;
 
+    @Value ("${spring.application.base-url}")
+    private String baseUrl;
+
     public VendorService(IVendorRepository vendorRepository, CollectionJpaRepository collectionJpaRepository, IEventPublisher eventPublisher, IFileService fileService, EntityDomainMapper<Collection, CollectionEntity> collectionMapper) {
         this.vendorRepository = vendorRepository;
         this.collectionJpaRepository = collectionJpaRepository;
@@ -51,6 +55,7 @@ public class VendorService implements IVendorService {
     public List<VendorResponse> getAll() {
         return vendorRepository.findAll().stream()
                 .map(VendorResponse::new)
+                .map(vendor -> vendor.withUrl(baseUrl))
                 .toList();
     }
     
@@ -197,7 +202,7 @@ public class VendorService implements IVendorService {
         Vendor vendor = vendorRepository.findByUserId(userId)
                 .orElse(null);
 
-        return vendor != null ? new VendorResponse(vendor) : null;
+        return vendor != null ? new VendorResponse(vendor).withUrl(baseUrl) : null;
     }
 
     @Async

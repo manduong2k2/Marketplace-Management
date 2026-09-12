@@ -189,6 +189,34 @@
   background: #c0392b;
 }
 
+.btn-admin-success {
+  padding: 6px 14px;
+  border: #27ae60 1px solid;
+  color: #0a0a0a;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-admin-success:hover {
+  background: #219a52;
+}
+
+.btn-admin-warning {
+  padding: 6px 14px;
+  border: #f39c12 1px solid;
+  color: #0a0a0a;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-admin-warning:hover {
+  background: #e67e22;
+}
+
 .admin-action-btns {
   display: flex;
   gap: 8px;
@@ -387,7 +415,8 @@
 /* override inner form styles so they don't double-box */
 .admin-modal .brand-form-container,
 .admin-modal .category-form-container,
-.admin-modal .product-form-container {
+.admin-modal .product-form-container,
+.admin-modal .vendor-form-container {
   box-shadow: none;
   border-radius: 0;
   max-width: 100%;
@@ -474,7 +503,8 @@
 /* Override inner form container so it fits flush */
 .admin-split-form .brand-form-container,
 .admin-split-form .category-form-container,
-.admin-split-form .product-form-container {
+.admin-split-form .product-form-container,
+.admin-split-form .vendor-form-container {
   box-shadow: none;
   border-radius: 0;
   max-width: 100%;

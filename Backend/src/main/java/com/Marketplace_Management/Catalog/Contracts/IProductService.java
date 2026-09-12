@@ -7,8 +7,8 @@ import com.Marketplace_Management.Catalog.DTOs.Commands.Product.CreateProductCom
 import com.Marketplace_Management.Catalog.DTOs.Commands.Product.GetListProductCommand;
 import com.Marketplace_Management.Catalog.DTOs.Commands.Product.UpdateProductCommand;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductShortResponse;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductVariantResponse;
-import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import java.io.IOException;

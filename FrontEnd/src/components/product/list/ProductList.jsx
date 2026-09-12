@@ -157,10 +157,10 @@ function ProductList({ categoryIds = EMPTY_ARRAY, brandId = null, searchQuery: i
           Name {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
         </button>
         <button
-          className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
-          onClick={() => handleSort('price')}
+          className={`sort-btn ${sortBy === 'variants.price' ? 'active' : ''}`}
+          onClick={() => handleSort('variants.price')}
         >
-          Price {sortBy === 'price' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+          Price {sortBy === 'variants.price' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
         </button>
         <button
           className={`sort-btn ${sortBy === 'updatedAt' ? 'active' : ''}`}

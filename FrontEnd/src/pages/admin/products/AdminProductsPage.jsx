@@ -153,11 +153,11 @@ export default function AdminProductsPage() {
               ) : products.map((prod, idx) => (
                 <tr key={prod.id}>
                   <td>{idx + 1}</td>
-                  <td>{prod.variants[0]?.images?.length > 0 ? <img src={prod.variants[0].images[0]} alt={prod.name} className="admin-table-img" /> : <span className="admin-no-image">—</span>}</td>
+                  <td>{prod.variants[0]?.images?.length > 0 ? <img src={prod.variants[0].images[0].url} alt={prod.name} className="admin-table-img" /> : <span className="admin-no-image">—</span>}</td>
                   <td className="admin-table-name">{prod.name}</td>
                   <td>{priceRange(prod)}</td>
                   <td>{prod.variants?.length}</td>
-                  <td>{prod.brand}</td>
+                  <td>{prod.brand.name}</td>
                   <td>{getStatusBadge(prod.status)}</td>
                   <td>
                     <div className="admin-action-btns">

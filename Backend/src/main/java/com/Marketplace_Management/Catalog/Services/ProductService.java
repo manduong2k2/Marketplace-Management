@@ -19,8 +19,8 @@ import com.Marketplace_Management.Catalog.DTOs.Commands.Product.CreateProductCom
 import com.Marketplace_Management.Catalog.DTOs.Commands.Product.GetListProductCommand;
 import com.Marketplace_Management.Catalog.DTOs.Commands.Product.UpdateProductCommand;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductShortResponse;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductVariantResponse;
-import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
 import com.Marketplace_Management.Catalog.Entities.ProductEntity;
 import com.Marketplace_Management.Catalog.Events.ProductArchivedEvent;
 import com.Marketplace_Management.Catalog.Events.ProductDeletedEvent;
@@ -65,6 +65,10 @@ public class ProductService implements IProductService {
     public PaginatedResponse<ProductShortResponse> getAllProducts(GetListProductCommand command) {
         
         PaginatedResponse<ProductShortResponse> products = productRepository.findAll(command);
+
+        products.getData().forEach(product -> {
+            product.withUrl(baseUrl);
+        });
 
         return new PaginatedResponse<>(
                 products.getData(),

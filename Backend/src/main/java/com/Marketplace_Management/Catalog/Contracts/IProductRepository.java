@@ -3,7 +3,7 @@ package com.Marketplace_Management.Catalog.Contracts;
 import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.DTOs.Commands.Product.GetListProductCommand;
-import com.Marketplace_Management.Catalog.DTOs.Response.Short.ProductShortResponse;
+import com.Marketplace_Management.Catalog.DTOs.Response.ProductShortResponse;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;

@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.Marketplace_Management.Catalog.Models.Product;
@@ -40,9 +41,20 @@ public class ProductResponse {
         this.options = product.getOptions() != null
                 ? product.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList()
                 : null;
-        // this.variants = product.getVariants() != null ?
-        // product.getVariants().stream().map(variant -> new
-        // ProductVariantShortResponse(variant)).toList() : null;
+        this.variants = product.getVariants() != null ? product.getVariants().stream().map(variant -> Variant.builder()
+                .id(variant.getId())
+                .name(variant.getName())
+                .sku(variant.getSku())
+                .stock(variant.getStock())
+                .price(variant.getPrice().getValue())
+                .optionList(variant.getOptionList())
+                .images(variant.getImages() != null
+                        ? variant.getImages().stream()
+                                .map(image -> image.getUrl())
+                                .collect(java.util.stream.Collectors.toSet())
+                        : null)
+                .options(null)
+                .build()).toList() : null;
     }
 
     public ProductResponse withUrl(String url) {
@@ -51,6 +63,7 @@ public class ProductResponse {
     }
 
     @Data
+    @Builder
     private static class Variant {
         private UUID id;
         private String name;
@@ -58,21 +71,11 @@ public class ProductResponse {
         private int stock;
         private double price;
         private String optionList;
-        private Set<Image> images;
+        private Set<String> images;
         private Set<ProductOptionResponse> options;
 
-        @Data
-        private static class Image {
-            private UUID id;
-            private String url;
-
-            public String getUrl() {
-                return url;
-            }
-        }
-
         public Variant withUrl(String url) {
-            this.images.forEach(image -> image.setUrl(url + image.getUrl()));
+            this.images = this.images.stream().map(image -> url + '/' + image).collect(java.util.stream.Collectors.toSet());
             return this;
         }
     }

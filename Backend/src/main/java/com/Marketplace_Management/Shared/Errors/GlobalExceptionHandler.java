@@ -16,104 +16,117 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import com.Marketplace_Management.Marketplace_ManagementApplication;
 import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
+import com.Marketplace_Management.Shared.Errors.Exceptions.DebugException;
 import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-        @Value("${app.debug:false}")
-        private boolean debug;
+	@Value("${app.debug:false}")
+	private boolean debug;
 
-        private static final String BASE_PACKAGE = Marketplace_ManagementApplication.class.getPackageName();
+	private static final String BASE_PACKAGE = Marketplace_ManagementApplication.class.getPackageName();
 
-        @ExceptionHandler(AuthenticationException.class)
-        public ResponseEntity<?> handleAuthentication(AuthenticationException ex) {
-                Map<String, String> errors = new HashMap<>();
-                errors.put("message", ex.getMessage());
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<?> handleAuthentication(AuthenticationException ex) {
+		Map<String, String> errors = new HashMap<>();
+		errors.put("message", ex.getMessage());
 
-                return ResponseEntity
-                                .status(HttpStatus.UNAUTHORIZED)
-                                .body(errors);
-        }
+		return ResponseEntity
+				.status(HttpStatus.UNAUTHORIZED)
+				.body(errors);
+	}
 
-        @ExceptionHandler(AccessDeniedException.class)
-        public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
-                Map<String, String> errors = new HashMap<>();
-                errors.put("message", ex.getMessage());
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
+		Map<String, String> errors = new HashMap<>();
+		errors.put("message", ex.getMessage());
 
-                return ResponseEntity
-                                .status(HttpStatus.FORBIDDEN)
-                                .body(errors);
-        }
+		return ResponseEntity
+				.status(HttpStatus.FORBIDDEN)
+				.body(errors);
+	}
 
-        @ExceptionHandler(ResponseStatusException.class)
-        public ResponseEntity<?> handleResponseStatus(ResponseStatusException ex) {
-                Map<String, String> errors = new HashMap<>();
-                errors.put("message", ex.getReason());
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<?> handleResponseStatus(ResponseStatusException ex) {
+		Map<String, String> errors = new HashMap<>();
+		errors.put("message", ex.getReason());
 
-                return ResponseEntity
-                                .status(ex.getStatusCode())
-                                .body(errors);
-        }
+		return ResponseEntity
+				.status(ex.getStatusCode())
+				.body(errors);
+	}
 
-        @ExceptionHandler(ResourceNotFoundException.class)
-        public ResponseEntity<?> handleResourceNotFound(ResourceNotFoundException ex) {
-                Map<String, String> errors = new HashMap<>();
-                errors.put("message", ex.getMessage());
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<?> handleResourceNotFound(ResourceNotFoundException ex) {
+		Map<String, String> errors = new HashMap<>();
+		errors.put("message", ex.getMessage());
 
-                return ResponseEntity
-                                .status(HttpStatus.NOT_FOUND)
-                                .body(errors);
-        }
+		return ResponseEntity
+				.status(HttpStatus.NOT_FOUND)
+				.body(errors);
+	}
 
-        @ExceptionHandler(BadRequestException.class)
-        public ResponseEntity<?> handleBadRequest(BadRequestException ex) {
-                Map<String, String> errors = new HashMap<>();
-                errors.put("message", ex.getMessage());
+	@ExceptionHandler(DebugException.class)
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<?> handleDebugger(DebugException ex) {
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", ex.getMessage());
+		response.put("payload", ex.getPayload());
 
-                return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(errors);
-        }
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(response);
+	}
 
-        @ExceptionHandler(RuntimeException.class)
-        public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
-                ApiError response = new ApiError(
-                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                ex.getMessage(),
-                                ex.getClass().getName(),
-                                ex.getCause() != null ? ex.getCause().getMessage() : null,
-                                extractFullTrace(ex),
-                                extractAppTrace(ex));
-                return ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(response);
-        }
+	@ExceptionHandler(BadRequestException.class)
+	public ResponseEntity<?> handleBadRequest(BadRequestException ex) {
+		Map<String, String> errors = new HashMap<>();
+		errors.put("message", ex.getMessage());
 
-        @ExceptionHandler(Exception.class)
-        @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-        public ResponseEntity<ApiError> handleAll(Exception ex) {
-                ApiError response = new ApiError(
-                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                ex.getMessage(),
-                                ex.getClass().getName(),
-                                ex.getCause() != null ? ex.getCause().getMessage() : null,
-                                extractFullTrace(ex),
-                                extractAppTrace(ex));
-                return ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(response);
-        }
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(errors);
+	}
 
-        private List<String> extractFullTrace(Exception ex) {
-                return Arrays.stream(ex.getStackTrace())
-                                .map(StackTraceElement::toString)
-                                .toList();
-        }
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+		ApiError response = new ApiError(
+				HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				ex.getMessage(),
+				ex.getClass().getName(),
+				ex.getCause() != null ? ex.getCause().getMessage() : null,
+				extractFullTrace(ex),
+				extractAppTrace(ex));
 
-        private List<String> extractAppTrace(Exception ex) {
-                return Arrays.stream(ex.getStackTrace())
-                                .map(StackTraceElement::toString)
-                                .filter(st -> st.startsWith(BASE_PACKAGE))
-                                .toList();
-        }
+		return ResponseEntity
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(response);
+	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ApiError> handleAll(Exception ex) {
+		ApiError response = new ApiError(
+				HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				ex.getMessage(),
+				ex.getClass().getName(),
+				ex.getCause() != null ? ex.getCause().getMessage() : null,
+				extractFullTrace(ex),
+				extractAppTrace(ex));
+		return ResponseEntity
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(response);
+	}
+
+	private List<String> extractFullTrace(Exception ex) {
+		return Arrays.stream(ex.getStackTrace())
+				.map(StackTraceElement::toString)
+				.toList();
+	}
+
+	private List<String> extractAppTrace(Exception ex) {
+		return Arrays.stream(ex.getStackTrace())
+				.map(StackTraceElement::toString)
+				.filter(st -> st.startsWith(BASE_PACKAGE))
+				.toList();
+	}
 }

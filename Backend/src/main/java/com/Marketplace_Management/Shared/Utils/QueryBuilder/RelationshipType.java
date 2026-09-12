@@ -1,7 +1,6 @@
-package com.Marketplace_Management.Shared.Repositories.QueryBuilder;
+package com.Marketplace_Management.Shared.Utils.QueryBuilder;
 
 public enum RelationshipType {
-
     ONE_TO_ONE,
     ONE_TO_MANY,
     MANY_TO_ONE,

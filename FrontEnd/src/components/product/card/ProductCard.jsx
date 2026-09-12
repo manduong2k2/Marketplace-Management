@@ -10,8 +10,8 @@ function ProductCard({ product, onOpenVariantPopup }) {
   const { name, images, variants } = product;
   
   const imageUrl = variants && variants.length > 0 && variants[0].images && variants[0].images.length > 0
-    ? variants[0].images[0]
-    : (images && images.length > 0 ? images[0] : defaultProductImage);
+    ? variants[0].images[0].url
+    : (images && images.length > 0 ? images[0].url : defaultProductImage);
 
   const prices = variants?.map(v => v.price) ?? [];
 

@@ -32,7 +32,7 @@ public class UserEntity extends UuidEntity {
     @Column(unique = true, columnDefinition = "varchar(255)", nullable = true)
     private String phone;
 
-    @Column(columnDefinition = "varchar(20) default 'INACTIVE'", nullable = true)
+    @Column(name = "status", length = 20, columnDefinition = "varchar(20) default 'INACTIVE'")
     private String status;
 
     @ManyToMany(fetch = FetchType.LAZY)

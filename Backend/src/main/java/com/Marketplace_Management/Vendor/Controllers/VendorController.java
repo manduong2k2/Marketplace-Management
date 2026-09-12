@@ -34,7 +34,6 @@ import com.Marketplace_Management.Vendor.DTOs.Response.CollectionResponse;
 import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
 
 
 
@@ -43,9 +42,6 @@ import org.springframework.beans.factory.annotation.Value;
 public class VendorController extends BaseController{
 
     private final IVendorService vendorService;
-
-    @Value("${spring.application.base-url}")
-    private String baseUrl;
 
     public VendorController(IVendorService vendorService) {
         this.vendorService = vendorService;
@@ -120,7 +116,7 @@ public class VendorController extends BaseController{
     @Authenticated
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getByUser() {
-        VendorResponse vendor = vendorService.getByUser(SecurityUtils.currentUserId()).withUrl(baseUrl);
+        VendorResponse vendor = vendorService.getByUser(SecurityUtils.currentUserId());
 
         return objectResponse(vendor);
     }
