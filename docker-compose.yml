@@ -11,26 +11,6 @@ services:
     networks:
       - store-network
 
-  postgres:
-    image: postgres:18
-    container_name: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: store_management_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/18/docker
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d store_management_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - store-network
-
   rabbitmq:
     image: rabbitmq:4.2.4-management
     container_name: rabbitmq
