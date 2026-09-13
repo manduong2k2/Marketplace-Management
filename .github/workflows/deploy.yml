@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Backend
+        working-directory: Backend
+        run: ./mvnw clean package -DskipTests
+
+      - name: Build Frontend
+        working-directory: FrontEnd
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Restart Backend
+        run: |
+          sudo systemctl restart marketplace-backend
+
+      - name: Reload Nginx
+        run: |
+          sudo nginx -t
+          sudo systemctl reload nginx
