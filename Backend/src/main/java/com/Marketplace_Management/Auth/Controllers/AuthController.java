@@ -50,9 +50,6 @@ public class AuthController {
     private final IAuthService auth;
     private final ICookieService cookieService;
 
-    @Value("${spring.application.auth-domain}")
-    private String authDomain;
-
     @Value("${spring.application.base-url}")
     private String baseUrl;
 
