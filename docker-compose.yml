@@ -1,8 +1,8 @@
 services:
-  # Redis Service
   redis:
     image: redis:latest
     container_name: redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
@@ -11,75 +11,31 @@ services:
     networks:
       - store-network
 
-  # Shared PostgreSQL Database
   postgres:
     image: postgres:18
     container_name: postgres
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_DB=store_management_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: store_management_db
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/18/docker
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d store_management_db"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
       - store-network
 
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: mailpit
-    ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # Web UI
-    networks:
-      - store-network
-
-  # Backend Service
-  backend:
-    build:
-      context: ./Backend
-      dockerfile: Dockerfile
-    container_name: backend
-    ports:
-      - "8083:8083"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/store_management_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - SPRING_MAIL_HOST=mailpit
-      - SPRING_MAIL_PORT=1025
-      - SPRING_MAIL_USERNAME=
-      - SPRING_MAIL_PASSWORD=
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=false
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=false
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=admin
-      - SPRING_RABBITMQ_PASSWORD=admin
-    networks:
-      - store-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      mailpit:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
-
   rabbitmq:
     image: rabbitmq:4.2.4-management
     container_name: rabbitmq
     hostname: rabbitmq
+    restart: unless-stopped
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -91,24 +47,15 @@ services:
     networks:
       - store-network
 
-  # FrontEnd Service
-  frontend:
-    build:
-      context: ./FrontEnd
-      dockerfile: Dockerfile
-    container_name: frontend
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    restart: unless-stopped
     ports:
-      - "5173:5173"
-    volumes:
-      - ./FrontEnd:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - store-network
-    depends_on:
-      - backend
-      - mailpit
 
 volumes:
   postgres-data:
