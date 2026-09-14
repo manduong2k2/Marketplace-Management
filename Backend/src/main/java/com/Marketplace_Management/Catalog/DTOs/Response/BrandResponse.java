@@ -27,7 +27,9 @@ public class BrandResponse {
     }
 
     public BrandResponse withUrl(String url) {
-        this.image =  url + "/" + this.image;
+        if (this.image != null) {
+            this.image = url + "/" + this.image;
+        }
         return this;
     }
 }

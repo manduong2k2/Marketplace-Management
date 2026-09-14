@@ -26,6 +26,9 @@ public class VendorResponse {
     private String phone;
 
     public VendorResponse(Vendor vendor) {
+        if (vendor == null) {
+            return;
+        }
         this.id             = vendor.getId();
         this.userId         = vendor.getUserId();
         this.name           = vendor.getName();
@@ -40,8 +43,12 @@ public class VendorResponse {
     }
 
     public VendorResponse withUrl(String baseUrl) {
-        this.logo = baseUrl + "/" + this.logo;
-        this.banner = baseUrl + "/" + this.banner;
+        if (this.logo != null) {
+            this.logo = baseUrl + "/" + this.logo;
+        }
+        if (this.banner != null) {
+            this.banner = baseUrl + "/" + this.banner;
+        }
         return this;
     }
 }

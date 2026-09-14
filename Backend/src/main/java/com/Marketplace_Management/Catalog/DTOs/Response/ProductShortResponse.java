@@ -59,11 +59,16 @@ public class ProductShortResponse {
     }
 
     public ProductShortResponse withUrl(String url) {
-        this.variants.forEach(variant -> {
-            variant.getImages().forEach(image -> {
-                image.setUrl(url + '/' + image.getUrl());
+        if (this.variants != null) {
+            this.variants.forEach(variant -> {
+                if (variant.getImages() != null) {
+                    variant.getImages().forEach(image -> {
+                        image.setUrl(url + '/' + image.getUrl());
+                    });
+                }
             });
-        });
+        }
+
         return this;
     }
 }

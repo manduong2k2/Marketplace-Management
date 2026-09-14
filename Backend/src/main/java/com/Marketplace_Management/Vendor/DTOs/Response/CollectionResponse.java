@@ -19,6 +19,9 @@ public class CollectionResponse {
     private Integer displayOrder;
     
     public CollectionResponse(Collection collection) {
+        if (collection == null) {
+            return;
+        }
         this.id = collection.getId();
         this.name = collection.getName();
         this.displayOrder = collection.getDisplayOrder();

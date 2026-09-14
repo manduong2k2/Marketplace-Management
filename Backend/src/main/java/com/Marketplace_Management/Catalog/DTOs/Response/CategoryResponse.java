@@ -34,7 +34,12 @@ public class CategoryResponse {
     }
 
     public CategoryResponse withUrl(String url) {
-        this.image = url + "/" + this.image;
+        if (this.image != null) {
+            this.image = url + "/" + this.image;
+        }
+        if (this.children != null) {
+            this.children.forEach(child -> child.withUrl(url));
+        }
         return this;
     }
 }

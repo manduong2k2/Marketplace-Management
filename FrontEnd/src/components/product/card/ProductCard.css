@@ -88,35 +88,18 @@
   background-color: white;
 }
 
-.add-to-cart-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  width: 100%;
-  padding: 4px 5px;
-  background-color: #667eea;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
+.cart {
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 4%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.add-to-cart-btn:hover:not(:disabled) {
-  background-color: #5a67d8;
-  transform: translateY(-1px);
-}
-
-.add-to-cart-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.add-to-cart-btn.loading,
-.add-to-cart-btn:disabled {
-  background-color: #a0aec0;
-  cursor: not-allowed;
+.cart:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* ── Small mobile ── */

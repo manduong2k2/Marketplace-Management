@@ -46,7 +46,7 @@ public class ProductResponse {
                 .name(variant.getName())
                 .sku(variant.getSku())
                 .stock(variant.getStock())
-                .price(variant.getPrice().getValue())
+                .price(variant.getPrice() != null ? variant.getPrice().getValue() : 0.0)
                 .optionList(variant.getOptionList())
                 .images(variant.getImages() != null
                         ? variant.getImages().stream()
@@ -60,7 +60,9 @@ public class ProductResponse {
     }
 
     public ProductResponse withUrl(String url) {
-        this.getVariants().forEach(v -> v.withUrl(url));
+        if (this.getVariants() != null) {
+            this.getVariants().forEach(v -> v.withUrl(url));
+        }
         return this;
     }
 
@@ -79,7 +81,9 @@ public class ProductResponse {
         private Set<ProductOptionResponse> options;
 
         public Variant withUrl(String url) {
-            this.images = this.images.stream().map(image -> url + '/' + image).collect(java.util.stream.Collectors.toSet());
+            if (this.images != null) {
+                this.images = this.images.stream().map(image -> url + '/' + image).collect(java.util.stream.Collectors.toSet());
+            }
             return this;
         }
     }

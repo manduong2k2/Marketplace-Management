@@ -17,6 +17,9 @@ public class ProductOptionResponse {
     private String value;
 
     public ProductOptionResponse(ProductOption option) {
+        if (option == null) {
+            return;
+        }
         this.id = option.getId();
         this.name = option.getName();
         this.value = option.getValue();

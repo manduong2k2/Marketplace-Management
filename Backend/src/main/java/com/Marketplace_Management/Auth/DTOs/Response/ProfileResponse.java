@@ -25,13 +25,18 @@ public class ProfileResponse {
     private LocalDateTime createdAt;
 
     public ProfileResponse(User user) {
+        if (user == null) {
+            return;
+        }
         this.id = user.getId();
         this.email = user.getEmail();
         this.name = user.getName();
         this.avatar = user.getAvatar();
         this.phone = user.getPhone();
         this.status = user.getStatus();
-        this.roles = user.getRoles().stream().map(Role::getName).collect(java.util.stream.Collectors.toSet());
+        this.roles = user.getRoles() != null 
+            ? user.getRoles().stream().map(Role::getName).collect(java.util.stream.Collectors.toSet()) 
+            : null;
         this.createdAt = user.getCreatedAt();
     }
 

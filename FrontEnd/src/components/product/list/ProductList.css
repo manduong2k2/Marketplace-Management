@@ -173,24 +173,20 @@
   border-color: #667eea;
 }
 
-/* Fluid grid — cards fill available space */
+/* Fluid grid — 4 cards per row */
 .product-grid {
   display: grid !important;
   gap: 12px;
-  grid-template-columns: repeat(7, 1fr) !important;
+  grid-template-columns: repeat(4, 1fr) !important;
 }
 
-/* giảm dần theo màn hình */
-@media (max-width: 1400px) {
-  .product-grid { grid-template-columns: repeat(6, 1fr); }
-}
-
+/* Responsive adjustments */
 @media (max-width: 1200px) {
-  .product-grid { grid-template-columns: repeat(5, 1fr); }
+  .product-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 992px) {
-  .product-grid { grid-template-columns: repeat(4, 1fr); }
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {

@@ -8,7 +8,7 @@ function ProductCard({ product, onOpenVariantPopup }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { name, images, variants } = product;
-  
+
   const imageUrl = variants && variants.length > 0 && variants[0].images && variants[0].images.length > 0
     ? variants[0].images[0].url
     : (images && images.length > 0 ? images[0].url : defaultProductImage);
@@ -17,9 +17,9 @@ function ProductCard({ product, onOpenVariantPopup }) {
 
   const minPrice = prices.length ? Math.min(...prices) : 0;
   const maxPrice = prices.length ? Math.max(...prices) : 0;
-  
-  const price = variants && variants.length > 0 ? 
-    minPrice + ' ~ ' + maxPrice : 
+
+  const price = variants && variants.length > 0 ?
+    minPrice + ' ~ ' + maxPrice :
     'N/A';
 
   const handleClick = () => {
@@ -44,17 +44,16 @@ function ProductCard({ product, onOpenVariantPopup }) {
         />
       </div>
 
-      <div className="product-info">
-        <h3 className="product-name">{name}</h3>
-        {price !== 'N/A' && <p className="product-price">${price}</p>}
-        <button
-          className="add-to-cart-btn"
-          onClick={handleAddToCart}
-          title="Add to cart"
-        >
-          <i className="fas fa-cart-plus"></i>
-          <span>Add to cart</span>
-        </button>
+      <div className="product-info pt-3 border-top border-gray my-2">
+        <span className='d-flex gap-3 justify-content-center'>
+          <i onClick={handleAddToCart} 
+            className="cart fas d-flex align-items-center fa-cart-plus">
+          </i>
+          <div className='py-1'>
+              <p className="product-name text-start">{name}</p>
+              {price !== 'N/A' && <p className="product-price">${price}</p>}
+          </div>
+        </span>
       </div>
     </div>
   );

@@ -26,15 +26,18 @@ public class ProductVariantResponse {
     private List<ProductOptionResponse> options;
 
     public ProductVariantResponse(ProductVariant variant) {
+        if (variant == null) {
+            return;
+        }
         this.id = variant.getId();
         this.name = variant.getName();
         this.code = variant.getSku();
         this.stock = variant.getStock();
-        this.price = variant.getPrice().getValue();
+        this.price = variant.getPrice() != null ? variant.getPrice().getValue() : 0.0;
         this.images = variant.getImages() != null ? variant.getImages().stream().map(image -> image.getUrl()).toList() : null;
         this.optionList = variant.getOptionList();
-        this.product = variant != null && variant.getProduct() != null ? new ProductResponse(variant.getProduct()) : null;
-        this.options = variant != null && variant.getOptions() != null ? variant.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;
+        this.product = variant.getProduct() != null ? new ProductResponse(variant.getProduct()) : null;
+        this.options = variant.getOptions() != null ? variant.getOptions().stream().map(option -> new ProductOptionResponse(option)).toList() : null;
     }
 
     public ProductVariantResponse withUrl(String url) {
