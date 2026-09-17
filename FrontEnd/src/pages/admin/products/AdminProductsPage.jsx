@@ -50,13 +50,44 @@ export default function AdminProductsPage() {
 
   const buildFd = (formData, isUpdate = false) => {
     const fd = new FormData();
-    ['name','code','description','price','stock','brandId','status'].forEach(k => fd.append(k, formData[k] ?? ''));
+    ['name','description','brandId','status'].forEach(k => fd.append(k, formData[k] ?? ''));
     formData.categoryIds?.forEach(id => fd.append('categoryIds', id));
-    if (isUpdate) {
-      if (formData.imageUrls?.length > 0) formData.imageUrls.forEach(url => fd.append('imageUrls', url));
-      else fd.append('imageUrls', '');
-    }
-    formData.imageFiles?.forEach(file => fd.append('images', file));
+    
+    // Add options
+    formData.options?.forEach((opt, idx) => {
+      fd.append(`options[${idx}].tempId`, opt.tempId);
+      fd.append(`options[${idx}].name`, opt.name);
+      fd.append(`options[${idx}].value`, opt.value);
+    });
+    
+    // Add variants with images
+    formData.variants?.forEach((var_, idx) => {
+      fd.append(`variants[${idx}].name`, var_.name);
+      fd.append(`variants[${idx}].price`, var_.price);
+      fd.append(`variants[${idx}].stock`, var_.stock);
+      fd.append(`variants[${idx}].sku`, var_.sku);
+      var_.optionIds?.forEach((optId, optIdx) => {
+        fd.append(`variants[${idx}].optionIds[${optIdx}]`, optId);
+      });
+      
+      // Handle variant images
+      if (isUpdate) {
+        // Keep existing image URLs
+        var_.images?.forEach((img, imgIdx) => {
+          if (img.type === 'existing' && img.url) {
+            fd.append(`variants[${idx}].imageUrls[${imgIdx}]`, img.url);
+          }
+        });
+      }
+      
+      // Add new image files
+      var_.images?.forEach((img) => {
+        if (img.type === 'new' && img.file) {
+          fd.append(`variants[${idx}].images`, img.file);
+        }
+      });
+    });
+    
     return fd;
   };
 

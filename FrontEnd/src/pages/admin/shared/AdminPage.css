@@ -406,10 +406,11 @@
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-  max-width: 70%;
+  width: 90%;
+  max-width: 900px;
   max-height: 95vh;
-  overflow-y: auto;
   animation: modalIn 0.25s ease;
+  margin-top: 6%;
 }
 
 /* override inner form styles so they don't double-box */
@@ -422,12 +423,32 @@
   max-width: 100%;
   padding: 20px;
   margin: 0;
+  overflow: hidden;
+}
+
+/* Ensure form sections don't overflow */
+.admin-modal .form-section {
+  overflow-x: auto;
 }
 
 /* Adjust 3-column layout for modal */
 .admin-modal .form-columns {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .admin-modal .form-columns {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-modal .form-columns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .admin-confirm-modal {

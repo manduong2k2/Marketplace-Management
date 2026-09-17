@@ -1,7 +1,6 @@
 package com.Marketplace_Management.Shared.Models;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 import lombok.experimental.SuperBuilder;
 
@@ -38,11 +37,11 @@ public abstract class Entity<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Entity<?> entity = (Entity<?>) o;
-        return Objects.equals(id, entity.id);
+        return id != null && id.equals(entity.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }
