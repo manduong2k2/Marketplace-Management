@@ -60,6 +60,9 @@ public class ProductRepository implements IProductRepository {
                 .with("brand", brand -> {
                     brand.select("id", "name");
                 })
+                .with("categories", categories -> {
+                    categories.select("id", "name");
+                })
                 .with("options", options -> {
                     options.select("id", "name", "value");
                 })
