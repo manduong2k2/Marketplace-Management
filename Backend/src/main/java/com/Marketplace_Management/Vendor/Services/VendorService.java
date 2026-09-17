@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
+import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.Events.EventOptions;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
@@ -62,7 +63,7 @@ public class VendorService implements IVendorService {
     public VendorResponse getById(UUID vendorId) {
         return vendorRepository.findById(vendorId)
                 .map(VendorResponse::new)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
     }
 
     public List<CollectionResponse> getCollections(UUID vendorId) {
@@ -106,8 +107,9 @@ public class VendorService implements IVendorService {
         if (vendorRepository.existsByUserId(command.getUserId()))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Vendor of this user already exists");
 
-        String logoUrl = fileService.uploadFile(command.getLogo(), "vendors/logo");
-        String bannerUrl = fileService.uploadFile(command.getBanner(), "vendors/banner");
+        
+        String logoUrl = command.getLogo() != null && !command.getLogo().isEmpty() ? fileService.uploadFile(command.getLogo(), "vendors/logo") : null;
+        String bannerUrl = command.getBanner() != null && !command.getBanner().isEmpty() ? fileService.uploadFile(command.getBanner(), "vendors/banner") : null;
 
         Vendor vendor = new Vendor(
                 null,
@@ -152,7 +154,7 @@ public class VendorService implements IVendorService {
     @Transactional
     public void active(UUID vendorId) {
         Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
         vendor.activate();
 
@@ -164,7 +166,7 @@ public class VendorService implements IVendorService {
     @Transactional
     public void ban(UUID vendorId) {
         Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
         vendor.ban();
 
@@ -176,7 +178,7 @@ public class VendorService implements IVendorService {
     @Transactional
     public void update(UUID vendorId, UpdateVendorCommand command) {
         Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
         Vendor updated = new Vendor(
                 vendor.getId(),

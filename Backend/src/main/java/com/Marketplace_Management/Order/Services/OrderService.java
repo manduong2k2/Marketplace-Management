@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Cart.Contracts.ICartService;
 import com.Marketplace_Management.Cart.DTOs.Responses.CartResponse;
@@ -25,6 +23,7 @@ import com.Marketplace_Management.Order.Models.ProductSnapShot;
 import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.OrderQueueConfig;
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
 import com.Marketplace_Management.Shared.Events.EventOptions;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
@@ -61,7 +60,7 @@ public class OrderService implements IOrderService{
         CartResponse cartResponse = CartResponse.from(cartService.getByUserId(SecurityUtils.currentUserId()));
         
         if(cartResponse == null || cartResponse.getItems() == null || cartResponse.getItems().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cart not found or empty");
+            throw new BadRequestException("Cart not found or empty");
         }
 
         List<OrderItemCommand> items = new ArrayList<>();

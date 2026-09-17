@@ -116,7 +116,7 @@ public class ProductRepository implements IProductRepository {
             saved.getVariants().forEach(
                     variant -> {
                         if (variant != null && variant.getImages() != null && !variant.getImages().isEmpty()) {
-                            variant.getImages().forEach(image -> image.setEntityId(variant.getId()));
+                            variant.getImages().forEach(image -> image.setEntity(variant));
                         }
 
                         if (variant != null && variant.getOptions() != null && !variant.getOptions().isEmpty()) {

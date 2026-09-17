@@ -9,19 +9,16 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class File extends Entity<UUID>{
     private String url;
-    private String entityType;
-    private UUID entityId;
+    private Object entity;
     
-    public File(UUID id, String url, String entityType, UUID entityId) {
+    public File(UUID id, String url, Object entity) {
         super(id);
         this.url = url;
-        this.entityType = entityType;
-        this.entityId = entityId;
+        this.entity = entity;
     }
 
-    public File(UUID id, String url, String entityType) {
+    public File(UUID id, String url) {
         super(id);
         this.url = url;
-        this.entityType = entityType;
     }
 }

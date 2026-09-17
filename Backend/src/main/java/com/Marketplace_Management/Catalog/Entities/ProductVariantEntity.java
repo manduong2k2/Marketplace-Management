@@ -50,7 +50,7 @@ public class ProductVariantEntity extends UuidEntity{
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "entity_id", referencedColumnName = "id", insertable = false, updatable = false)
-    @SQLRestriction("entity_type = 'ProductVariant'")
+    @SQLRestriction("entity_type = 'com.Marketplace_Management.Catalog.Entities.ProductVariantEntity'")
     private List<FileEntity> images;
 
     @Column(nullable = true)

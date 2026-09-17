@@ -7,10 +7,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Catalog.Contracts.ICategoryRepository;
 import com.Marketplace_Management.Catalog.Contracts.ICategoryService;
@@ -22,6 +20,7 @@ import com.Marketplace_Management.Catalog.Models.Category;
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
+import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
 import com.Marketplace_Management.Shared.Events.EventOptions;
 
 import jakarta.transaction.Transactional;
@@ -126,7 +125,7 @@ public class CategoryService implements ICategoryService {
         }
         
         if(categoryRepository.findById(parentId).get().getId().equals(categoryId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot set parent to its descendants");
+            throw new BadRequestException("Cannot set parent to its descendants");
         }
     }
 

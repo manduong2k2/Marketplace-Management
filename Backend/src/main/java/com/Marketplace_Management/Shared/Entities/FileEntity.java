@@ -2,8 +2,12 @@ package com.Marketplace_Management.Shared.Entities;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.Any;
+import org.hibernate.annotations.AnyKeyJavaClass;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,19 +21,18 @@ public class FileEntity extends UuidEntity {
     @Column(nullable = false)
     private String url;
 
-    @Column(name = "entity_id", nullable = true)
-    private UUID entityId;
-
-    @Column(name = "entity_type", nullable = false)
-    private String entityType;
+    @Any
+    @Column(name = "entity_type", columnDefinition = "VARCHAR(255)")
+    @JoinColumn(name = "entity_id")
+    @AnyKeyJavaClass(UUID.class)
+    private Object entity;
 
     public FileEntity() {
     }
 
-    public FileEntity(UUID id, String url, String entityType, UUID entityId) {
+    public FileEntity(UUID id, String url, Object entity) {
         this.setId(id);
         this.url = url;
-        this.entityType = entityType;
-        this.entityId = entityId;
+        this.entity = entity;
     }
 }

@@ -9,9 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Catalog.Constants.ProductStatusEnum;
 import com.Marketplace_Management.Catalog.Contracts.IProductRepository;
@@ -81,7 +79,7 @@ public class ProductService implements IProductService {
     @Cacheable(value = "product", key = "#ProductId")
     public ProductResponse getProduct(UUID ProductId) {
         Product product = productRepository.findById(ProductId);
-
+        
         if (product == null) {
             throw new ResourceNotFoundException("Product not found");
         }
@@ -102,7 +100,7 @@ public class ProductService implements IProductService {
         if(command.getVendorId() == null) {
             VendorResponse vendor = vendorService.getByUser(SecurityUtils.currentUserId());
             if(vendor == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vendor not found");
+                throw new ResourceNotFoundException("Vendor not found");
             }
             command.setVendorId(vendor.getId());
         }
@@ -125,7 +123,7 @@ public class ProductService implements IProductService {
                             .images(variant.getImages() != null ? variant.getImages().stream().map(img -> {
                                 try {
                                     String imageUrl = fileService.uploadFile(img, "catalog/product_variants");
-                                    File file = new File(null, imageUrl, "ProductVariant");
+                                    File file = new File(null, imageUrl);
                                     return file;
                                 } catch (IOException e) {
                                     throw new RuntimeException("Failed to upload file", e);

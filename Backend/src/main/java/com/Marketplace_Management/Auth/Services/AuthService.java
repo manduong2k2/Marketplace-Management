@@ -8,13 +8,11 @@ import java.util.UUID;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Constants.UserStatus;
@@ -34,6 +32,8 @@ import com.Marketplace_Management.Auth.Models.Role;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Shared.Constants.UserRole;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
+import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
+import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 import com.Marketplace_Management.Shared.Security.JwtService;
 
 @Service
@@ -66,7 +66,8 @@ public class AuthService implements IAuthService {
             .status(UserStatus.DEFAULT)
             .build();
 
-        Role userRole = this.roleRepo.findByCode("USER").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.ROLE_NOT_FOUND));
+        Role userRole = this.roleRepo.findByCode("USER").orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
+        
         Set<Role> roles = new java.util.HashSet<Role>();
 
         roles.add(userRole);
@@ -83,11 +84,11 @@ public class AuthService implements IAuthService {
     @CacheEvict(value = "users", key = "#command.email")
     public AuthResponse activeUser(ActivateUserCommand command) {
         var user = repo.findByEmail(command.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
 
         boolean isVerified = emailVerificationTokenService.verify(command.getEmail(), command.getToken());
         if (!isVerified) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Message.TOKEN_INVALID);
+            throw new BadRequestException(Message.TOKEN_INVALID);
         }
 
         user.setStatus(UserStatus.ACTIVE);
@@ -140,10 +141,10 @@ public class AuthService implements IAuthService {
     public AuthResponse refreshToken(RefreshTokenCommand command) {
         var claims = tokenService.verifyToken(command.getRefreshToken());
         if (claims == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Message.TOKEN_INVALID);
+            throw new BadRequestException(Message.TOKEN_INVALID);
 
         var user = repo.findById(UUID.fromString(claims.getSubject()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
 
         return new AuthResponse(tokenService.generateAccessToken(user),
                 tokenService.generateRefreshToken(user),
@@ -169,11 +170,11 @@ public class AuthService implements IAuthService {
     @CacheEvict(value = "users", key = "#command.email")
     public boolean resetPassword(ResetPasswordCommand command) {
         var user = repo.findByEmail(command.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
 
         boolean isVerified = emailVerificationTokenService.verify(command.getEmail(), command.getToken());
         if (!isVerified) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Message.TOKEN_INVALID);
+            throw new BadRequestException(Message.TOKEN_INVALID);
         }
 
         user.setPassword(encoder.encode(command.getNewPassword()));
@@ -188,14 +189,14 @@ public class AuthService implements IAuthService {
     @Cacheable(value = "users", key = "#userId")
     public User getUserById(UUID userId) {
         return repo.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
     }
 
     @Transactional
     @CacheEvict(value = "users", key = "#userId")
     public void updateProfile(UUID userId, UpdateProfileCommand command) throws IOException {
         var user = repo.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
         user.setName(command.getName());
         user.setPhone(command.getPhone().isBlank() ? user.getPhone() : command.getPhone());
         if(command.getAvatar() != null) {
@@ -209,10 +210,10 @@ public class AuthService implements IAuthService {
     @CacheEvict(value = "users", key = "#userId")
     public void grantRole(UUID userId, String role) {
         var user = repo.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
 
         var roleEntity = roleRepo.findByCode(role)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.ROLE_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
         user.getRoles().add(roleEntity);
         repo.save(user);
     }
@@ -221,10 +222,10 @@ public class AuthService implements IAuthService {
     @CacheEvict(value = "users", key = "#userId")
     public void revokeRole(UUID userId, String role) {
         var user = repo.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
 
         var roleEntity = roleRepo.findByCode(role)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Message.ROLE_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
         user.getRoles().remove(roleEntity);
         repo.save(user);
     }
