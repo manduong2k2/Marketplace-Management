@@ -22,6 +22,7 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
     private Class<?> type;
     private String deletedAtColumn;
     private String whereClause;
+    private String except;
 
     @Override
     public void initialize(Unique unique) {
@@ -30,22 +31,24 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
         this.type = unique.type();
         this.deletedAtColumn = unique.deletedAtColumn();
         this.whereClause = unique.whereClause();
+        this.except = unique.except();
         this.when = unique.when();
     }
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
-        if(!when) {
+        if (!when) {
             return true;
         }
 
-        if (value == null) return true;
-        
-        if(type == String.class) {
+        if (value == null)
+            return true;
+
+        if (type == String.class) {
             value = value.toString();
         }
 
-        if(type == UUID.class) {
+        if (type == UUID.class) {
             value = UUID.fromString(value.toString());
         }
 
@@ -54,14 +57,19 @@ public class UniqueValidator implements ConstraintValidator<Unique, Object> {
         if (deletedAtColumn != null && !deletedAtColumn.isBlank()) {
             sql += " AND " + deletedAtColumn + " IS NULL";
         }
-        
+
         if (whereClause != null && !whereClause.isBlank()) {
             sql += " AND (" + whereClause + ")";
         }
 
-        Number count = (Number) em.createNativeQuery(sql)
-                .setParameter("value", value)
-                .getSingleResult();
+        var query = em.createNativeQuery(sql)
+                .setParameter("value", value);
+
+        if (!except.isBlank()) {
+            query.setParameter("except", except);
+        }
+
+        Number count = (Number) query.getSingleResult();
 
         return count.intValue() == 0;
     }

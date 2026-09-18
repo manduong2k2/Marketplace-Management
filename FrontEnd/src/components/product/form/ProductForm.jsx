@@ -1,5 +1,5 @@
 // src/components/product/form/ProductForm.jsx
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import CategoryTreeSelect from '../../category/tree/CategoryTreeSelect';
 import './ProductForm.css';
 
@@ -25,6 +25,7 @@ export default function ProductForm({
       ...v,
       tempId: v.tempId || Date.now() + Math.random(),
       images: v.images || [],
+      optionIds: v.optionIds || [],
     })) || [
       {
         tempId: Date.now(),
@@ -42,6 +43,71 @@ export default function ProductForm({
   const [nextOptionTempId, setNextOptionTempId] = useState(
     product?.options?.length || 0
   );
+
+  // Update form data when product prop changes
+  useEffect(() => {
+    console.log('ProductForm useEffect triggered, product:', product);
+    if (product) {
+      // Map options from API with tempId (0, 1, 2...)
+      const mappedOptions = product.options?.map((opt, idx) => ({
+        tempId: idx,
+        name: opt.name || '',
+        value: opt.value || '',
+      })) || [];
+
+      console.log('Mapped options:', mappedOptions);
+
+      // Map variants from API response
+      const mappedVariants = product.variants?.map((v) => {
+        // Extract optionIds by matching variant.options to mappedOptions by name
+        const variantOptionIds = v.options?.map((varOpt) =>
+          mappedOptions.findIndex(o => o.name === varOpt.name)
+        ).filter(idx => idx !== -1) || [];
+
+        return {
+          tempId: v.id || Date.now() + Math.random(),
+          name: v.name || '',
+          price: v.price ?? '',
+          stock: v.stock ?? '',
+          sku: v.sku || '',
+          optionIds: variantOptionIds,
+          // Map variant images (they're URLs from API)
+          images: Array.isArray(v.images)
+            ? v.images.map((url) => ({
+                type: 'existing',
+                url: url
+              }))
+            : [],
+        };
+      }) || [];
+
+      console.log('Mapped variants:', mappedVariants);
+
+      const newFormData = {
+        name: product.name || '',
+        description: product.description || '',
+        brandId: product.brandId || product.brand?.id || '',
+        categoryIds: product.categoryIds || product.categories?.map((c) => c.id) || [],
+        status: product.status || defaultStatus,
+        options: mappedOptions,
+        variants: mappedVariants.length > 0 ? mappedVariants : [
+          {
+            tempId: Date.now(),
+            name: '',
+            price: '',
+            stock: '',
+            sku: '',
+            optionIds: [],
+            images: [],
+          },
+        ],
+      };
+
+      console.log('Setting form data:', newFormData);
+      setFormData(newFormData);
+      setNextOptionTempId(product.options?.length || 0);
+    }
+  }, [product, defaultStatus]);
 
   // Store file input refs for each variant
   const variantFileInputRefs = useRef({});
@@ -584,7 +650,7 @@ export default function ProductForm({
                           <label key={option.tempId} className="option-checkbox">
                             <input
                               type="checkbox"
-                              checked={variant.optionIds.includes(option.tempId)}
+                              checked={(variant.optionIds || []).includes(option.tempId)}
                               onChange={() =>
                                 handleVariantOptionToggle(idx, option.tempId)
                               }

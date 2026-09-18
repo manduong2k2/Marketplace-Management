@@ -38,9 +38,9 @@ public class BrandService implements IBrandService {
     }
 
     public PaginatedResponse<BrandResponse> getAllBrands(GetListBrandCommand command) {
-        PaginatedResponse<Brand> brands = brandRepository.findAll(command);
+        PaginatedResponse<BrandResponse> brands = brandRepository.findAll(command);
         List<BrandResponse> brandResponses = brands.getData().stream()
-                .map(brand -> new BrandResponse(brand).withUrl(baseUrl))
+                .map(brand -> brand.withUrl(baseUrl))
                 .toList();
         return new PaginatedResponse<>(
                 brandResponses,

@@ -18,6 +18,7 @@ public class BrandResponse {
     private String name;
     private String image;
     private String description;
+    private long productCount = 0;
 
     public BrandResponse(Brand brand) {
         this.id = brand.getId();

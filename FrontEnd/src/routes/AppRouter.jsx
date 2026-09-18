@@ -21,6 +21,8 @@ import AdminBrandsPage from '../pages/admin/brands/AdminBrandsPage';
 import AdminCategoriesPage from '../pages/admin/categories/AdminCategoriesPage';
 import AdminProductsPage from '../pages/admin/products/AdminProductsPage';
 import AdminProductDetailPage from '../pages/admin/products/AdminProductDetailPage';
+import AdminProductCreatePage from '../pages/admin/products/AdminProductCreatePage';
+import AdminProductEditPage from '../pages/admin/products/AdminProductEditPage';
 import AdminVendorsPage from '../pages/admin/vendors/AdminVendorsPage';
 
 import ProductDetailPage from '../pages/product/ProductDetailPage';
@@ -85,6 +87,8 @@ export default function AppRouter() {
             <Route path="/admin/brands" element={<AdminBrandsPage />} />
             <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             <Route path="/admin/products" element={<AdminProductsPage />} />
+            <Route path="/admin/products/create" element={<AdminProductCreatePage />} />
+            <Route path="/admin/products/edit/:id" element={<AdminProductEditPage />} />
             <Route path="/admin/products/:id" element={<AdminProductDetailPage />} />
             <Route path="/admin/vendors" element={<AdminVendorsPage />} />
             <Route path="/admin/orders" element={<AdminOrderHistoryPage />} />

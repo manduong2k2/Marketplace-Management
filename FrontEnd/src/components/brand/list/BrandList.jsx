@@ -8,32 +8,24 @@ export default function BrandList({ selectedBrandId, onSelectBrand }) {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const carouselRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const sliderTrackRef = useRef(null);
 
   useEffect(() => {
     fetchBrands();
   }, []);
 
   useEffect(() => {
-    const carousel = carouselRef.current;
-    if (carousel) {
-      const checkScroll = () => {
-        setCanScrollLeft(carousel.scrollLeft > 0);
-        setCanScrollRight(carousel.scrollWidth > carousel.scrollLeft + carousel.clientWidth);
-      };
-      checkScroll();
-      carousel.addEventListener('scroll', checkScroll);
-      return () => carousel.removeEventListener('scroll', checkScroll);
-    }
+    window.addEventListener('resize', updateSliderPosition);
+    return () => window.removeEventListener('resize', updateSliderPosition);
   }, [brands]);
 
   const fetchBrands = async () => {
     try {
       setLoading(true);
       const response = await brandService.getAll();
-      setBrands(response.data.data || response);
+      const brandsData = response.data?.data || response;
+      setBrands(brandsData);
     } catch (err) {
       setError('Cannot load brands');
     } finally {
@@ -41,28 +33,68 @@ export default function BrandList({ selectedBrandId, onSelectBrand }) {
     }
   };
 
-  const getScrollAmount = () => {
-    const carousel = carouselRef.current;
-    if (!carousel) return 0;
-    return carousel.offsetWidth;
+  const getVisibleCards = () => {
+    const width = window.innerWidth;
+    if (width <= 480) return 1;
+    if (width <= 768) return 2;
+    if (width <= 1024) return 3;
+    return 4;
   };
 
-  const scrollLeft = () => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+  const updateSliderPosition = () => {
+    const visibleCards = getVisibleCards();
+    const maxIndex = Math.max(0, brands.length - visibleCards);
+    if (currentIndex > maxIndex) {
+      setCurrentIndex(maxIndex);
     }
   };
 
-  const scrollRight = () => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
     }
   };
+
+  const handleNext = () => {
+    const visibleCards = getVisibleCards();
+    if (currentIndex < brands.length - visibleCards) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const visibleCards = getVisibleCards();
+  const maxIndex = Math.max(0, brands.length - visibleCards);
+  const canGoLeft = currentIndex > 0;
+  const canGoRight = currentIndex < maxIndex;
 
   return (
-    <div className="brand-list-container user-view">
-      <div className="list-header">
-        <h2>Brands</h2>
+    <div className="brand-list-container">
+      <div className="showcase-header">
+        <div className="header-title-wrap">
+          <h2>
+            <i className="fa-solid fa-tags"></i> Featured Brands
+          </h2>
+          <p>Explore top brands with thousands of quality products</p>
+        </div>
+
+        <div className="slider-controls">
+          <button 
+            className="nav-btn" 
+            onClick={handlePrevious}
+            disabled={!canGoLeft}
+            aria-label="Previous brands"
+          >
+            <i className="fa-solid fa-chevron-left"></i>
+          </button>
+          <button 
+            className="nav-btn" 
+            onClick={handleNext}
+            disabled={!canGoRight}
+            aria-label="Next brands"
+          >
+            <i className="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -81,32 +113,39 @@ export default function BrandList({ selectedBrandId, onSelectBrand }) {
           <p>Please check back later</p>
         </div>
       ) : (
-        <div className="brand-carousel-wrapper">
-          <button
-            className={`scroll-button scroll-left ${!canScrollLeft ? 'disabled' : ''}`}
-            onClick={scrollLeft}
-            disabled={!canScrollLeft}
-          >
-            ‹
-          </button>
-          <div className="brand-carousel" ref={carouselRef}>
-            {brands.map(brand => (
-              <BrandCard
-                key={brand.id}
-                brand={brand}
-                selected={selectedBrandId === brand.id}
-                onSelect={onSelectBrand}
-              />
-            ))}
+        <>
+          <div className="slider-viewport">
+            <div 
+              className="slider-track" 
+              ref={sliderTrackRef}
+              style={{
+                transform: `translateX(calc(-${currentIndex * (100 / visibleCards)}% - ${currentIndex * (20 / visibleCards)}px))`
+              }}
+            >
+              {brands.map(brand => (
+                <BrandCard
+                  key={brand.id}
+                  brand={brand}
+                  selected={selectedBrandId === brand.id}
+                  onSelect={onSelectBrand}
+                />
+              ))}
+            </div>
           </div>
-          <button
-            className={`scroll-button scroll-right ${!canScrollRight ? 'disabled' : ''}`}
-            onClick={scrollRight}
-            disabled={!canScrollRight}
-          >
-            ›
-          </button>
-        </div>
+
+          {/* Pagination Dots */}
+          {maxIndex > 0 && (
+            <div className="slider-pagination">
+              {Array.from({ length: maxIndex + 1 }, (_, i) => (
+                <div
+                  key={i}
+                  className={`dot ${i === currentIndex ? 'active' : ''}`}
+                  onClick={() => setCurrentIndex(i)}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

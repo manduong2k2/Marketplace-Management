@@ -1,24 +1,16 @@
 // src/pages/admin/products/AdminProductsPage.jsx
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { productService } from '../../../services/productService';
-import { brandService } from '../../../services/brandService';
-import { categoryService } from '../../../services/categoryService';
-import ProductForm from '../../../components/product/form/ProductForm';
 import '../shared/AdminPage.css';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminProductsPage() {
   useEffect(() => { document.title = 'Admin - Products'; }, []);
 
+  const navigate = useNavigate();
   const [products, setProducts]         = useState([]);
-  const [brands, setBrands]             = useState([]);
-  const [categories, setCategories]     = useState([]);
-  const [statuses, setStatuses]         = useState([]);
   const [loading, setLoading]           = useState(true);
-  const [submitting, setSubmitting]     = useState(false);
   const [error, setError]               = useState(null);
-  const [modal, setModal]               = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [searchQuery, setSearchQuery]   = useState('');
   const [sortBy, setSortBy]             = useState('name');
@@ -33,91 +25,20 @@ export default function AdminProductsPage() {
       setLoading(true);
       const params = { page: pagination.currentPage, size: pagination.pageSize, sortBy, sortOrder };
       if (searchQuery.trim()) params.search = searchQuery.trim();
-      const [prodRes, brandRes, catRes, statusRes] = await Promise.all([
-        productService.getAll(params), brandService.getAll(),
-        categoryService.getAll(), productService.getStatuses(),
-      ]);
+      const prodRes = await productService.getAll(params);
       setProducts(prodRes.data?.data || []);
       setPagination(prodRes.data?.pagination || pagination);
-      setBrands(brandRes.data?.data || []);
-      setCategories(catRes.data?.data || []);
-      setStatuses(statusRes.data?.data || []);
     } catch { setError('Failed to load data.'); }
     finally  { setLoading(false); }
   };
 
   useEffect(() => { fetchAll(); }, [pagination.currentPage, searchQuery, sortBy, sortOrder]);
 
-  const buildFd = (formData, isUpdate = false) => {
-    const fd = new FormData();
-    ['name','description','brandId','status'].forEach(k => fd.append(k, formData[k] ?? ''));
-    formData.categoryIds?.forEach(id => fd.append('categoryIds', id));
-    
-    // Add options
-    formData.options?.forEach((opt, idx) => {
-      fd.append(`options[${idx}].tempId`, opt.tempId);
-      fd.append(`options[${idx}].name`, opt.name);
-      fd.append(`options[${idx}].value`, opt.value);
-    });
-    
-    // Add variants with images
-    formData.variants?.forEach((var_, idx) => {
-      fd.append(`variants[${idx}].name`, var_.name);
-      fd.append(`variants[${idx}].price`, var_.price);
-      fd.append(`variants[${idx}].stock`, var_.stock);
-      fd.append(`variants[${idx}].sku`, var_.sku);
-      var_.optionIds?.forEach((optId, optIdx) => {
-        fd.append(`variants[${idx}].optionIds[${optIdx}]`, optId);
-      });
-      
-      // Handle variant images
-      if (isUpdate) {
-        // Keep existing image URLs
-        var_.images?.forEach((img, imgIdx) => {
-          if (img.type === 'existing' && img.url) {
-            fd.append(`variants[${idx}].imageUrls[${imgIdx}]`, img.url);
-          }
-        });
-      }
-      
-      // Add new image files
-      var_.images?.forEach((img) => {
-        if (img.type === 'new' && img.file) {
-          fd.append(`variants[${idx}].images`, img.file);
-        }
-      });
-    });
-    
-    return fd;
-  };
-
   const priceRange = (prod) => {
     if (!prod.variants?.length) return 'N/A';
     const prices = prod.variants.map(v => v.price);
     const min = Math.min(...prices), max = Math.max(...prices);
     return min === max ? `$${min.toLocaleString('en-US')}` : `$${min.toLocaleString('en-US')} – $${max.toLocaleString('en-US')}`;
-  };
-
-  const handleCreate = async (formData) => {
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API_URL}/api/products`, { method: 'POST', credentials: 'include', body: buildFd(formData) });
-      const data = await res.json();
-      if (res.ok && data.success) { window.showSuccess('Product created successfully'); setModal(null); setPagination(p => ({ ...p, currentPage: 0 })); fetchAll(); }
-      else return data.errors || { _: data.message || 'Failed to create product' };
-    } catch { window.showError('Server connection error'); }
-    finally   { setSubmitting(false); }
-  };
-
-  const handleUpdate = async (formData) => {
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API_URL}/api/products/${modal.product.id}`, { method: 'PUT', credentials: 'include', body: buildFd(formData, true) });
-      const data = await res.json();
-      if (res.ok && data.success) { window.showSuccess('Product updated successfully'); setModal(null); fetchAll(); }
-      else return data.errors || { _: data.message || 'Failed to update product' };
-    } catch { window.showError('Server connection error'); }
-    finally   { setSubmitting(false); }
   };
 
   const handleDelete = async () => {
@@ -149,7 +70,7 @@ export default function AdminProductsPage() {
           {pagination.totalElements > 0 && (
             <span className="pagination-info">Page {pagination.currentPage + 1}/{pagination.totalPages} ({pagination.totalElements} total)</span>
           )}
-          <button className="btn-admin-primary" onClick={() => setModal('create')}>+ Add New</button>
+          <button className="btn-admin-primary" onClick={() => navigate('/admin/products/create')}>+ Add New</button>
         </div>
       </div>
 
@@ -192,7 +113,7 @@ export default function AdminProductsPage() {
                   <td>{getStatusBadge(prod.status)}</td>
                   <td>
                     <div className="admin-action-btns">
-                      <button className="btn-admin-edit"   onClick={() => setModal({ mode: 'edit', product: prod })}>✏️ Edit</button>
+                      <button className="btn-admin-edit"   onClick={() => navigate(`/admin/products/edit/${prod.id}`)}>✏️ Edit</button>
                       <button className="btn-admin-delete" onClick={() => setDeleteTarget(prod)}>🗑️ Delete</button>
                     </div>
                   </td>
@@ -211,22 +132,6 @@ export default function AdminProductsPage() {
               <button className="btn-admin-secondary" disabled={!pagination.hasNext} onClick={() => setPagination(p => ({ ...p, currentPage: p.currentPage + 1 }))}>Next</button>
             </div>
           )}
-        </div>
-      )}
-
-      {modal === 'create' && (
-        <div className="admin-modal-overlay" onClick={() => setModal(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <ProductForm brands={brands} categories={categories} statuses={statuses} onSubmit={handleCreate} onCancel={() => setModal(null)} loading={submitting} />
-          </div>
-        </div>
-      )}
-
-      {modal?.mode === 'edit' && (
-        <div className="admin-modal-overlay" onClick={() => setModal(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <ProductForm product={modal.product} brands={brands} categories={categories} statuses={statuses} onSubmit={handleUpdate} onCancel={() => setModal(null)} loading={submitting} />
-          </div>
         </div>
       )}
 

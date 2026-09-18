@@ -3,9 +3,15 @@ import { cartService } from '../../../services/cartService';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { CartContext } from '../../../contexts/CartContext';
 import { showSuccess, showError } from '../../master/popup';
-import defaultProductImage from '../../../assets/product.png';
 import { useNavigate } from 'react-router-dom';
 import './ProductVariantPopup.css';
+
+// Fallback images for localhost URLs
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80"
+];
 
 function ProductVariantPopup({ product, onClose }) {
   const { user } = useContext(AuthContext);
@@ -18,6 +24,7 @@ function ProductVariantPopup({ product, onClose }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
+  const [isWishlist, setIsWishlist] = useState(false);
   
   // Group options by name
   const groupedOptions = product.options ? product.options.reduce((acc, option) => {
@@ -28,21 +35,37 @@ function ProductVariantPopup({ product, onClose }) {
     return acc;
   }, {}) : {};
 
-  // Initialize selected options as empty (no options selected by default)
+  // Initialize selected options
   const [selectedOptions, setSelectedOptions] = useState({});
 
-  const images = selectedVariant?.images || [];
-  const currentImage = images[currentImageIndex] || defaultProductImage;
+  // Get images with fallback handling
+  const getValidImageUrl = (url) => {
+    if (!url) return FALLBACK_IMAGES[0];
+    // Don't filter localhost - let it try to load and fallback via onError
+    return url;
+  };
+
+  const getImages = () => {
+    if (selectedVariant?.images && Array.isArray(selectedVariant.images)) {
+      return selectedVariant.images.map(img => {
+        // Handle both string URLs and objects with url property
+        const urlString = typeof img === 'string' ? img : img.url;
+        return getValidImageUrl(urlString);
+      });
+    }
+    return [FALLBACK_IMAGES[0]];
+  };
+
+  const images = getImages();
+  const currentImage = images[currentImageIndex];
 
   const price = selectedVariant?.price || 0;
   const stock = selectedVariant?.stock || 0;
-  const amount = price * stock;
 
   // Find variant based on selected options
   const findVariantByOptions = (options) => {
     if (!product.variants || product.variants.length === 0) return null;
     
-    // If no options selected, return first variant
     if (Object.keys(options).length === 0) {
       return product.variants[0];
     }
@@ -51,10 +74,9 @@ function ProductVariantPopup({ product, onClose }) {
     const optionListString = optionIds.join(', ');
     
     const matchingVariant = product.variants.find(variant => {
-      // Handle different formats: "31, 32", "31,32", "31 32"
       const variantOptionList = variant.optionList || '';
       const variantOptionIds = variantOptionList
-        .split(/[, ]+/) // Split by comma or space
+        .split(/[, ]+/)
         .map(id => parseInt(id.trim()))
         .filter(id => !isNaN(id))
         .sort((a, b) => a - b);
@@ -66,11 +88,10 @@ function ProductVariantPopup({ product, onClose }) {
   };
 
   const handleOptionChange = (optionName, optionId) => {
-    // Toggle: if clicking the same option, unselect it
     const newSelectedOptions = { ...selectedOptions };
     const currentSelected = newSelectedOptions[optionName];
     
-    if (currentSelected == optionId) { // Use == for loose comparison to handle string/number mismatch
+    if (currentSelected == optionId) {
       delete newSelectedOptions[optionName];
     } else {
       newSelectedOptions[optionName] = optionId;
@@ -84,25 +105,6 @@ function ProductVariantPopup({ product, onClose }) {
     }
   };
 
-  const handlePreviousImage = () => {
-    if (images.length > 0) {
-      setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
-    }
-  };
-
-  const handleNextImage = () => {
-    if (images.length > 0) {
-      setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
-    }
-  };
-
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value >= 1 && value <= (selectedVariant?.stock || 0)) {
-      setQuantity(value);
-    }
-  };
-
   const handleQuantityDecrease = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -110,7 +112,7 @@ function ProductVariantPopup({ product, onClose }) {
   };
 
   const handleQuantityIncrease = () => {
-    if (quantity < (selectedVariant?.stock || 0)) {
+    if (quantity < stock) {
       setQuantity(quantity + 1);
     }
   };
@@ -148,75 +150,101 @@ function ProductVariantPopup({ product, onClose }) {
     }
   };
 
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Prevent infinite loop
+    const currentIndex = images.indexOf(e.target.src);
+    if (currentIndex !== -1 && currentIndex < FALLBACK_IMAGES.length) {
+      // If there's a fallback for this index, use it
+      e.target.src = FALLBACK_IMAGES[currentIndex % FALLBACK_IMAGES.length];
+    } else {
+      // Otherwise use the first fallback
+      e.target.src = FALLBACK_IMAGES[0];
+    }
+  };
+
   return (
-    <div className="variant-popup-overlay" onClick={onClose}>
-      <div className="variant-popup-content" onClick={(e) => e.stopPropagation()}>
-        <button className="variant-popup-close" onClick={onClose}>✕</button>
-        
-        <div className="variant-popup-body">
-          {/* Image Slider */}
-          <div className="variant-image-section">
-            <div className="variant-main-image">
-              <img
-                src={currentImage}
-                alt={selectedVariant?.name || product.name}
-                onError={(e) => { e.target.src = defaultProductImage; }}
+    <div className="modal-overlay active" onClick={onClose}>
+      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+        <button className="btn-close" onClick={onClose} title="Close modal">
+          <i className="fa-solid fa-xmark"></i>
+        </button>
+
+        <div className="product-modal-grid">
+          {/* Gallery Column */}
+          <div className="product-gallery">
+            <div className="main-image-wrap">
+              <img 
+                id="modalMainImg" 
+                src={currentImage} 
+                alt="Product Preview" 
+                onError={handleImageError}
               />
-              {images.length > 1 && (
-                <>
-                  <button className="image-nav-btn prev" onClick={handlePreviousImage}>‹</button>
-                  <button className="image-nav-btn next" onClick={handleNextImage}>›</button>
-                </>
-              )}
             </div>
             {images.length > 1 && (
-              <div className="variant-thumbnail-gallery">
-                {images.map((img, idx) => (
+              <div className="gallery-thumbnails">
+                {images.map((imgUrl, idx) => (
                   <div
                     key={idx}
-                    className={`variant-thumbnail ${idx === currentImageIndex ? 'active' : ''}`}
+                    className={`thumb-item ${idx === currentImageIndex ? 'active' : ''}`}
                     onClick={() => setCurrentImageIndex(idx)}
                   >
-                    <img src={img} alt={`${product.name} ${idx + 1}`} />
+                    <img 
+                      src={imgUrl} 
+                      alt={`Thumbnail ${idx + 1}`}
+                      onError={handleImageError}
+                    />
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Product Info */}
-          <div className="variant-info-section">
-            <h2 className="variant-product-name">{product.name}</h2>
-            {selectedVariant && (
-              <p className="variant-name">{selectedVariant.name}</p>
-            )}
-            
-            <div className="variant-price-stock">
-              <p className="variant-price">${Number(price).toLocaleString('en-US')}</p>
-              <p className={`variant-stock ${stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
-                {stock > 0 ? `${stock} in stock` : 'Out of stock'}
-              </p>
+          {/* Product Info Column */}
+          <div className="product-details">
+            <div className="header-meta">
+              <span className="brand-badge">{product.brand?.name || 'Brand'}</span>
+              <span className={`status-badge ${product.status?.toLowerCase() === 'published' ? 'published' : 'draft'}`}>
+                <span className="dot"></span>
+                <span>{product.status || 'DRAFT'}</span>
+              </span>
             </div>
 
-            <div className="variant-amount-section">
-              <span className="amount-label">Total Amount (Price × Stock):</span>
-              <span className="amount-value">${Number(amount).toLocaleString('en-US')}</span>
+            <h2 className="product-title">{product.name}</h2>
+
+            <div className="price-stock-row">
+              <div className="product-price">${parseFloat(price).toFixed(2)}</div>
+              <div className={`stock-tag ${stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                {stock > 0 ? `${stock} in stock` : 'Out of Stock'}
+              </div>
             </div>
 
             {/* Options Section */}
             {Object.keys(groupedOptions).length > 0 && (
-              <div className="variant-options-section">
+              <div className="options-wrapper">
                 {Object.entries(groupedOptions).map(([optionName, options]) => (
                   <div key={optionName} className="option-group">
-                    <h4 className="option-label">{optionName}</h4>
-                    <div className="option-values">
+                    <div className="option-title">
+                      <span>{optionName}</span>
+                      <span className="option-selected-val">
+                        {selectedOptions[optionName] 
+                          ? options.find(o => o.id === selectedOptions[optionName])?.value || 'Select'
+                          : 'Select'}
+                      </span>
+                    </div>
+                    <div className="option-pills">
                       {options.map(option => (
                         <button
                           key={option.id}
-                          className={`option-value-btn ${selectedOptions[optionName] === option.id ? 'selected' : ''}`}
+                          className={`option-pill ${selectedOptions[optionName] === option.id ? 'active' : ''}`}
                           onClick={() => handleOptionChange(optionName, option.id)}
                         >
-                          {option.value}
+                          {optionName.toLowerCase() === 'color' && (
+                            <span 
+                              className="color-dot" 
+                              style={{ backgroundColor: option.value.toLowerCase() }}
+                            ></span>
+                          )}
+                          <span>{option.value}</span>
                         </button>
                       ))}
                     </div>
@@ -225,54 +253,40 @@ function ProductVariantPopup({ product, onClose }) {
               </div>
             )}
 
-            {/* Quantity Selector */}
-            <div className="variant-quantity-section">
-              <div className="quantity-selector">
-                <button
-                  className="quantity-btn"
-                  onClick={handleQuantityDecrease}
-                  disabled={quantity <= 1}
-                >
-                  -
+            {/* Quantity & Action CTAs */}
+            <div className="actions-row">
+              <div className="quantity-control">
+                <button className="qty-btn" onClick={handleQuantityDecrease} disabled={quantity <= 1}>
+                  <i className="fa-solid fa-minus"></i>
                 </button>
-                <input
-                  type="number"
-                  className="quantity-input"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  min="1"
-                  max={selectedVariant?.stock || 0}
+                <input 
+                  type="number" 
+                  className="qty-input" 
+                  value={quantity} 
+                  min="1" 
+                  max={stock}
+                  readOnly
                 />
-                <button
-                  className="quantity-btn"
-                  onClick={handleQuantityIncrease}
-                  disabled={quantity >= (selectedVariant?.stock || 0)}
-                >
-                  +
+                <button className="qty-btn" onClick={handleQuantityIncrease} disabled={quantity >= stock}>
+                  <i className="fa-solid fa-plus"></i>
                 </button>
               </div>
+              <button 
+                className="btn-cta btn-add-cart" 
+                onClick={handleAddToCart}
+                disabled={adding || !selectedVariant || stock === 0}
+              >
+                <i className="fa-solid fa-bag-shopping"></i>
+                {adding ? 'Adding...' : 'Add to Cart'}
+              </button>
+              <button 
+                className={`btn-cta btn-wishlist ${isWishlist ? 'active' : ''}`}
+                onClick={() => setIsWishlist(!isWishlist)}
+                title="Add to wishlist"
+              >
+                <i className={`${isWishlist ? 'fa-solid' : 'fa-regular'} fa-heart`}></i>
+              </button>
             </div>
-
-            {/* Add to Cart Button */}
-            <button
-              className={`variant-add-to-cart-btn ${adding ? 'loading' : ''}`}
-              onClick={handleAddToCart}
-              disabled={adding || !selectedVariant || selectedVariant.stock === 0}
-            >
-              {adding ? (
-                <>
-                  <i className="fas fa-spinner fa-spin"></i>
-                  Adding...
-                </>
-              ) : !selectedVariant || selectedVariant.stock === 0 ? (
-                'Out of Stock'
-              ) : (
-                <>
-                  <i className="fas fa-cart-plus"></i>
-                  Add to Cart
-                </>
-              )}
-            </button>
           </div>
         </div>
       </div>
