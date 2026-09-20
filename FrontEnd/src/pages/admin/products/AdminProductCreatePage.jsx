@@ -95,7 +95,11 @@ export default function AdminProductCreatePage() {
         window.showSuccess('Product created successfully');
         navigate('/admin/products');
       } else {
-        return data.errors || { _: data.message || 'Failed to create product' };
+        // Return the full error response with message and errors
+        return {
+          message: data.message || 'Failed to create product',
+          errors: data.errors || {}
+        };
       }
     } catch (err) {
       window.showError('Server connection error');
@@ -126,7 +130,7 @@ export default function AdminProductCreatePage() {
         <h2 className="admin-page-title">➕ Create Product</h2>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{margin: '0 auto' }}>
         <ProductForm
           brands={brands}
           categories={categories}

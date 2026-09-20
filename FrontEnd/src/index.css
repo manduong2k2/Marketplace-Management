@@ -4,6 +4,41 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* Theme colors */
+  --master-color-dark: linear-gradient(
+    135deg,
+    #6366f1 0%,
+    #8b5cf6 50%,
+    #d946ef 100%
+  );
+
+  --master-color-light: linear-gradient(
+    135deg,
+    #d8dbee,
+    #727e7c,
+    #0b1d1f
+  );
+
+  /* Current theme color */
+  --master-color: var(--master-color-light);
+
+  --master-primary: #6366f1;
+  --master-hover: #4f46e5;
+
+  --master-secondary: linear-gradient(
+    135deg,
+    #0b1d1f,
+    #727e7c,
+    #d8dbee
+  );
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --master-color: var(--master-color-dark);
+}
+
 html {
   font-size: 16px;
 }
@@ -14,7 +49,7 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #bfc0c2, #696869);
+  background: var(--master-color);
   overflow-x: hidden;
 }
 

@@ -4,10 +4,8 @@ import org.springframework.stereotype.Component;
 
 import com.Marketplace_Management.Order.Entities.OrderEntity;
 import com.Marketplace_Management.Order.Entities.OrderItemEntity;
-import com.Marketplace_Management.Order.Entities.ProductSnapShotEntity;
 import com.Marketplace_Management.Order.Models.Order;
 import com.Marketplace_Management.Order.Models.OrderItem;
-import com.Marketplace_Management.Order.Models.ProductSnapShot;
 import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 
 @Component
@@ -32,32 +30,18 @@ public class OrderMapper implements EntityDomainMapper<Order, OrderEntity>{
             item.getId(),
             item.getProductId(),
             item.getQuantity(),
-            null
+            item.getProductName(),
+            item.getProductSku(),
+            item.getProductPrice(),
+            item.getProductImages(),
+            item.getProductDescription()
         );
 
         itemEntity.setTotal(item.calculateTotal());
 
-        itemEntity.setSnapShot(toProductSnapShotEntity(item.getSnapShot(), itemEntity));
-
         itemEntity.setOrder(entity);
 
         return itemEntity;
-    }
-    
-    private ProductSnapShotEntity toProductSnapShotEntity(ProductSnapShot snapShot, OrderItemEntity itemEntity) {
-        ProductSnapShotEntity snapShotEntity = new ProductSnapShotEntity(
-            snapShot.getId(),
-            snapShot.getProductCode(),
-            snapShot.getProductName(),
-            snapShot.getProductId(),
-            snapShot.getProductPrice(),
-            snapShot.getProductImages(),
-            snapShot.getProductDescription()
-        );
-        
-        snapShotEntity.setOrderItem(itemEntity);
-        
-        return snapShotEntity;
     }
 
     public Order toDomain(OrderEntity entity) {
@@ -70,27 +54,21 @@ public class OrderMapper implements EntityDomainMapper<Order, OrderEntity>{
             .phone(entity.getPhone())
             .address(entity.getAddress())
             .note(entity.getNote())
+            .total(entity.getTotal())
             .build();
     }
 
     private OrderItem toOrderItemDomain(OrderItemEntity entity) {
-        return new OrderItem(
-            entity.getId(),
-            entity.getProductId(),
-            entity.getQuantity(),
-            toProductSnapShotDomain(entity.getSnapShot())
-        );
-    }
-    
-    private ProductSnapShot toProductSnapShotDomain(ProductSnapShotEntity entity) {
-        return new ProductSnapShot(
-            entity.getId(),
-            entity.getProductId(),
-            entity.getProductName(),
-            entity.getProductCode(),
-            entity.getProductPrice(),
-            entity.getProductImages(),
-            entity.getProductDescription()
-        );
+        return OrderItem.builder()
+            .id(entity.getId())
+            .productId(entity.getProductId())
+            .quantity(entity.getQuantity())
+            .total(entity.getTotal())
+            .productName(entity.getProductName())
+            .productSku(entity.getProductSku())
+            .productPrice(entity.getProductPrice())
+            .productImages(entity.getProductImages())
+            .productDescription(entity.getProductDescription())
+            .build();
     }
 }

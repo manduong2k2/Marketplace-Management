@@ -11,7 +11,6 @@ import com.Marketplace_Management.Catalog.Contracts.IBrandRepository;
 import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.GetListBrandCommand;
 import com.Marketplace_Management.Catalog.DTOs.Response.BrandResponse;
 import com.Marketplace_Management.Catalog.Entities.BrandEntity;
-import com.Marketplace_Management.Catalog.Entities.ProductEntity;
 import com.Marketplace_Management.Catalog.Models.Brand;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 import com.Marketplace_Management.Shared.Utils.QueryBuilder.EntityMetadataRegistry;
@@ -39,28 +38,17 @@ public class BrandRepository implements IBrandRepository {
     public PaginatedResponse<BrandResponse> findAll(GetListBrandCommand command) {
         QueryBuilder<BrandEntity> queryBuilder = new QueryBuilder<>(dslContext, metadataRegistry, objectMapper);
         queryBuilder.query(BrandEntity.class)
-                .select("id", "name", "description");
-
-        QueryBuilder<ProductEntity> productQueryBuilder = new QueryBuilder<>(dslContext, metadataRegistry,
-                objectMapper);
+                .withCount("products", product -> {
+                    product.select("id", "name");
+                })
+                .select("id", "name", "description", "image");
 
         long total = queryBuilder.count();
 
         int offset = command.getPage() * command.getSize();
         var data = queryBuilder.get(command.getSize(), offset)
                 .stream()
-                .map(item -> {
-                    BrandResponse response = queryBuilder.to(item, BrandResponse.class);
-                    long productCount = productQueryBuilder.query(ProductEntity.class)
-                            .select("id", "name")
-                            .with("brand", brand -> {
-                                brand.select("id", "name");
-                            })
-                            .where("brand.id", "=", item.get("id"))
-                            .count();
-                    response.setProductCount(productCount);
-                    return response;
-                })
+                .map(item -> queryBuilder.to(item, BrandResponse.class))
                 .collect(Collectors.toList());
 
         return new PaginatedResponse<>(

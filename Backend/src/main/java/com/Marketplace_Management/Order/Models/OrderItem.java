@@ -1,71 +1,46 @@
 package com.Marketplace_Management.Order.Models;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.Marketplace_Management.Shared.Models.Entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data 
 @EqualsAndHashCode(callSuper = false)
 @SuperBuilder 
+@AllArgsConstructor 
+@NoArgsConstructor
 public class OrderItem extends Entity<UUID>{
     private UUID productId;
-    private Quantity quantity;
-    private ProductSnapShot snapShot;
+    private int quantity;
     private double total;
-
-    public OrderItem(UUID id, UUID productId, int quantity, ProductSnapShot snapShot) {
-        super(id);
-        this.productId = productId;
-        this.quantity = new Quantity(quantity);
-        this.snapShot = snapShot;
-        this.total = this.calculateTotal();
-    }
+    private String productName;
+    private String productSku;
+    private double productPrice;
+    private List<String> productImages;
+    private String productDescription;
 
     //Business methods
 
     public void plusOne() {
-        this.quantity.setValue(this.quantity.getValue()+1);
+        this.quantity++;
     }
 
     public void minusOne() {
-        this.quantity.setValue(this.quantity.getValue()-1);
+        this.quantity--;
     }
 
     public double calculateTotal() {
-        return this.quantity.getValue() * this.snapShot.getProductPrice();
+        return this.quantity * this.productPrice;
     }
 
     public double getTotal() {
         return this.total;
-    }
-
-    //Base methods
-
-    public void setProductId(UUID productId) {
-        this.productId = productId;
-    }
-
-    public UUID getProductId() {
-        return productId;
-    }
-    
-    public int getQuantity() {
-        return quantity.getValue();
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity.setValue(quantity);
-    }
-
-    public ProductSnapShot getSnapShot() {
-        return snapShot;
-    }
-
-    public void setSnapShot(ProductSnapShot snapShot) {
-        this.snapShot = snapShot;
     }
 }

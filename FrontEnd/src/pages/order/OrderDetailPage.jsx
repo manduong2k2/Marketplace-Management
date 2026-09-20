@@ -142,17 +142,17 @@ function OrderDetailPage() {
               {order.items && order.items.map((item) => (
                 <div key={item.id} className="order-item-card">
                   <div className="item-image">
-                    {item.snapShot?.productImages && item.snapShot.productImages.length > 0 ? (
-                      <img src={item.snapShot.productImages[0]} alt={item.snapShot.name} />
+                    {item.productImages && item.productImages.length > 0 ? (
+                      <img src={item.productImages[0]} alt={item.name} />
                     ) : (
                       <img src={defaultProductImage} alt="Product" />
                     )}
                   </div>
 
                   <div className="item-details">
-                    <h3 className="item-name">{item.snapShot?.productName || 'Product'}</h3>
+                    <h3 className="item-name">{item.productName || 'Product'}</h3>
                     <p className="item-meta">
-                      ${item.snapShot?.price?.toFixed(2) || '0.00'} × {item.quantity}
+                      ${item.price?.toFixed(2) || '0.00'} × {item.quantity}
                     </p>
                   </div>
 

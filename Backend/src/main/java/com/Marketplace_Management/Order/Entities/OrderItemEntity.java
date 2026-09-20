@@ -1,5 +1,6 @@
 package com.Marketplace_Management.Order.Entities;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.OnDelete;
@@ -7,13 +8,11 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,27 +32,38 @@ public class OrderItemEntity extends UuidEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private OrderEntity order;
 
-    @Column(name = "product_id", nullable = false)
-    private UUID productId;
-
     @Column(name = "quantity", nullable = false)
     private int quantity;
+
+    @Column(name = "product_id", nullable = false)
+    private UUID productId;
 
     @Column(name = "total", nullable = false)
     private double total;
 
-    @OneToOne(
-        mappedBy = "orderItem",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        fetch = FetchType.EAGER
-    )
-    private ProductSnapShotEntity snapShot;
+    @Column(name = "product_sku")
+    private String productSku;
 
-    public OrderItemEntity(UUID id, UUID productId, int quantity, ProductSnapShotEntity snapShot) {
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column(name = "product_price", nullable = false)
+    private double productPrice;
+
+    @Column(name = "product_images")
+    private List<String> productImages;
+
+    @Column(name = "product_description")
+    private String productDescription;
+
+    public OrderItemEntity(UUID id, UUID productId, int quantity, String productName, String productSku, double productPrice, List<String> productImages, String productDescription) {
         this.setId(id);
         this.productId = productId;
         this.quantity = quantity;
-        this.snapShot = snapShot;
+        this.productName = productName;
+        this.productSku = productSku;
+        this.productPrice = productPrice;
+        this.productImages = productImages;
+        this.productDescription = productDescription;
     }
 }

@@ -14,11 +14,11 @@ public class CartItemResponse {
     private UUID productVariantId;
     private int quantity;
     private double subTotal;
-    private String productCode;
+    private String productSku;
     private String productDescription;
     private String productName;
     private double productPrice;
-    private List<String> productImage;
+    private List<String> productImages;
     private List<ProductOptionResponse> productOptions;
 
     public static CartItemResponse from(CartItem item) {
@@ -28,8 +28,8 @@ public class CartItemResponse {
         response.setQuantity(item.getQuantity());
         response.setProductName(item.getProductName());
         response.setProductPrice(item.getProductPrice());
-        response.setProductImage(item.getProductImage());
-        response.setProductCode(item.getProductCode());
+        response.setProductImages(item.getProductImage());
+        response.setProductSku(item.getProductSku());
         response.setProductDescription(item.getProductDescription());
         response.setSubTotal(item.getQuantity()*item.getProductPrice());
         response.setProductOptions(item.getProductOptions());

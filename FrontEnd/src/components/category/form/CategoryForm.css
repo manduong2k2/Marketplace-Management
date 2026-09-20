@@ -58,9 +58,9 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--master-primary);
   background-color: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .form-group input.error,
@@ -145,8 +145,8 @@
 }
 
 .upload-placeholder:hover {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  border-color: var(--master-primary);
+  background: rgba(99, 102, 241, 0.05);
 }
 
 .upload-icon {
@@ -199,13 +199,13 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--master-color);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .btn-secondary {

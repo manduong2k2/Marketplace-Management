@@ -4,6 +4,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../contexts/AdminContext';
 import { adminAuthService } from '../../services/adminAuthService';
 import PopupManager from '../../components/master/popup/PopupManager';
+import Chatbot from '../../components/master/chatbot';
 import './AdminLayout.css';
 
 // ── Sidebar mini state helpers ──────────────────────────────────────────────
@@ -266,6 +267,7 @@ export default function AdminLayout() {
       </div>
 
       <PopupManager />
+      <Chatbot />
     </div>
   );
 }

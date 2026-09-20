@@ -29,7 +29,6 @@ export default function ProductDetailPage() {
         const res = await productService.getById(id);
         if (res.ok && res.data && res.data.data) {
           setProduct(res.data.data);
-          console.log('Product loaded:', res.data.data);
         } else {
           setError('Product not found');
         }

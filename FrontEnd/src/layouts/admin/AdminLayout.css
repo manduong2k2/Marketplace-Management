@@ -162,7 +162,7 @@ html[data-theme="dark"] .admin-shell {
   width: 42px;
   height: 42px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #2563eb, #0f766e);
+  background: var(--master-color);
   color: #ffffff;
   font-size: 1.1rem;
   font-weight: 800;
@@ -366,14 +366,6 @@ html[data-theme="dark"] .admin-shell {
   transition: background 0.3s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   /* Ensure navbar content (dropdowns) always renders above page content */
   overflow: visible;
-}
-
-.navbar {
-  background: linear-gradient(90deg, #d8dbee, #727e7c, #0b1d1f);
-}
-
-html[data-theme="dark"] .admin-navbar {
-  background: linear-gradient(90deg, #0b1d1f, #727e7c, #d8dbee) !important;
 }
 
 /* Hamburger toggle */

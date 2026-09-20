@@ -38,13 +38,13 @@
 
 .login-form input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--master-primary);
   background-color: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .login-form input:hover {
-  border-color: #667eea;
+  border-color: var(--master-primary);
 }
 
 .login-form:hover {
@@ -58,7 +58,7 @@
   font-weight: 600;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(90deg, #b1427f, #12332e, #0b1d1f);
+  background: var(--master-color);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -69,7 +69,7 @@
 
 .login-form button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
 }
 
 .login-form button:active:not(:disabled) {
@@ -82,7 +82,7 @@
 }
 
 .forgot-links a {
-  color: #667eea;
+  color: var(--master-primary);
 }
 
 .forgot-links a:hover {
@@ -97,14 +97,14 @@
 }
 
 .register-link a {
-  color: #667eea;
+  color: var(--master-primary);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .register-link a:hover {
-  color: #764ba2;
+  color: #8b5cf6;
   text-decoration: underline;
 }
 

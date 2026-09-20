@@ -13,7 +13,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
     overflow: visible;
-    background: linear-gradient(90deg, #b1427f, #12332e, #0b1d1f);
+    background: var(--master-color);
 }
 
 .navbar .toggle-btn {
@@ -136,7 +136,7 @@
 
 .navbar-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px #b1427f;
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
 }
 
 /* ── User dropdown (hover-based, styled after admin profile-dropdown) ── */

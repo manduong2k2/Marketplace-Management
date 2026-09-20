@@ -31,7 +31,7 @@
 }
 
 .delete-all-btn {
-  background: #dc3545;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -41,12 +41,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: background 0.3s;
+  transition: all 0.3s;
   white-space: nowrap;
 }
 
 .delete-all-btn:hover {
-  background: #c82333;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
 }
 
 .cart-empty {

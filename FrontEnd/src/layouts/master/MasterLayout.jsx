@@ -4,6 +4,7 @@ import Sidebar from '../../components/master/sidebar/Sidebar';
 import Footer from '../../components/master/footer/Footer';
 import PopupManager from '../../components/master/popup/PopupManager';
 import Spinner from '../../components/master/spinner/Spinner';
+import Chatbot from '../../components/master/chatbot';
 import { AuthContext } from '../../contexts/AuthContext';
 import './MasterLayout.css';
 import { Outlet } from 'react-router-dom';
@@ -65,6 +66,7 @@ export default function MasterLayout() {
       <Footer />
       <PopupManager />
       {isLoading && <Spinner />}
+      <Chatbot />
     </div>
   );
 }

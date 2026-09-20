@@ -1,7 +1,5 @@
 package com.Marketplace_Management.Order.Services;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -12,14 +10,12 @@ import com.Marketplace_Management.Order.Constants.OrderStatusEnum;
 import com.Marketplace_Management.Order.Contracts.IOrderRepository;
 import com.Marketplace_Management.Order.Contracts.IOrderService;
 import com.Marketplace_Management.Order.DTOs.Commands.ListOrderCommand;
-import com.Marketplace_Management.Order.DTOs.Commands.OrderItemCommand;
 import com.Marketplace_Management.Order.DTOs.Commands.PlaceOrderCommand;
 import com.Marketplace_Management.Order.DTOs.Responses.HistoryResponse;
 import com.Marketplace_Management.Order.DTOs.Responses.OrderResponse;
 import com.Marketplace_Management.Order.Events.OrderPlacedEvent;
 import com.Marketplace_Management.Order.Models.Order;
 import com.Marketplace_Management.Order.Models.OrderItem;
-import com.Marketplace_Management.Order.Models.ProductSnapShot;
 import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.OrderQueueConfig;
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
@@ -63,51 +59,28 @@ public class OrderService implements IOrderService{
             throw new BadRequestException("Cart not found or empty");
         }
 
-        List<OrderItemCommand> items = new ArrayList<>();
-
-        for (var item : cartResponse.getItems()) {
-            //ProductResponse product = productService.getProduct(item.getProductVariantId());
-
-            //if(product.getStock() < item.getQuantity()) {
-            //    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product " + product.getName() + " does not have enough stock");
-            //}
-
-            items.add(new OrderItemCommand(
-                item.getProductVariantId(),
-                item.getQuantity(),
-                item.getProductName(),
-                item.getProductPrice(),
-                item.getProductCode(),
-                item.getProductDescription(),
-                item.getProductImage()
-            ));
-        }
-
-        command.setItems(items);
-
         Order order = Order.builder()
             .userId(SecurityUtils.currentUserId())
             .status(OrderStatusEnum.PENDING.getValue())
-            .items(command.getItems().stream().map(item -> new OrderItem(
-                null,
-                item.getProductId(), 
-                item.getQuantity(),
-                new ProductSnapShot(
-                    null,
-                    item.getProductId(),
-                    item.getProductName(),
-                    item.getProductCode(),
-                    item.getProductPrice(),
-                    item.getProductImages(),
-                    item.getProductDescription()
-                )
-            )).toList())
+            .items(cartResponse.getItems().stream().<OrderItem>map(item -> OrderItem.builder()
+                .productId(item.getProductVariantId()) 
+                .quantity(item.getQuantity())
+                .total(item.getProductPrice() * item.getQuantity())
+                .productName(item.getProductName())
+                .productSku(item.getProductSku())
+                .productPrice(item.getProductPrice())
+                .productImages(item.getProductImages())
+                .productDescription(item.getProductDescription())
+                .build()
+            ).toList())
             .name(SecurityUtils.currentUserName())
             .phone(command.getPhone())
             .address(command.getAddress())
             .note(command.getNote())
             .build();
         
+        order.setTotal(order.getItems().stream().mapToDouble(OrderItem::getTotal).sum());
+
         Order created = repository.create(order);
 
         eventPublisher.publish(

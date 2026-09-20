@@ -21,7 +21,6 @@
 .admin-page-title {
   font-size: 22px;
   font-weight: 700;
-  color: #2c3e50;
   margin: 0;
 }
 
@@ -48,8 +47,8 @@
 .admin-search-input:focus {
   outline: none;
   background: none;
-  border-color: #f3f5f6;
-  box-shadow: 0 0 2px 3px rgba(243, 244, 244, 0.1);
+  border-color: var(--master-primary);
+  box-shadow: 0 0 2px 3px rgba(99, 102, 241, 0.1);
 }
 
 .admin-search-clear {
@@ -67,7 +66,7 @@
 }
 
 .admin-search-clear:hover {
-  color: #3498db;
+  color: var(--master-primary);
 }
 
 /* ── Sort Bar ── */
@@ -100,21 +99,21 @@
 }
 
 .sort-btn:hover {
-  background: #3498db;
+  background: var(--master-primary);
   color: white;
-  border-color: #3498db;
+  border-color: var(--master-primary);
 }
 
 .sort-btn.active {
-  background: #3498db;
+  background: var(--master-primary);
   color: white;
-  border-color: #3498db;
+  border-color: var(--master-primary);
 }
 
 /* ── Buttons ── */
 .btn-admin-primary {
   padding: 10px 22px;
-  background: linear-gradient(135deg, #2c3e50, #3498db);
+  background: var(--master-color);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -126,7 +125,7 @@
 
 .btn-admin-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.35);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
 }
 
 .btn-admin-secondary {

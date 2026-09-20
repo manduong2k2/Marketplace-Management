@@ -17,7 +17,7 @@ public class OrderItemCommand {
     private int quantity;
     private String productName;
     private double productPrice;
-    private String productCode;
+    private String productSku;
     private String productDescription;
     private List<String> productImages;
     

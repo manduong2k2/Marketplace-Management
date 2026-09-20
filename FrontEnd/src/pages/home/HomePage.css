@@ -22,6 +22,10 @@
   padding: 5px;
   align-self: flex-start;
   border-radius: 8px;
+  background: var(--master-color);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ── Two-column layout: category sidebar + product main ── */

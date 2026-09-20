@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -38,6 +39,7 @@ public class QueryBuilder<E> {
 	private final ObjectMapper objectMapper;
 	private boolean countMode;
 	private boolean withDeleted = false;
+	private final Map<String, QueryBuilder<?>> countChildren = new LinkedHashMap<>();
 
 	private final List<SortField<?>> orderFields = new ArrayList<>();
 	private final List<Field<?>> orderedFields = new ArrayList<>();
@@ -84,14 +86,11 @@ public class QueryBuilder<E> {
 	}
 
 	public long count() {
+
 		SelectQuery<?> query = dsl.selectQuery();
-
 		Table<?> rootTable = resolveTable();
-
 		query.addSelect(DSL.countDistinct(resolveField("id")).as("total"));
-
 		query.addFrom(rootTable);
-
 		addJoins(query, rootTable, metadata, this);
 
 		if (condition != null) {
@@ -99,7 +98,6 @@ public class QueryBuilder<E> {
 		}
 
 		query.addConditions(softDeleteCondition());
-
 		Long total = query.fetchOne("total", Long.class);
 
 		return total != null ? total : 0L;
@@ -162,10 +160,7 @@ public class QueryBuilder<E> {
 	}
 
 	public QueryBuilder<E> orWhere(Condition condition) {
-		this.condition = this.condition == null
-				? condition
-				: this.condition.or(condition);
-
+		this.condition = this.condition == null ? condition : this.condition.or(condition);
 		return this;
 	}
 
@@ -180,14 +175,13 @@ public class QueryBuilder<E> {
 	public QueryBuilder<E> orderBy(String field, String direction) {
 
 		SortOrder order = switch (direction.toUpperCase()) {
-			case "ASC" -> SortOrder.ASC;
+			case "ASC" 	-> SortOrder.ASC;
 			case "DESC" -> SortOrder.DESC;
 			default -> throw new IllegalArgumentException(
 					"Unsupported sort direction: " + direction);
 		};
 
 		Field<?> resolvedField = resolveField(field);
-
 		orderedFields.add(resolvedField);
 		orderFields.add(resolvedField.sort(order));
 
@@ -226,6 +220,31 @@ public class QueryBuilder<E> {
 		return this;
 	}
 
+	public QueryBuilder<E> withCount(String relationshipName, Consumer<QueryBuilder<?>> callback) {
+		if (metadata == null) {
+			throw new IllegalStateException("Call query() before withCount()");
+		}
+
+		RelationshipMetadata relationship = metadata.getRelationships().get(relationshipName);
+
+		if (relationship == null) {
+			throw new IllegalArgumentException(
+					"Unknown relationship: " + relationshipName);
+		}
+
+		String childPath = buildChildPath(relationshipName);
+
+		QueryBuilder<?> child = new QueryBuilder<>(dsl, registry, objectMapper)
+				.query(relationship.getTargetEntity())
+				.path(childPath);
+
+		callback.accept(child);
+
+		countChildren.put(relationshipName, child);
+
+		return this;
+	}
+
 	public QueryBuilder<E> when(boolean condition, Consumer<QueryBuilder<E>> callback) {
 		if (condition) {
 			callback.accept(this);
@@ -240,16 +259,15 @@ public class QueryBuilder<E> {
 
 	public SelectQuery<?> build() {
 		if (metadata == null) {
-			throw new IllegalStateException("Entity is not specified. Call query() first.");
+			throw new IllegalStateException(
+					"Entity is not specified. Call query() first.");
 		}
 
 		SelectQuery<?> query = dsl.selectQuery();
 		Table<?> rootTable = resolveTable();
 
 		if (countMode) {
-			query.addSelect(
-					DSL.countDistinct(
-							resolveField("id")).as("total"));
+			query.addSelect(DSL.countDistinct(resolveField("id")).as("total"));
 
 			query.addFrom(rootTable);
 			addJoins(query, rootTable, metadata, this);
@@ -272,6 +290,10 @@ public class QueryBuilder<E> {
 		}
 
 		query.addConditions(softDeleteCondition());
+
+		if (!countChildren.isEmpty()) {
+			query.addGroupBy(resolveField("id"));
+		}
 
 		if (!orderFields.isEmpty()) {
 			query.addOrderBy(orderFields);
@@ -322,7 +344,6 @@ public class QueryBuilder<E> {
 	private List<?> fetchPageIds(int limit, int offset) {
 
 		SelectQuery<?> query = dsl.selectQuery();
-
 		Table<?> rootTable = resolveTable();
 
 		query.addSelect(resolveField("id"));
@@ -352,15 +373,19 @@ public class QueryBuilder<E> {
 	}
 
 	private void addSelect(SelectQuery<?> query) {
+
 		if (countMode) {
 			query.addSelect(
 					resolveField("id").as(
-							getEffectiveAlias() + "_" + resolvePrimaryKeyColumn(metadata)));
+							getEffectiveAlias()
+									+ "_"
+									+ resolvePrimaryKeyColumn(metadata)));
 			return;
 		}
 
 		List<Field<?>> fields = new ArrayList<>();
 		addNodeSelectFields(fields, this);
+		addCountFields(fields);
 
 		if (fields.isEmpty()) {
 			query.addSelect(DSL.field("*"));
@@ -372,7 +397,6 @@ public class QueryBuilder<E> {
 	private void addNodeSelectFields(List<Field<?>> fields, QueryBuilder<?> node) {
 
 		String nodeAlias = node.getEffectiveAlias();
-
 		if (node.selectedFields != null && node.selectedFields.length > 0) {
 
 			for (Field<?> selectedField : node.selectedFields) {
@@ -388,8 +412,7 @@ public class QueryBuilder<E> {
 								"Unknown column: " + columnName
 										+ " for entity " + node.metadata.getTableName()));
 
-				fields.add(DSL.field(DSL.name(nodeAlias, column.getColumnName()))
-						.as(nodeAlias + "_" + column.getColumnName()));
+				fields.add(DSL.field(DSL.name(nodeAlias, column.getColumnName())).as(nodeAlias + "_" + column.getColumnName()));
 			}
 
 		} else {
@@ -411,8 +434,7 @@ public class QueryBuilder<E> {
 	// JOINS
 	// =========================================================
 
-	private void addJoins(SelectQuery<?> query, Table<?> sourceTable, EntityMetadata sourceMetadata,
-			QueryBuilder<?> parent) {
+	private void addJoins(SelectQuery<?> query, Table<?> sourceTable, EntityMetadata sourceMetadata, QueryBuilder<?> parent) {
 
 		for (Map.Entry<String, QueryBuilder<?>> entry : parent.children.entrySet()) {
 			String relationshipName = entry.getKey();
@@ -423,28 +445,48 @@ public class QueryBuilder<E> {
 					.get(relationshipName);
 
 			if (relationship == null) {
-				throw new IllegalArgumentException(
-						"Unknown relationship: " + relationshipName);
+				throw new IllegalArgumentException("Unknown relationship: " + relationshipName);
+			}
+
+			addJoin(query, sourceTable, sourceMetadata, child, relationship);
+		}
+
+		for (Map.Entry<String, QueryBuilder<?>> entry : parent.countChildren.entrySet()) {
+
+			String relationshipName = entry.getKey();
+			QueryBuilder<?> child = entry.getValue();
+			RelationshipMetadata relationship = sourceMetadata.getRelationships().get(relationshipName);
+
+			if (relationship == null) {
+				throw new IllegalArgumentException("Unknown relationship: " + relationshipName);
 			}
 
 			addJoin(query, sourceTable, sourceMetadata, child, relationship);
 		}
 	}
 
+	private void addCountFields(List<Field<?>> fields) {
+
+		for (Map.Entry<String, QueryBuilder<?>> entry : countChildren.entrySet()) {
+
+			String relationshipName = entry.getKey();
+			QueryBuilder<?> child = entry.getValue();
+
+			Field<?> childId = DSL.field(
+					DSL.name(child.getEffectiveAlias(), resolvePrimaryKeyColumn(child.metadata)));
+
+			fields.add(DSL.count(childId).as(relationshipName + "_count"));
+		}
+	}
+
 	private void addJoin(SelectQuery<?> query, Table<?> sourceTable, EntityMetadata sourceMetadata,
 			QueryBuilder<?> child, RelationshipMetadata relationship) {
 
-		Table<?> targetTable = relationships.resolveTargetTable(
-				relationship,
-				child.getEffectiveAlias());
+		Table<?> targetTable = relationships.resolveTargetTable(relationship, child.getEffectiveAlias());
 
 		switch (relationship.getType()) {
 			case ONE_TO_ONE, MANY_TO_ONE, ONE_TO_MANY -> {
-				Condition joinCondition = relationships.buildJoinCondition(
-						sourceTable,
-						targetTable,
-						sourceMetadata,
-						relationship);
+				Condition joinCondition = relationships.buildJoinCondition(sourceTable, targetTable, sourceMetadata, relationship);
 
 				if (child.condition != null) {
 					joinCondition = joinCondition.and(child.condition);
@@ -466,22 +508,14 @@ public class QueryBuilder<E> {
 									+ relationship.getFieldName());
 				}
 
-				Condition sourceToJoin = relationships.buildSourceToJoinCondition(
-						sourceTable,
-						joinTable,
-						sourceMetadata,
-						relationship);
+				Condition sourceToJoin = relationships.buildSourceToJoinCondition(sourceTable, joinTable, sourceMetadata, relationship);
 
 				query.addJoin(joinTable, JoinType.LEFT_OUTER_JOIN, sourceToJoin);
 
 				EntityMetadata targetMetadata = registry.require(
 						relationship.getTargetEntity());
 
-				Condition joinToTarget = relationships.buildJoinToTargetCondition(
-						joinTable,
-						targetTable,
-						targetMetadata,
-						relationship);
+				Condition joinToTarget = relationships.buildJoinToTargetCondition(joinTable, targetTable, targetMetadata, relationship);
 
 				if (child.condition != null) {
 					joinToTarget = joinToTarget.and(child.condition);
@@ -504,22 +538,21 @@ public class QueryBuilder<E> {
 		Field<?> field = resolveField(fieldName);
 
 		return switch (operator.toUpperCase()) {
-			case "=" -> DSL.condition("{0} = {1}", field, value);
-			case "!=" -> DSL.condition("{0} <> {1}", field, value);
-			case ">" -> DSL.condition("{0} > {1}", field, value);
-			case ">=" -> DSL.condition("{0} >= {1}", field, value);
-			case "<" -> DSL.condition("{0} < {1}", field, value);
-			case "<=" -> DSL.condition("{0} <= {1}", field, value);
-			case "LIKE" -> field.like(value.toString());
-			case "ILIKE" -> field.likeIgnoreCase(value.toString());
-			case "NOT LIKE" -> field.notLike(value.toString());
-			case "NOT ILIKE" -> field.notLikeIgnoreCase(value.toString());
-			case "IN" -> field.in((Collection<?>) value);
-			case "NOT IN" -> field.notIn((Collection<?>) value);
-			case "IS NULL" -> field.isNull();
-			case "IS NOT NULL" -> field.isNotNull();
-			default -> throw new IllegalArgumentException(
-					"Unsupported operator: " + operator);
+			case "=" 			-> DSL.condition("{0} = {1}"	, field, value);
+			case "!=" 			-> DSL.condition("{0} <> {1}"	, field, value);
+			case ">" 			-> DSL.condition("{0} > {1}"	, field, value);
+			case ">=" 			-> DSL.condition("{0} >= {1}"	, field, value);
+			case "<" 			-> DSL.condition("{0} < {1}"	, field, value);
+			case "<=" 			-> DSL.condition("{0} <= {1}"	, field, value);
+			case "LIKE" 		-> field.like(value.toString());
+			case "ILIKE" 		-> field.likeIgnoreCase(value.toString());
+			case "NOT LIKE" 	-> field.notLike(value.toString());
+			case "NOT ILIKE" 	-> field.notLikeIgnoreCase(value.toString());
+			case "IN" 			-> field.in((Collection<?>) value);
+			case "NOT IN" 		-> field.notIn((Collection<?>) value);
+			case "IS NULL" 		-> field.isNull();
+			case "IS NOT NULL" 	-> field.isNotNull();
+			default 			-> throw new IllegalArgumentException("Unsupported operator: " + operator);
 		};
 	}
 
@@ -534,11 +567,7 @@ public class QueryBuilder<E> {
 			return DSL.noCondition();
 		}
 
-		return DSL.field(
-				DSL.name(
-						getEffectiveAlias(),
-						deletedAt.getColumnName()))
-				.isNull();
+		return DSL.field(DSL.name(getEffectiveAlias(), deletedAt.getColumnName())).isNull();
 	}
 
 	// =========================================================
@@ -554,8 +583,7 @@ public class QueryBuilder<E> {
 			QueryBuilder<?> child = children.get(relationshipName);
 
 			if (child == null) {
-				throw new IllegalArgumentException(
-						"Unknown relationship: " + relationshipName);
+				throw new IllegalArgumentException("Unknown relationship: " + relationshipName);
 			}
 
 			return child.resolveField(targetField);
@@ -564,13 +592,10 @@ public class QueryBuilder<E> {
 		ColumnMetadata column = metadata.getColumns().get(fieldName);
 
 		if (column == null) {
-			throw new IllegalArgumentException(
-					"Unknown field: " + fieldName
-							+ " for entity " + metadata.getTableName());
+			throw new IllegalArgumentException("Unknown field: " + fieldName + " for entity " + metadata.getTableName());
 		}
 
-		return DSL.field(
-				DSL.name(getEffectiveAlias(), column.getColumnName()));
+		return DSL.field(DSL.name(getEffectiveAlias(), column.getColumnName()));
 	}
 
 	// =========================================================
@@ -601,9 +626,7 @@ public class QueryBuilder<E> {
 					continue;
 				}
 
-				Map<String, Object> entity = grouped.computeIfAbsent(
-						rootId,
-						k -> new LinkedHashMap<>());
+				Map<String, Object> entity = grouped.computeIfAbsent(rootId, k -> new LinkedHashMap<>());
 
 				extractNodeFields(record, this, entity);
 				extractChildren(record, this, entity);
@@ -624,7 +647,6 @@ public class QueryBuilder<E> {
 			for (Field<?> field : node.selectedFields) {
 
 				String columnName = field.getName();
-
 				ColumnMetadata column = node.metadata.getColumns()
 						.values()
 						.stream()
@@ -632,10 +654,10 @@ public class QueryBuilder<E> {
 						.findFirst()
 						.orElseThrow(() -> new IllegalArgumentException(
 								"Unknown column: " + columnName
-										+ " for entity " + node.metadata.getTableName()));
+										+ " for entity "
+										+ node.metadata.getTableName()));
 
 				String fieldName = column.getFieldName();
-
 				String fieldAlias = nodeAlias + "_" + columnName;
 
 				Object value = record.get(fieldAlias);
@@ -659,6 +681,21 @@ public class QueryBuilder<E> {
 				}
 			}
 		}
+
+		addCountResults(record, node, target);
+	}
+
+	private void addCountResults(org.jooq.Record record, QueryBuilder<?> node, Map<String, Object> target) {
+
+		for (String relationshipName : node.countChildren.keySet()) {
+
+			String columnName = relationshipName + "_count";
+			Object value = record.get(columnName);
+
+			if (value != null) {
+				target.put(Pattern.compile("_(.)").matcher(columnName).replaceAll(match -> match.group(1).toUpperCase()), value);
+			}
+		}
 	}
 
 	private void extractChildren(org.jooq.Record record, QueryBuilder<?> parent, Map<String, Object> parentData) {
@@ -667,9 +704,7 @@ public class QueryBuilder<E> {
 			String relationshipName = entry.getKey();
 			QueryBuilder<?> child = entry.getValue();
 
-			RelationshipMetadata relationship = parent.metadata
-					.getRelationships()
-					.get(relationshipName);
+			RelationshipMetadata relationship = parent.metadata.getRelationships().get(relationshipName);
 
 			if (relationship == null) {
 				continue;
@@ -685,12 +720,10 @@ public class QueryBuilder<E> {
 
 			extractChildren(record, child, childData);
 
-			if (relationship.getType() == RelationshipType.ONE_TO_MANY
-					|| relationship.getType() == RelationshipType.MANY_TO_MANY) {
+			if (relationship.getType() == RelationshipType.ONE_TO_MANY || relationship.getType() == RelationshipType.MANY_TO_MANY) {
 
 				@SuppressWarnings("unchecked")
-				List<Map<String, Object>> relatedList = (List<Map<String, Object>>) parentData
-						.computeIfAbsent(relationshipName, k -> new ArrayList<>());
+				List<Map<String, Object>> relatedList = (List<Map<String, Object>>) parentData.computeIfAbsent(relationshipName, k -> new ArrayList<>());
 
 				Object childId = childData.get(resolvePrimaryKeyFieldName(child.metadata));
 
@@ -727,9 +760,7 @@ public class QueryBuilder<E> {
 		ColumnMetadata id = entityMetadata.getColumns().get("id");
 
 		if (id == null) {
-			throw new IllegalStateException(
-					"Entity " + entityMetadata.getTableName()
-							+ " does not contain an 'id' field.");
+			throw new IllegalStateException("Entity " + entityMetadata.getTableName() + " does not contain an 'id' field.");
 		}
 
 		return id.getColumnName();

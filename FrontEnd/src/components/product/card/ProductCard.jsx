@@ -7,7 +7,7 @@ import { AuthContext } from '../../../contexts/AuthContext';
 function ProductCard({ product, onOpenVariantPopup }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { name, brand, status, variants, options } = product;
+  const { name, brand, variants, options } = product;
   const [isFavorite, setIsFavorite] = useState(false);
 
   // Get first variant image
@@ -49,11 +49,6 @@ function ProductCard({ product, onOpenVariantPopup }) {
     <div className="product-card" onClick={() => navigate(`/product/${product.id}`)}>
       {/* Top Badges Row */}
       <div className="product-card-badges">
-        <span className={`status-badge ${status?.toLowerCase() === 'published' ? 'status-published' : 'status-draft'}`}>
-          <span className="badge-dot"></span>
-          {status?.toUpperCase() || 'DRAFT'}
-        </span>
-
         <button className="favorite-btn" onClick={toggleFavorite} title="Add to favorites">
           <i className={`${isFavorite ? 'fas' : 'far'} fa-heart`}></i>
         </button>

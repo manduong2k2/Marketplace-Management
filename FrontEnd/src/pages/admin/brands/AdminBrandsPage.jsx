@@ -35,7 +35,7 @@ export default function AdminBrandsPage() {
       const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/brands`, { method: 'POST', credentials: 'include', body: fd });
       const data = await res.json();
       if (res.ok && data.success) { window.showSuccess('Brand created successfully'); setModal(null); fetchBrands(); }
-      else return data.errors || { _: data.message || 'Failed to create brand' };
+      else return { message: data.message || 'Failed to create brand', errors: data.errors || {} };
     } catch { window.showError('Server connection error'); }
     finally   { setSubmitting(false); }
   };
@@ -50,7 +50,7 @@ export default function AdminBrandsPage() {
       const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/brands/${modal.brand.id}`, { method: 'PUT', credentials: 'include', body: fd });
       const data = await res.json();
       if (res.ok && data.success) { window.showSuccess('Brand updated successfully'); setModal(null); fetchBrands(); }
-      else return data.errors || { _: data.message || 'Failed to update brand' };
+      else return { message: data.message || 'Failed to update brand', errors: data.errors || {} };
     } catch { window.showError('Server connection error'); }
     finally   { setSubmitting(false); }
   };

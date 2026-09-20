@@ -95,9 +95,14 @@ public class GlobalExceptionHandler {
 		ex.getBindingResult().getFieldErrors().forEach(error -> 
 			errors.put(error.getField(), error.getDefaultMessage())
 		);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Validation failed");
+		response.put("errors", errors);
+
 		return ResponseEntity
 				.status(HttpStatus.UNPROCESSABLE_CONTENT)
-				.body(errors);
+				.body(response);
 	}
 
 	@ExceptionHandler(RuntimeException.class)

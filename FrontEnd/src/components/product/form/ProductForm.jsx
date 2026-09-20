@@ -1,4 +1,3 @@
-// src/components/product/form/ProductForm.jsx
 import { useState, useRef, useEffect } from 'react';
 import CategoryTreeSelect from '../../category/tree/CategoryTreeSelect';
 import './ProductForm.css';
@@ -27,39 +26,35 @@ export default function ProductForm({
       images: v.images || [],
       optionIds: v.optionIds || [],
     })) || [
-      {
-        tempId: Date.now(),
-        name: '',
-        price: '',
-        stock: '',
-        sku: '',
-        optionIds: [],
-        images: [],
-      },
-    ],
+        {
+          tempId: Date.now(),
+          name: '',
+          price: '',
+          stock: '',
+          sku: '',
+          optionIds: [],
+          images: [],
+        },
+      ],
   });
 
-  // Track next available option tempId
   const [nextOptionTempId, setNextOptionTempId] = useState(
     product?.options?.length || 0
   );
 
+  const [errors, setErrors] = useState({});
+  const variantFileInputRefs = useRef({});
+
   // Update form data when product prop changes
   useEffect(() => {
-    console.log('ProductForm useEffect triggered, product:', product);
     if (product) {
-      // Map options from API with tempId (0, 1, 2...)
       const mappedOptions = product.options?.map((opt, idx) => ({
         tempId: idx,
         name: opt.name || '',
         value: opt.value || '',
       })) || [];
 
-      console.log('Mapped options:', mappedOptions);
-
-      // Map variants from API response
       const mappedVariants = product.variants?.map((v) => {
-        // Extract optionIds by matching variant.options to mappedOptions by name
         const variantOptionIds = v.options?.map((varOpt) =>
           mappedOptions.findIndex(o => o.name === varOpt.name)
         ).filter(idx => idx !== -1) || [];
@@ -71,17 +66,14 @@ export default function ProductForm({
           stock: v.stock ?? '',
           sku: v.sku || '',
           optionIds: variantOptionIds,
-          // Map variant images (they're URLs from API)
           images: Array.isArray(v.images)
             ? v.images.map((url) => ({
-                type: 'existing',
-                url: url
-              }))
+              type: 'existing',
+              url: typeof url === 'string' ? url : url.url
+            }))
             : [],
         };
       }) || [];
-
-      console.log('Mapped variants:', mappedVariants);
 
       const newFormData = {
         name: product.name || '',
@@ -103,28 +95,19 @@ export default function ProductForm({
         ],
       };
 
-      console.log('Setting form data:', newFormData);
       setFormData(newFormData);
       setNextOptionTempId(product.options?.length || 0);
     }
   }, [product, defaultStatus]);
 
-  // Store file input refs for each variant
-  const variantFileInputRefs = useRef({});
-
-  const [errors, setErrors] = useState({});
-
-  // ── Field change ──────────────────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  // ── Variant Image handling ────────────────────────────────────
   const handleAddVariantImages = (variantIdx, e) => {
     const files = Array.from(e.target.files);
-    // Reset input so same file can be re-added after removal
     e.target.value = '';
 
     files.forEach((file) => {
@@ -160,13 +143,11 @@ export default function ProductForm({
     });
   };
 
-  // ── Validation ────────────────────────────────────────────────
   const validate = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Product name is required';
     if (!formData.brandId) newErrors.brandId = 'Please select a brand';
-    
-    // Validate variants
+
     if (!formData.variants || formData.variants.length === 0) {
       newErrors.variants = 'At least one variant is required';
     } else {
@@ -179,7 +160,7 @@ export default function ProductForm({
         if (!v.sku?.trim()) newErrors[`variant_${idx}_sku`] = 'SKU is required';
       });
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -187,26 +168,45 @@ export default function ProductForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    
-    const serverErrors = await onSubmit({ 
-      ...formData, 
+
+    const serverErrors = await onSubmit({
+      ...formData,
       options: formData.options,
       variants: formData.variants,
     });
+
+    // Handle server errors
     if (serverErrors && typeof serverErrors === 'object') {
-      // Show general error in toast if no field-level errors
-      if (serverErrors._) {
-        window.showError(serverErrors._);
-      }
-      // Merge field errors — backend uses camelCase field names matching formData keys
-      const { _: _ignored, ...fieldErrors } = serverErrors;
-      if (Object.keys(fieldErrors).length > 0) {
-        setErrors((prev) => ({ ...prev, ...fieldErrors }));
+      // Check if response has message and errors structure
+      if (serverErrors.message && serverErrors.errors) {
+        // Show message in popup
+        window.showError(serverErrors.message, 'Validation Error');
+        // Convert server error keys to client format
+        const mappedErrors = {};
+        Object.entries(serverErrors.errors).forEach(([key, value]) => {
+          // Convert variants[0].sku -> variant_0_sku
+          let mappedKey = key;
+          mappedKey = mappedKey.replace(/variants\[(\d+)\]\./, 'variant_$1_');
+          mappedKey = mappedKey.replace(/options\[(\d+)\]\./, 'option_$1_');
+          mappedErrors[mappedKey] = value;
+        });
+        // Bind field errors
+        setErrors(mappedErrors);
+      } else if (serverErrors._ || serverErrors.message) {
+        // Legacy format or simple message
+        const errorMessage = serverErrors._ || serverErrors.message;
+        window.showError(errorMessage, 'Validation Error');
+        const { _: _ignored, message: _msgIgnored, ...fieldErrors } = serverErrors;
+        if (Object.keys(fieldErrors).length > 0) {
+          setErrors(fieldErrors);
+        }
+      } else {
+        // Field errors only
+        setErrors(serverErrors);
       }
     }
   };
 
-  // ── Options Handlers ──────────────────────────────────────────
   const handleAddOption = () => {
     const newOption = {
       tempId: nextOptionTempId,
@@ -224,7 +224,6 @@ export default function ProductForm({
     setFormData((prev) => {
       const removedOptionTempId = prev.options[index].tempId;
       const updatedOptions = prev.options.filter((_, i) => i !== index);
-      // Remove this option's ID from all variants
       const updatedVariants = prev.variants.map((variant) => ({
         ...variant,
         optionIds: variant.optionIds.filter((id) => id !== removedOptionTempId),
@@ -244,7 +243,6 @@ export default function ProductForm({
     }
   };
 
-  // ── Variants Handlers ─────────────────────────────────────────
   const handleAddVariant = () => {
     const newVariant = {
       tempId: Date.now() + Math.random(),
@@ -285,399 +283,447 @@ export default function ProductForm({
     setFormData((prev) => {
       const updatedVariants = [...prev.variants];
       const variant = updatedVariants[variantIndex];
-      
+
       if (variant.optionIds.includes(optionTempId)) {
         variant.optionIds = variant.optionIds.filter((id) => id !== optionTempId);
       } else {
         variant.optionIds = [...variant.optionIds, optionTempId];
       }
-      
+
       return { ...prev, variants: updatedVariants };
     });
   };
 
-  // ── Helpers ───────────────────────────────────────────────────
-  const formatStatus = (s) =>
-    s.split('_').map((w) => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.add('drag-over');
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('drag-over');
+  };
+
+  const handleDrop = (e, variantIdx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('drag-over');
+    if (e.dataTransfer && e.dataTransfer.files) {
+      handleAddVariantImages(variantIdx, { target: { files: e.dataTransfer.files, value: '' } });
+    }
+  };
+
+  const getOrdinal = (n) => {
+    if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
+
+    switch (n % 10) {
+      case 1: return `${n}st`;
+      case 2: return `${n}nd`;
+      case 3: return `${n}rd`;
+      default: return `${n}th`;
+    }
+  };
 
   return (
-    <div className="product-form-container">
-      <form onSubmit={handleSubmit} className="product-form">
-        <h2>{product ? 'Edit Product' : 'Add New Product'}</h2>
-
-        <div className="form-columns">
-          {/* Left Column - Basic Information */}
-          <div className="form-column-left">
-            {/* Name */}
-            <div className="form-group">
-              <label htmlFor="prod-name">Product Name *</label>
-              <input
-                id="prod-name"
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter product name"
-                className={errors.name ? 'error' : ''}
-              />
-              {errors.name && <span className="error-message">{errors.name}</span>}
-            </div>
-
-            {/* Brand + Status */}
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="prod-brand">Brand *</label>
-                <select
-                  id="prod-brand"
-                  name="brandId"
-                  value={formData.brandId}
-                  onChange={handleChange}
-                  className={`form-select ${errors.brandId ? 'error' : ''}`}
-                >
-                  <option value="">-- Select a brand --</option>
-                  {brands.map((b) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
-                {errors.brandId && <span className="error-message">{errors.brandId}</span>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="prod-status">Status</label>
-                <select
-                  id="prod-status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="form-select"
-                >
-                  {statuses.length === 0 ? (
-                    <option value="">Loading...</option>
-                  ) : (
-                    statuses.map((s) => (
-                      <option key={s} value={s}>{formatStatus(s)}</option>
-                    ))
-                  )}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Middle Column - Selection Fields */}
-          <div className="form-column-middle">
-            {/* Categories */}
-            {categories.length > 0 && (
-              <div className="form-group">
-                <label>
-                  Categories
-                  {formData.categoryIds.length > 0 && (
-                    <span className="cat-selected-summary"> — {formData.categoryIds.length} selected</span>
-                  )}
-                </label>
-                <CategoryTreeSelect
-                  categories={categories}
-                  selectedIds={formData.categoryIds}
-                  onChange={(ids) => setFormData((prev) => ({ ...prev, categoryIds: ids }))}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Description */}
-          <div className="form-column-right">
-            {/* Description */}
-            <div className="form-group">
-              <label htmlFor="prod-desc">Description</label>
-              <textarea
-                id="prod-desc"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Enter product description"
-                rows={4}
-                className="form-textarea"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Options Section */}
-        <div className="form-section">
-          <div className="section-header">
-            <h3>Product Options</h3>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={handleAddOption}
-            >
-              + Add Option
-            </button>
-          </div>
-
-          {formData.options.length === 0 ? (
-            <p className="empty-message">No options added yet. Click "Add Option" to create one.</p>
-          ) : (
-            <div className="options-list">
-              {formData.options.map((option, idx) => (
-                <div key={option.tempId || idx} className="option-item">
-                  <div className="option-fields">
-                    <div className="form-group">
-                      <label htmlFor={`option-name-${idx}`}>Option Name *</label>
-                      <input
-                        id={`option-name-${idx}`}
-                        type="text"
-                        placeholder="e.g., Color, Size"
-                        value={option.name}
-                        onChange={(e) => handleOptionChange(idx, 'name', e.target.value)}
-                        className={errors[`option_${idx}_name`] ? 'error' : ''}
-                      />
-                      {errors[`option_${idx}_name`] && (
-                        <span className="error-message">{errors[`option_${idx}_name`]}</span>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor={`option-value-${idx}`}>Option Value *</label>
-                      <input
-                        id={`option-value-${idx}`}
-                        type="text"
-                        placeholder="e.g., Red, Medium"
-                        value={option.value}
-                        onChange={(e) => handleOptionChange(idx, 'value', e.target.value)}
-                        className={errors[`option_${idx}_value`] ? 'error' : ''}
-                      />
-                      {errors[`option_${idx}_value`] && (
-                        <span className="error-message">{errors[`option_${idx}_value`]}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleRemoveOption(idx)}
-                  >
-                    Remove
-                  </button>
+    <div className="product-form-wrapper">
+      <div className="form-container">
+        <form onSubmit={handleSubmit} className="product-form">
+          <span>
+            {/* Section 1: Basic Information */}
+            <div className="form-section">
+              <div className="section-header">
+                <div>
+                  <h3 className="section-title">
+                    <i className="fa-solid fa-circle-info"></i> Basic Information
+                  </h3>
+                  <p className="section-subtitle">Product name, brand, and category</p>
                 </div>
-              ))}
+                <span className="step-badge">Step 1</span>
+              </div>
+
+              <div className="form-grid form-grid-2col">
+                {/* Product Name */}
+                <div className="form-group form-group-full">
+                  <label className="form-label">
+                    Product Name <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="e.g. Laptop Gaming Asus ROG Strix"
+                    className={`form-input ${errors.name ? 'error' : ''}`}
+                  />
+                  {errors.name && <span className="error-message">{errors.name}</span>}
+                </div>
+
+                {/* Description */}
+                <div className="form-group form-group-full">
+                  <label className="form-label">Product Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Enter high performance features, display, battery..."
+                    rows="3"
+                    className="form-textarea"
+                  />
+                </div>
+
+                {/* Brand */}
+                <div className="form-group">
+                  <label className="form-label">
+                    Brand <span className="required">*</span>
+                  </label>
+                  <select
+                    name="brandId"
+                    value={formData.brandId}
+                    onChange={handleChange}
+                    className={`form-select ${errors.brandId ? 'error' : ''}`}
+                  >
+                    <option value="">-- Select Brand --</option>
+                    {brands.map((b) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                  {errors.brandId && <span className="error-message">{errors.brandId}</span>}
+                </div>
+
+                {/* Status */}
+                <div className="form-group">
+                  <label className="form-label">Status</label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    className="form-select"
+                  >
+                    {statuses.map((s) => (
+                      <option key={s} value={s}>
+                        {s.split('_').map((w) => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Categories */}
+              {categories.length > 0 && (
+                <div className="form-group">
+                  <label className="form-label">
+                    Categories
+                    {formData.categoryIds.length > 0 && (
+                      <span className="cat-selected-summary"> — {formData.categoryIds.length} selected</span>
+                    )}
+                  </label>
+                  <CategoryTreeSelect
+                    categories={categories}
+                    selectedIds={formData.categoryIds}
+                    onChange={(ids) => setFormData((prev) => ({ ...prev, categoryIds: ids }))}
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Variants Section */}
-        <div className="form-section">
-          <div className="section-header">
-            <h3>Product Variants</h3>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={handleAddVariant}
-            >
-              + Add Variant
-            </button>
-          </div>
+            <br />
 
-          {errors.variants && <span className="error-message">{errors.variants}</span>}
+            {/* Section 2: Product Options */}
+            <div className="form-section">
+              <div className="section-header">
+                <div>
+                  <h3 className="section-title">
+                    <i className="fa-solid fa-sliders"></i> Product Options
+                  </h3>
+                  <p className="section-subtitle">e.g. Color, Size, RAM with automatic tempId mapping</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleAddOption}
+                >
+                  <i className="fa-solid fa-plus"></i> Add Option
+                </button>
+              </div>
 
-          {formData.variants.length === 0 ? (
-            <p className="empty-message">No variants added.</p>
-          ) : (
-            <div className="variants-list">
-              {formData.variants.map((variant, idx) => (
-                <div key={variant.tempId || idx} className="variant-item">
-                  <div className="variant-header">
-                    <span className="variant-index">Variant {idx + 1}</span>
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleRemoveVariant(idx)}
-                      disabled={formData.variants.length === 1}
-                      title={formData.variants.length === 1 ? 'At least one variant is required' : ''}
-                    >
-                      Remove
-                    </button>
-                  </div>
-
-                  <div className="variant-fields">
-                    <div className="form-group">
-                      <label htmlFor={`variant-name-${idx}`}>Variant Name *</label>
-                      <input
-                        id={`variant-name-${idx}`}
-                        type="text"
-                        placeholder="e.g., 16GB RAM / 512GB SSD"
-                        value={variant.name}
-                        onChange={(e) => handleVariantChange(idx, 'name', e.target.value)}
-                        className={errors[`variant_${idx}_name`] ? 'error' : ''}
-                      />
-                      {errors[`variant_${idx}_name`] && (
-                        <span className="error-message">{errors[`variant_${idx}_name`]}</span>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor={`variant-price-${idx}`}>Price ($) *</label>
-                      <input
-                        id={`variant-price-${idx}`}
-                        type="number"
-                        placeholder="0"
-                        value={variant.price}
-                        onChange={(e) => handleVariantChange(idx, 'price', e.target.value)}
-                        min="0"
-                        step="0.01"
-                        className={errors[`variant_${idx}_price`] ? 'error' : ''}
-                      />
-                      {errors[`variant_${idx}_price`] && (
-                        <span className="error-message">{errors[`variant_${idx}_price`]}</span>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor={`variant-stock-${idx}`}>Stock *</label>
-                      <input
-                        id={`variant-stock-${idx}`}
-                        type="number"
-                        placeholder="0"
-                        value={variant.stock}
-                        onChange={(e) => handleVariantChange(idx, 'stock', e.target.value)}
-                        min="0"
-                        className={errors[`variant_${idx}_stock`] ? 'error' : ''}
-                      />
-                      {errors[`variant_${idx}_stock`] && (
-                        <span className="error-message">{errors[`variant_${idx}_stock`]}</span>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor={`variant-sku-${idx}`}>SKU *</label>
-                      <input
-                        id={`variant-sku-${idx}`}
-                        type="text"
-                        placeholder="e.g., VAR_001"
-                        value={variant.sku}
-                        onChange={(e) => handleVariantChange(idx, 'sku', e.target.value)}
-                        className={errors[`variant_${idx}_sku`] ? 'error' : ''}
-                      />
-                      {errors[`variant_${idx}_sku`] && (
-                        <span className="error-message">{errors[`variant_${idx}_sku`]}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Variant Images */}
-                  <div className="variant-images">
-                    <label>
-                      Variant Images
-                      <span className="image-count"> ({variant.images.length} selected)</span>
-                    </label>
-
-                    {/* Hidden input */}
-                    <input
-                      ref={(el) => {
-                        if (el) variantFileInputRefs.current[idx] = el;
-                      }}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={(e) => handleAddVariantImages(idx, e)}
-                      className="image-input-hidden"
-                    />
-
-                    {/* Image grid */}
-                    {variant.images.length > 0 && (
-                      <div className="product-image-grid">
-                        {variant.images.map((img, imgIdx) => (
-                          <div key={imgIdx} className="product-image-item">
-                            <img
-                              src={img.type === 'existing' ? img.url : img.preview}
-                              alt={`variant-${idx}-${imgIdx}`}
-                              className="product-image-thumb"
-                            />
-                            {img.type === 'new' && (
-                              <span className="image-new-badge">New</span>
-                            )}
-                            <button
-                              type="button"
-                              className="image-remove-btn"
-                              onClick={() => handleRemoveVariantImage(idx, imgIdx)}
-                              aria-label="Remove image"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-
-                        {/* Add more tile */}
-                        <div
-                          className="product-image-add"
-                          onClick={() => variantFileInputRefs.current[idx]?.click()}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) =>
-                            e.key === 'Enter' && variantFileInputRefs.current[idx]?.click()
-                          }
-                        >
-                          <span className="add-icon">+</span>
-                          <span>Add more</span>
+              {formData.options.length === 0 ? (
+                <p className="empty-message">No options added yet. Click "+ Add Option" to create one.</p>
+              ) : (
+                <div className="options-list">
+                  {formData.options.map((option, idx) => (
+                    <div key={option.tempId || idx} className="option-item">
+                      <div className='w-100 d-flex justify-content-between'>
+                        <div className="option-tempid">#{option.tempId}</div>
+                        <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveOption(idx)}>
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                      </div>
+                      <div className="w-100 option-fields">
+                        <div className="form-group">
+                          <label className="form-label">Option Name</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. color, size"
+                            value={option.name}
+                            onChange={(e) => handleOptionChange(idx, 'name', e.target.value)}
+                            className={`form-input form-input-sm ${errors[`option_${idx}_name`] ? 'error' : ''}`}
+                          />
+                          {errors[`option_${idx}_name`] && (
+                            <span className="error-message">{errors[`option_${idx}_name`]}</span>
+                          )}
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Option Value</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. S, Blue"
+                            value={option.value}
+                            onChange={(e) => handleOptionChange(idx, 'value', e.target.value)}
+                            className={`form-input form-input-sm ${errors[`option_${idx}_value`] ? 'error' : ''}`}
+                          />
+                          {errors[`option_${idx}_value`] && (
+                            <span className="error-message">{errors[`option_${idx}_value`]}</span>
+                          )}
                         </div>
                       </div>
-                    )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </span>
 
-                    {/* Empty state */}
-                    {variant.images.length === 0 && (
-                      <div
-                        className="upload-placeholder"
-                        onClick={() => variantFileInputRefs.current[idx]?.click()}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) =>
-                          e.key === 'Enter' && variantFileInputRefs.current[idx]?.click()
-                        }
-                      >
-                        <div className="upload-icon">🖼️</div>
-                        <p>Click to add variant images</p>
-                        <small>JPG, PNG, GIF (max 5MB each)</small>
+          <span>
+            {/* Section 3: Product Variants */}
+            <div className="form-section">
+              <div className="section-header">
+                <div>
+                  <h3 className="section-title">
+                    <i className="fa-solid fa-cubes"></i> Product Variants
+                  </h3>
+                  <p className="section-subtitle">Manage stock items, associate options, and upload multiple variant photos</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleAddVariant}
+                >
+                  <i className="fa-solid fa-plus"></i> Add Variant
+                </button>
+              </div>
+
+              {errors.variants && <span className="error-message">{errors.variants}</span>}
+
+              {formData.variants.length === 0 ? (
+                <p className="empty-message">No variants available. Click "+ Add Variant" to create one.</p>
+              ) : (
+                <div className="variants-list">
+                  {formData.variants.map((variant, idx) => (
+                    <div key={variant.tempId || idx} className="variant-item">
+                      <div className="variant-header">
+                        <span className="variant-index">{getOrdinal(idx + 1)} variant</span>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleRemoveVariant(idx)}
+                          disabled={formData.variants.length === 1}
+                          title={formData.variants.length === 1 ? 'At least one variant is required' : ''}
+                        >
+                          <i className="fa-solid fa-trash-can"></i> Remove
+                        </button>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Options Selection */}
-                  {formData.options.length > 0 && (
-                    <div className="variant-options">
-                      <label>Product Options</label>
-                      <div className="options-checkboxes">
-                        {formData.options.map((option) => (
-                          <label key={option.tempId} className="option-checkbox">
-                            <input
-                              type="checkbox"
-                              checked={(variant.optionIds || []).includes(option.tempId)}
-                              onChange={() =>
-                                handleVariantOptionToggle(idx, option.tempId)
+                      {/* Variant Fields */}
+                      <div className="form-grid form-grid-2col">
+                        <div className="form-group form-group-full">
+                          <label className="form-label">Name</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 16GB RAM / 512GB SSD"
+                            value={variant.name}
+                            onChange={(e) => handleVariantChange(idx, 'name', e.target.value)}
+                            className={`form-input ${errors[`variant_${idx}_name`] ? 'error' : ''}`}
+                          />
+                          {errors[`variant_${idx}_name`] && (
+                            <span className="error-message">{errors[`variant_${idx}_name`]}</span>
+                          )}
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Price</label>
+                          <input
+                            type="number"
+                            placeholder="0"
+                            value={variant.price}
+                            onChange={(e) => handleVariantChange(idx, 'price', e.target.value)}
+                            min="0"
+                            step="0.01"
+                            className={`form-input ${errors[`variant_${idx}_price`] ? 'error' : ''}`}
+                          />
+                          {errors[`variant_${idx}_price`] && (
+                            <span className="error-message">{errors[`variant_${idx}_price`]}</span>
+                          )}
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Stock</label>
+                          <input
+                            type="number"
+                            placeholder="10"
+                            value={variant.stock}
+                            onChange={(e) => handleVariantChange(idx, 'stock', e.target.value)}
+                            min="0"
+                            className={`form-input ${errors[`variant_${idx}_stock`] ? 'error' : ''}`}
+                          />
+                          {errors[`variant_${idx}_stock`] && (
+                            <span className="error-message">{errors[`variant_${idx}_stock`]}</span>
+                          )}
+                        </div>
+
+                        <div className="form-group form-group-full">
+                          <label className="form-label">SKU</label>
+                          <input
+                            type="text"
+                            placeholder="SKU Identifier"
+                            value={variant.sku}
+                            onChange={(e) => handleVariantChange(idx, 'sku', e.target.value)}
+                            className={`form-input ${errors[`variant_${idx}_sku`] ? 'error' : ''}`}
+                          />
+                          {errors[`variant_${idx}_sku`] && (
+                            <span className="error-message">{errors[`variant_${idx}_sku`]}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Selected Options Mapping */}
+                      {formData.options.length > 0 && (
+                        <div className="variant-options">
+                          <label className="form-label">Selected Options</label>
+                          <div className="options-checkboxes">
+                            {formData.options.map((option) => (
+                              <label key={option.tempId} className="option-checkbox">
+                                <input
+                                  type="checkbox"
+                                  checked={(variant.optionIds || []).includes(option.tempId)}
+                                  onChange={() => handleVariantOptionToggle(idx, option.tempId)}
+                                />
+                                <span>
+                                  <i className="fa-solid fa-check"></i>
+                                  ID {option.tempId}: <strong>{option.name}</strong> ({option.value})
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Variant Images */}
+                      <div className="variant-images">
+                        <label className="form-label">
+                          <i className="fa-solid fa-images"></i>Images
+                          <span className="image-count">({variant.images.length} selected)</span>
+                        </label>
+
+                        {variant.images.length > 0 && (
+                          <div className="product-image-grid">
+                            {variant.images.map((img, imgIdx) => (
+                              <div key={imgIdx} className="product-image-item">
+                                <img
+                                  src={img.type === 'existing' ? img.url : img.preview}
+                                  alt={`variant-${idx}-${imgIdx}`}
+                                  className="product-image-thumb"
+                                />
+                                {img.type === 'new' && (
+                                  <span className="image-new-badge">New</span>
+                                )}
+                                <button
+                                  type="button"
+                                  className="image-remove-btn"
+                                  onClick={() => handleRemoveVariantImage(idx, imgIdx)}
+                                  aria-label="Remove image"
+                                >
+                                  <i className="fa-solid fa-trash-can"></i>
+                                </button>
+                              </div>
+                            ))}
+
+                            <div
+                              className="product-image-add"
+                              onClick={() => variantFileInputRefs.current[idx]?.click()}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) =>
+                                e.key === 'Enter' && variantFileInputRefs.current[idx]?.click()
                               }
-                            />
-                            <span>
-                              {option.name}: {option.value}
-                            </span>
-                          </label>
-                        ))}
+                            >
+                              <span className="add-icon">+</span>
+                              <span>Add more</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {variant.images.length === 0 && (
+                          <div
+                            className="upload-placeholder"
+                            onDragOver={(e) => handleDragOver(e)}
+                            onDragLeave={(e) => handleDragLeave(e)}
+                            onDrop={(e) => handleDrop(e, idx)}
+                            onClick={() => variantFileInputRefs.current[idx]?.click()}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) =>
+                              e.key === 'Enter' && variantFileInputRefs.current[idx]?.click()
+                            }
+                          >
+                            <div className="upload-icon">
+                              <i className="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <p>Click to add variant images</p>
+                            <small>JPG, PNG, GIF (max 5MB each) • Drag and drop supported</small>
+                          </div>
+                        )}
+
+                        <input
+                          ref={(el) => {
+                            if (el) variantFileInputRefs.current[idx] = el;
+                          }}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => handleAddVariantImages(idx, e)}
+                          className="hidden-file-input"
+                        />
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="form-actions">
-          <button type="button" onClick={onCancel} className="btn btn-cancel" disabled={loading}>
-            Cancel
-          </button>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Saving...' : product ? 'Update' : 'Create'}
-          </button>
-        </div>
-      </form>
+            {/* Form Actions */}
+            <div className="form-actions">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="btn btn-cancel"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                <i className="fa-solid fa-paper-plane"></i>
+                <span>{loading ? 'Saving...' : product ? 'Update' : 'Create'} Product</span>
+              </button>
+            </div>
+          </span>
+        </form>
+      </div>
     </div>
   );
 }

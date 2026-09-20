@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a252f 0%, #2c3e50 50%, #3498db 100%);
+  background: var(--master-color);
   padding: 20px;
 }
 
@@ -84,14 +84,14 @@
 
 .admin-form-group input:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: var(--master-primary);
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .admin-login-btn {
   padding: 14px;
-  background: linear-gradient(135deg, #2c3e50, #3498db);
+  background: var(--master-color);
   color: white;
   border: none;
   border-radius: 8px;
@@ -105,7 +105,7 @@
 
 .admin-login-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.35);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
 }
 
 .admin-login-btn:disabled {

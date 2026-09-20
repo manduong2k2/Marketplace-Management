@@ -27,7 +27,7 @@ export default function BrandCard({ brand, selected, onSelect }) {
   };
 
   const displayImage = imageError ? FALLBACK_IMAGES[0] : (brand.image || FALLBACK_IMAGES[0]);
-  const productCount = brand.productCount || 0;
+  const productsCount = brand.productsCount || 0;
 
   return (
     <div 
@@ -51,7 +51,7 @@ export default function BrandCard({ brand, selected, onSelect }) {
       {/* Product Count Badge */}
       <div className="brand-badge">
         <i className="fa-solid fa-box"></i>
-        <span>{productCount} Products</span>
+        <span>{productsCount} Products</span>
       </div>
 
       {/* Explore Button */}

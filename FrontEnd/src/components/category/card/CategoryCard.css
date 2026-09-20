@@ -31,7 +31,7 @@
   height: 18px;
   margin: 0 8px 0 12px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--master-primary);
   flex-shrink: 0;
 }
 
@@ -41,15 +41,15 @@
 }
 
 .category-card.has-children:hover {
-  border-color: #667eea;
+  border-color: var(--master-primary);
 }
 
 .category-card.expanded {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom-color: transparent;
-  border-color: #667eea;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  border-color: var(--master-primary);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
 }
 
 .category-card.user-view {
@@ -62,7 +62,7 @@
   display: block;
   width: 3px;
   align-self: stretch;
-  background: linear-gradient(to bottom, #667eea, #a29bfe);
+  background: linear-gradient(to bottom, var(--master-primary), #8b5cf6);
   flex-shrink: 0;
   margin-right: 4px;
   opacity: 0.5;
@@ -124,16 +124,16 @@
 
 .category-card.expanded .category-chevron,
 .category-card.has-children:hover .category-chevron {
-  color: #667eea;
+  color: var(--master-primary);
 }
 
 /* ── Children container — wraps recursive CategoryCard components ── */
 .category-children {
-  border: 1px solid #667eea;
+  border: 1px solid var(--master-primary);
   border-top: none;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  background: #f8f9ff;
+  background: rgba(99, 102, 241, 0.05);
   display: flex;
   flex-direction: column;
   gap: 4px;

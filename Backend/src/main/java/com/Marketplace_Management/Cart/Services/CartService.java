@@ -70,7 +70,7 @@ public class CartService implements ICartService {
             item.setProductName(productVariant.getProduct().getName());
             item.setProductPrice(productVariant.getPrice());
             item.setProductImage(productVariant.getImages());
-            item.setProductCode(productVariant.getCode());
+            item.setProductSku(productVariant.getSku());
             item.setProductOptions(productVariant.getOptions());
         }
 
@@ -89,7 +89,7 @@ public class CartService implements ICartService {
             item.setProductName(productVariant.getProduct().getName());
             item.setProductPrice(productVariant.getPrice());
             item.setProductImage(productVariant.getImages());
-            item.setProductCode(productVariant.getCode());
+            item.setProductSku(productVariant.getSku());
             item.setProductOptions(productVariant.getOptions());
         }
 
@@ -112,7 +112,7 @@ public class CartService implements ICartService {
                 item.setProductName(productVariant.getProduct().getName());
                 item.setProductPrice(productVariant.getPrice());
                 item.setProductImage(productVariant.getImages());
-                item.setProductCode(productVariant.getCode());
+                item.setProductSku(productVariant.getSku());
                 item.setProductOptions(productVariant.getOptions());
             }
         }

@@ -39,8 +39,6 @@ export default function AdminProductEditPage() {
           productService.getStatuses(),
         ]);
 
-        console.log('Product API response:', prodRes);
-
         if (!prodRes.ok || !prodRes.data) {
           setError('Product not found');
           return;
@@ -49,7 +47,6 @@ export default function AdminProductEditPage() {
         // Extract actual product data from nested response
         const productData = prodRes.data.data || prodRes.data;
         setProduct(productData);
-        console.log('Product state set:', productData);
         setBrands(brandRes.data?.data || []);
         setCategories(catRes.data?.data || []);
         setStatuses(statusRes.data?.data || []);
@@ -122,7 +119,11 @@ export default function AdminProductEditPage() {
         window.showSuccess('Product updated successfully');
         navigate('/admin/products');
       } else {
-        return data.errors || { _: data.message || 'Failed to update product' };
+        // Return the full error response with message and errors
+        return {
+          message: data.message || 'Failed to update product',
+          errors: data.errors || {}
+        };
       }
     } catch (err) {
       window.showError('Server connection error');
@@ -167,7 +168,7 @@ export default function AdminProductEditPage() {
         <h2 className="admin-page-title">✏️ Edit Product</h2>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{margin: '0 auto' }}>
         {product && (
           <ProductForm
             product={product}

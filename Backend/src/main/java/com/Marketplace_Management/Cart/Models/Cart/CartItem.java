@@ -6,10 +6,15 @@ import java.util.UUID;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductOptionResponse;
 import com.Marketplace_Management.Shared.Models.Entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data 
+@EqualsAndHashCode(callSuper = true)
 public class CartItem extends Entity<UUID> {
     private UUID productVariantId;
-    private Quantity quantity;
-    private String productCode;
+    private int quantity;
+    private String productSku;
     private String productDescription;
     private String productName;
     private double productPrice;
@@ -19,7 +24,7 @@ public class CartItem extends Entity<UUID> {
     public CartItem(UUID id, UUID productVariantId, int quantity) {
         super(id);
         this.productVariantId = productVariantId;
-        this.quantity = new Quantity(quantity);
+        this.quantity = quantity;
     }
 
     // Business methods
@@ -28,87 +33,21 @@ public class CartItem extends Entity<UUID> {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
-        this.quantity.setValue(this.quantity.getValue() + amount);
+        this.quantity += amount;
     }
 
     public void decreaseQuantity(int amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
-        int newQty = this.quantity.getValue() - amount;
+        int newQty = this.quantity - amount;
         if (newQty < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
-        this.quantity.setValue(newQty);
+        this.quantity = newQty;
     }
 
     public void updateQuantity(int quantity) {
-        this.quantity.setValue(quantity);
-    }
-
-    // Base methods
-
-    public UUID getProductVariantId() {
-        return productVariantId;
-    }
-
-    public void setProductVariantId(UUID productVariantId) {
-        this.productVariantId = productVariantId;
-    }
-
-    public int getQuantity() {
-        return quantity.getValue();
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity.setValue(quantity);
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-    
-    public String getProductCode() {
-        return productCode;
-    }
-    
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
-    }
-    
-    public String getProductDescription() {
-        return productDescription;
-    }
-    
-    public void setProductDescription(String productDescription) {
-        this.productDescription = productDescription;
-    }
-
-    public double getProductPrice() {
-        return productPrice;
-    }
-
-    public void setProductPrice(double productPrice) {
-        this.productPrice = productPrice;
-    }
-
-    public List<String> getProductImage() {
-        return productImage;
-    }
-
-    public void setProductImage(List<String> productImage) {
-        this.productImage = productImage;
-    }
-
-    public List<ProductOptionResponse> getProductOptions() {
-        return productOptions;
-    }
-
-    public void setProductOptions(List<ProductOptionResponse> productOptions) {
-        this.productOptions = productOptions;
+        this.quantity = quantity;
     }
 }

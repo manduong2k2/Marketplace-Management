@@ -1,6 +1,5 @@
 package com.Marketplace_Management.Order.DTOs.Commands;
 
-import java.util.List;
 import java.util.UUID;
 
 import com.Marketplace_Management.Order.DTOs.Requests.PlaceOrderRequest;
@@ -11,7 +10,6 @@ import lombok.Data;
 public class PlaceOrderCommand{
     private UUID cartId;
     private UUID userId;
-    private List<OrderItemCommand> items;
     private String name;
     private String phone;
     private String address;
