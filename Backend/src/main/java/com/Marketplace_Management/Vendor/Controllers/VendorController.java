@@ -22,11 +22,13 @@ import com.Marketplace_Management.Shared.Security.SecurityUtils;
 import com.Marketplace_Management.Vendor.Contracts.IVendorService;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.GetListVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Request.CreateCollectionRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.CreateVendorRequest;
+import com.Marketplace_Management.Vendor.DTOs.Request.GetListVendorRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.RegisterVendorRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.UpdateCollectionRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.UpdateVendorRequest;
@@ -49,8 +51,9 @@ public class VendorController extends BaseController{
 
     @Authenticated
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAll() {
-        List<VendorResponse> vendors = vendorService.getAll();
+    public ResponseEntity<Map<String, Object>> getAll(@Valid @ModelAttribute GetListVendorRequest request) {
+        GetListVendorCommand command = GetListVendorCommand.fromRequest(request);
+        List<VendorResponse> vendors = vendorService.getAll(command);
 
         return objectResponse(vendors);
     }

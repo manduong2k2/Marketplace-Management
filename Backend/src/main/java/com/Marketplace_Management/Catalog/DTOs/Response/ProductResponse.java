@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.Marketplace_Management.Catalog.Models.Product;
+import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Data
@@ -24,6 +25,7 @@ public class ProductResponse {
     private String status;
     private List<Variant> variants;
     private List<ProductOptionResponse> options;
+    private VendorResponse vendor;
 
     public ProductResponse(Product product) {
         if (product == null) {
@@ -63,6 +65,17 @@ public class ProductResponse {
         if (this.getVariants() != null) {
             this.getVariants().forEach(v -> v.withUrl(url));
         }
+        if (this.brand != null) {
+            this.brand = this.brand.withUrl(url);
+        }
+        if(this.categories != null) {
+            this.categories.forEach(c -> c.withUrl(url));
+        }
+        return this;
+    }
+
+    public ProductResponse withVendor(VendorResponse vendor) {
+        this.vendor = vendor;
         return this;
     }
 

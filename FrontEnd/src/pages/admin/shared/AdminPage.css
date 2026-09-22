@@ -407,9 +407,8 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   width: 90%;
   max-width: 900px;
-  max-height: 95vh;
   animation: modalIn 0.25s ease;
-  margin-top: 6%;
+  margin-top: 110px;
 }
 
 /* override inner form styles so they don't double-box */

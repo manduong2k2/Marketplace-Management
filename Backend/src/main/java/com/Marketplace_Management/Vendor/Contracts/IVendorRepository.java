@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.Marketplace_Management.Vendor.DTOs.Command.GetListVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 import com.Marketplace_Management.Vendor.Models.Vendor;
 
 public interface IVendorRepository {
     Vendor save(Vendor vendor);
 
-    List<Vendor> findAll();
+    List<VendorResponse> findAll(GetListVendorCommand command);
 
     Optional<Vendor> findById(UUID id);
 

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.GetListVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
@@ -13,7 +14,7 @@ import com.Marketplace_Management.Vendor.DTOs.Response.CollectionResponse;
 import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 
 public interface IVendorService {
-    List<VendorResponse> getAll();
+    List<VendorResponse> getAll(GetListVendorCommand command);
 
     VendorResponse create(CreateVendorCommand command) throws IOException;
 

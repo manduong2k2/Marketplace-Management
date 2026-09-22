@@ -20,6 +20,7 @@ import com.Marketplace_Management.Vendor.Contracts.IVendorRepository;
 import com.Marketplace_Management.Vendor.Contracts.IVendorService;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.GetListVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateCollectionCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
@@ -53,9 +54,8 @@ public class VendorService implements IVendorService {
         this.collectionMapper = collectionMapper;
     }
 
-    public List<VendorResponse> getAll() {
-        return vendorRepository.findAll().stream()
-                .map(VendorResponse::new)
+    public List<VendorResponse> getAll(GetListVendorCommand command) {
+        return vendorRepository.findAll(command).stream()
                 .map(vendor -> vendor.withUrl(baseUrl))
                 .toList();
     }

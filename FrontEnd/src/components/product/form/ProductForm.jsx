@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import CategoryTreeSelect from '../../category/tree/CategoryTreeSelect';
+import SearchableVendorSelect from '../../vendor/select/SearchableVendorSelect';
 import './ProductForm.css';
 
 export default function ProductForm({
@@ -17,6 +18,7 @@ export default function ProductForm({
     name: product?.name || '',
     description: product?.description || '',
     brandId: product?.brandId || product?.brand?.id || '',
+    vendorId: product?.vendorId || product?.vendor?.id || '',
     categoryIds: product?.categoryIds || product?.categories?.map((c) => c.id) || [],
     status: product?.status || defaultStatus,
     options: product?.options?.map((opt, idx) => ({ ...opt, tempId: idx })) || [],
@@ -370,6 +372,16 @@ export default function ProductForm({
                     placeholder="Enter high performance features, display, battery..."
                     rows="3"
                     className="form-textarea"
+                  />
+                </div>
+
+                {/* Vendor */}
+                <div className="form-group form-group-full">
+                  <label className="form-label">Vendor</label>
+                  <SearchableVendorSelect
+                    value={formData.vendorId}
+                    onChange={handleChange}
+                    error={errors.vendorId}
                   />
                 </div>
 

@@ -41,6 +41,9 @@ public class BrandRepository implements IBrandRepository {
                 .withCount("products", product -> {
                     product.select("id", "name");
                 })
+                .when(command.getSearch() != null && !command.getSearch().isEmpty(), q -> {
+                    q.where("name", "ILIKE", "%" + command.getSearch() + "%");
+                })
                 .select("id", "name", "description", "image");
 
         long total = queryBuilder.count();

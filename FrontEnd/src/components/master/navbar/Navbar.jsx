@@ -124,6 +124,16 @@ export default function Navbar() {
                     <i className="fas fa-store"></i> Vendor Management
                   </button>
                 </li>
+                {user.roles.includes('Admin') && (
+                  <>
+                    <li><hr className="user-dropdown-divider" /></li>
+                    <li>
+                      <button className="user-dropdown-item user-dropdown-item--admin" onClick={() => navigate('/admin')}>
+                        <i className="fas fa-cogs"></i> System Management
+                      </button>
+                    </li>
+                  </>
+                )}
                 <li><hr className="user-dropdown-divider" /></li>
                 <li>
                   <button className="user-dropdown-item user-dropdown-item--danger" onClick={handleLogout}>

@@ -47,7 +47,7 @@ export default function AdminProductCreatePage() {
 
   const buildFd = (formData) => {
     const fd = new FormData();
-    ['name', 'description', 'brandId', 'status'].forEach(k =>
+    ['name', 'description', 'brandId', 'vendorId', 'status'].forEach(k =>
       fd.append(k, formData[k] ?? '')
     );
     formData.categoryIds?.forEach(id => fd.append('categoryIds', id));

@@ -313,6 +313,20 @@
     color: #dc2626;
 }
 
+.user-dropdown-item--admin {
+    color: #7c3aed;
+}
+
+.user-dropdown-item--admin i,
+.user-dropdown-item--admin:hover i {
+    color: #7c3aed;
+}
+
+.user-dropdown-item--admin:hover {
+    background: #f5f3ff;
+    color: #7c3aed;
+}
+
 /* Cart Icon */
 .navbar-cart-btn {
     position: relative;

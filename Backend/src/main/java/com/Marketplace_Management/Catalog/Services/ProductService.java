@@ -97,12 +97,19 @@ public class ProductService implements IProductService {
                     .build()
         ).collect(java.util.stream.Collectors.toList());
 
+        VendorResponse vendor;
+
         if(command.getVendorId() == null) {
-            VendorResponse vendor = vendorService.getByUser(SecurityUtils.currentUserId());
+            vendor = vendorService.getByUser(SecurityUtils.currentUserId());
             if(vendor == null) {
                 throw new ResourceNotFoundException("Vendor not found");
             }
             command.setVendorId(vendor.getId());
+        } else {
+            vendor = vendorService.getById(command.getVendorId());
+            if(vendor == null) {
+                throw new ResourceNotFoundException("Vendor not found");
+            }
         }
 
         Product product = Product.builder()
@@ -141,7 +148,7 @@ public class ProductService implements IProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        return new ProductResponse(savedProduct).withUrl(baseUrl);
+        return new ProductResponse(savedProduct).withUrl(baseUrl).withVendor(vendor);
     }
 
     @Transactional
