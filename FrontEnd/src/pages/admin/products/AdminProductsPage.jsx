@@ -351,7 +351,7 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="col-product">
                         <div className="product-info">
-                          <div className="product-image">
+                          <div className="admin-product-image">
                             {firstVariant?.images?.[0] ? (
                               <img src={firstVariant.images[0].url} alt={prod.name} />
                             ) : (
