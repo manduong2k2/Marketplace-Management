@@ -821,6 +821,7 @@
   padding: 0.75rem;
   border-radius: 0.75rem;
   border: 1px solid var(--color-slate-200);
+  display: block;
 }
 
 .summary-item label {
@@ -931,7 +932,7 @@
   margin: 0;
 }
 
-.variant-images {
+.details-variant-images {
   display: flex;
   gap: 0.25rem;
   align-items: center;
@@ -1010,8 +1011,6 @@
 }
 
 .option-values {
-  display: flex;
-  flex-direction: column;
   gap: 0.25rem;
 }
 

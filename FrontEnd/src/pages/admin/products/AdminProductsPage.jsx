@@ -564,10 +564,6 @@ export default function AdminProductsPage() {
                             <p>{detailProduct.brand.description}</p>
                           </div>
                         )}
-                        <div className="brand-row">
-                          <label>Products Count:</label>
-                          <p>{detailProduct.brand.productsCount || 0}</p>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -650,7 +646,7 @@ export default function AdminProductsPage() {
                               <td className="mono">[{v.optionList || 'N/A'}]</td>
                               <td>
                                 {v.images && v.images.length > 0 ? (
-                                  <div className="variant-images">
+                                  <div className="details-variant-images">
                                     {v.images.slice(0, 2).map((img, idx) => (
                                       <img key={idx} src={img} alt={`${v.name}-${idx}`} className="variant-thumb" />
                                     ))}
