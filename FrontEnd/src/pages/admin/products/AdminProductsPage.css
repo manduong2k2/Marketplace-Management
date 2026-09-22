@@ -1,6 +1,6 @@
 /* Master Gradient & Colors */
 :root {
-  --master-gradient: linear-gradient(135deg, #d8dbee, #727e7c, #0b1d1f);
+  --master-gradient: var(--master-color);
   --color-emerald: #10b981;
   --color-amber: #f59e0b;
   --color-rose: #ef4444;
@@ -688,26 +688,31 @@
 .page-number {
   width: 2rem;
   height: 2rem;
-  border-radius: 0.625rem;
-  border: 1px solid var(--color-slate-300);
+  border-radius: 80%;
+  border: 0.5px solid var(--color-slate-300);
   background: white;
   color: var(--color-slate-600);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .page-number:hover {
-  background: var(--color-slate-100);
+  background: var(--master-gradient);
+  color: white;
+  border: none;
+  border-color: transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .page-number.active {
   background: var(--master-gradient);
   color: white;
+  border: none;
   border-color: transparent;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
