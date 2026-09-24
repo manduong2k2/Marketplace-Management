@@ -20,12 +20,13 @@
     #0b1d1f
   );
 
+  --master-primary-dark: #6366f1;
+  --master-primary-light: #cacad0;
+
   /* Current theme color */
   --master-color: var(--master-color-light);
-
-  --master-primary: #6366f1;
-  --master-hover: #4f46e5;
-
+  --master-primary: var(--master-primary-light);
+  --master-hover: var(--master-primary-light);
   --master-secondary: linear-gradient(
     135deg,
     #0b1d1f,
@@ -35,8 +36,10 @@
 }
 
 /* Dark theme */
-[data-theme="dark"] {
+[data-theme="dark"] { 
   --master-color: var(--master-color-dark);
+  --master-primary: var(--master-primary-dark);
+  --master-hover: var(--master-primary-dark);
 }
 
 html {

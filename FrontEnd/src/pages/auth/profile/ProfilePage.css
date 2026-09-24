@@ -101,7 +101,7 @@
   font-weight: 600;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--master-color);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -169,7 +169,7 @@
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--master-color);
   color: white;
   font-size: 40px;
   font-weight: 700;

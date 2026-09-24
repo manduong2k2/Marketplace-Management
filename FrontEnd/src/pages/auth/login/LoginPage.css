@@ -5,12 +5,13 @@
   gap: 20px;
   border-radius: 12px;
   padding: 40px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 450px;
   box-sizing: border-box;
+  backdrop-filter: blur(10px);
 }
 
 .login-form h2 {
@@ -69,7 +70,7 @@
 
 .login-form button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 20px rgba(122, 122, 124, 0.3);
 }
 
 .login-form button:active:not(:disabled) {

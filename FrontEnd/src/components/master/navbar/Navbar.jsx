@@ -4,7 +4,7 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import { CartContext } from '../../../contexts/CartContext';
 import { authService } from '../../../services/authService';
 import './Navbar.css';
-import shopIcon from '../../../../public/logo1.png';
+import shopIcon from '../../../../public/logo.png';
 import { APP_NAME, APP_SLOGAN } from '../../../configs/constants';
 
 function CartIcon({ count }) {
