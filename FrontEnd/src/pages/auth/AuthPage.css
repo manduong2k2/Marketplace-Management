@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: center;
   background: var(--master-background);
-  padding: 1rem;
   font-family: 'Inter', sans-serif;
 }
 
@@ -12,9 +11,8 @@
   position: relative;
   width: 100%;
   max-width: 1250px;
-  min-height: 900px;
+  min-height: 100vh;
   overflow: hidden;
-  border-radius: 1.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 35px rgba(79, 70, 229, 0.15);
   background: white;
 }
@@ -177,7 +175,7 @@
 .auth-form {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  margin-top: 40px;
   padding: 2rem 3rem;
 }
 
@@ -521,6 +519,7 @@
     width: 100% !important;
     height: auto;
     transform: none !important;
+    min-height: 500px;
   }
 
   .sign-in-container, .sign-up-container {
@@ -528,6 +527,7 @@
     top: 0;
     left: 0;
     width: 100% !important;
+    height: 100%;
   }
 
   .sign-in-container {
@@ -554,6 +554,9 @@
 
   .auth-form {
     padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   .form-header h2 {
@@ -562,5 +565,13 @@
 
   .social-buttons {
     grid-template-columns: 1fr;
+  }
+
+  .submit-section {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    margin-top: auto;
   }
 }
