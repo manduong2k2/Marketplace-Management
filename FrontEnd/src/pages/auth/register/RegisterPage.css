@@ -126,14 +126,14 @@
 }
 
 .login-link a {
-  color: var(--master-primary);
+  color: var(--master-text);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
 .login-link a:hover {
-  color: #8b5cf6;
+  color: var(--master-hover);
   text-decoration: underline;
 }
 

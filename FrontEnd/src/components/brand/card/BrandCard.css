@@ -74,13 +74,11 @@
   justify-content: center;
   margin-bottom: 16px;
   overflow: hidden;
-  padding: 12px;
   transition: var(--transition);
 }
 
 .brand-card:hover .brand-img-wrap {
   border-color: var(--master-primary);
-  background: var(--master-primary-light);
   transform: scale(1.05);
 }
 
