@@ -6,8 +6,7 @@ import MasterLayout from '../layouts/master/MasterLayout';
 import AuthLayout from '../layouts/auth/AuthLayout';
 import AdminLayout from '../layouts/admin/AdminLayout';
 
-import LoginPage from '../pages/auth/login/LoginPage';
-import RegisterPage from '../pages/auth/register/RegisterPage';
+import AuthPage from '../pages/auth/AuthPage';
 import ForgotPasswordPage from '../pages/auth/forgot/ForgotPasswordPage';
 import ProfilePage from '../pages/auth/profile/ProfilePage';
 import AddressPage from '../pages/auth/address/AddressPage';
@@ -44,7 +43,7 @@ import '../index.css';
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
   if (loading) return <p>Loading...</p>;
-  return user ? children : <Navigate to="/login" replace />;
+  return user ? children : <Navigate to="/auth?action=login" replace />;
 };
 
 // ===== AdminRoute — redirect to /admin/login if not admin =====
@@ -65,8 +64,7 @@ export default function AppRouter() {
 
           {/* Auth pages */}
           <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/auth" element={<AuthPage />} />
             <Route path="/forgot" element={<ForgotPasswordPage />} />
           </Route>
 

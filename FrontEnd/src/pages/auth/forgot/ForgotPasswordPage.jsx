@@ -113,7 +113,7 @@ export default function ForgotPasswordPage() {
               <button onClick={handleReset} className="reset-btn">
                 Send Again
               </button>
-              <Link to="/login" className="back-to-login">
+              <Link to="/auth?action=login" className="back-to-login">
                 Back to Login
               </Link>
             </div>
@@ -122,7 +122,7 @@ export default function ForgotPasswordPage() {
 
         {!submitted && (
           <div className="back-to-login">
-            <Link to="/login">← Back to Login</Link>
+            <Link to="/auth?action=login">← Back to Login</Link>
           </div>
         )}
       </div>

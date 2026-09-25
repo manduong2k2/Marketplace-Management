@@ -10,7 +10,7 @@ const PrivateRoute = ({ children }) => {
   if (loading) return <p>Loading...</p>;
 
   // Nếu đã login (user tồn tại) -> render children, nếu không -> redirect login
-  return user ? children : <Navigate to="/login" replace />;
+  return user ? children : <Navigate to="/auth?action=login" replace />;
 };
 
 export default PrivateRoute;

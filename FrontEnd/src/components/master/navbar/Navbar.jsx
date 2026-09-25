@@ -29,7 +29,7 @@ export default function Navbar() {
     try {
       await authService.logout();
       await setUser(null);
-      navigate('/login');
+      navigate('/auth?action=login');
     } catch (err) {
       alert('Logout failed!');
     }
@@ -145,10 +145,10 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/login" className="navbar-btn">
+            <Link to="/auth?action=login" className="navbar-btn">
               Login
             </Link>
-            <Link to="/register" className="navbar-btn">
+            <Link to="/auth?action=signup" className="navbar-btn">
               Register
             </Link>
           </>

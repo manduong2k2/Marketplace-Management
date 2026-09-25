@@ -11,14 +11,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 80px 20px 40px;
   box-sizing: border-box;
+  margin-top: 40px; /* Height of navbar */
 }
 
 /* Card that wraps login / register / forgot forms */
 .auth-layout-card {
   width: 100%;
-  max-width: 480px;
   padding: 0;
   border-radius: 10px;
 }
@@ -26,6 +25,7 @@
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .auth-layout-page {
+    margin-top: 40px;
     padding: 80px 14px 30px;
     align-items: flex-start;
   }
@@ -33,6 +33,7 @@
 
 @media (max-width: 480px) {
   .auth-layout-page {
+    margin-top: 40px;
     padding: 74px 10px 24px;
   }
 }

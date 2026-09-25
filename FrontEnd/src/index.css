@@ -1,7 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
 }
 
 :root {
@@ -23,6 +30,9 @@
   --master-primary-light: #9a9aa1;
   --master-primary-dark: #6366f1;
 
+  --master-background-light: #cfcdcd;
+  --master-background-dark: #1a1a1a;
+
   --master-text-dark: #b4b4b9;
   --master-text-light: #333333;
 
@@ -31,6 +41,7 @@
 
   /* Current theme color */
   --master-color: var(--master-color-light);
+  --master-background: var(--master-background-light);
   --master-primary: var(--master-primary-light);
   --master-hover: var(--master-hover-light);  
   --master-secondary: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
@@ -43,6 +54,7 @@
   --master-primary: var(--master-primary-dark);
   --master-hover: var(--master-hover-dark);
   --master-text: var(--master-text-dark);
+  --master-background: var(--master-background-dark);
 }
 
 html {
