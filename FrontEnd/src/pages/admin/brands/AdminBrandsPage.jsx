@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { brandService } from '../../../services/brandService';
 import BrandForm from '../../../components/brand/form/BrandForm';
 import '../shared/AdminPage.css';
+import './AdminBrandsPage.css';
 
 export default function AdminBrandsPage() {
   useEffect(() => { document.title = 'Admin - Brands'; }, []);
@@ -13,6 +14,7 @@ export default function AdminBrandsPage() {
   const [error, setError]               = useState(null);
   const [modal, setModal]               = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [searchQuery, setSearchQuery]   = useState('');
 
   const fetchBrands = async () => {
     try {
@@ -24,6 +26,11 @@ export default function AdminBrandsPage() {
   };
 
   useEffect(() => { fetchBrands(); }, []);
+
+  const filteredBrands = brands.filter(brand =>
+    brand.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    brand.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleCreate = async (formData) => {
     setSubmitting(true);
@@ -65,34 +72,137 @@ export default function AdminBrandsPage() {
     finally  { setDeleteTarget(null); }
   };
 
+  if (loading) {
+    return (
+      <div className="brands-page">
+        <div className="admin-loading">
+          <div className="admin-spinner"></div>
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <h2 className="admin-page-title">🏷️ Brands</h2>
-        <button className="btn-admin-primary" onClick={() => setModal('create')}>+ Add New</button>
+    <div className="brands-page">
+      {/* Header */}
+      <div className="brands-header light-card">
+        <div className="header-left">
+          <div className="header-icon">
+            <i className="fa-solid fa-tags"></i>
+          </div>
+          <div>
+            <h1 className="header-title">Brand Management</h1>
+            <p className="header-subtitle">Manage brand portfolio, descriptions & visual identity</p>
+          </div>
+        </div>
+
+        {/* Stats Badges */}
+        <div className="header-stats">
+          <div className="stat-badge">
+            <span className="stat-dot total"></span>
+            <span className="stat-label">Total:</span>
+            <span className="stat-value">{brands.length}</span>
+          </div>
+        </div>
       </div>
 
       {error && <div className="admin-alert admin-alert-error">{error}</div>}
 
-      {loading ? (
-        <div className="admin-loading"><div className="admin-spinner" /><span>Loading...</span></div>
-      ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead><tr><th>#</th><th>Image</th><th>Brand Name</th><th>Description</th><th>Actions</th></tr></thead>
+      {/* Toolbar */}
+      <div className="brands-toolbar light-card">
+        <div className="toolbar-filters">
+          {/* Search */}
+          <div className="search-input-wrapper">
+            <i className="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              placeholder="Search by name, description..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          {/* Reset Button */}
+          {searchQuery && (
+            <button
+              className="reset-button"
+              onClick={() => setSearchQuery('')}
+            >
+              <i className="fa-solid fa-rotate-left"></i> Reset search
+            </button>
+          )}
+        </div>
+
+        {/* Add New Button */}
+        <button
+          className="btn-add-new"
+          onClick={() => setModal('create')}
+        >
+          <i className="fa-solid fa-plus"></i>
+          <span>Add New Brand</span>
+        </button>
+      </div>
+
+      {/* Table Container */}
+      <div className="brands-table-container light-card">
+        <div className="table-wrapper">
+          <table className="brands-table">
+            <thead>
+              <tr>
+                <th className="col-checkbox">#</th>
+                <th className="col-image">Brand Image</th>
+                <th className="col-name">Brand Name</th>
+                <th className="col-description">Description</th>
+                <th className="col-actions">Actions</th>
+              </tr>
+            </thead>
             <tbody>
-              {brands.length === 0 ? (
-                <tr><td colSpan={5} className="admin-table-empty">No brands found</td></tr>
-              ) : brands.map((brand, idx) => (
+              {filteredBrands.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="empty-state">
+                    <i className="fa-solid fa-box-open"></i>
+                    <p>No matching brands found</p>
+                    <span>Please try searching again</span>
+                  </td>
+                </tr>
+              ) : filteredBrands.map((brand, idx) => (
                 <tr key={brand.id}>
-                  <td>{idx + 1}</td>
-                  <td>{brand.image ? <img src={brand.image} alt={brand.name} className="admin-table-img" /> : <span className="admin-no-image">—</span>}</td>
-                  <td className="admin-table-name">{brand.name}</td>
-                  <td className="admin-table-desc">{brand.description ? brand.description.length > 60 ? brand.description.slice(0, 60) + '...' : brand.description : '—'}</td>
-                  <td>
-                    <div className="admin-action-btns">
-                      <button className="btn-admin-edit"   onClick={() => setModal({ mode: 'edit', brand })}>✏️ Edit</button>
-                      <button className="btn-admin-delete" onClick={() => setDeleteTarget(brand)}>🗑️ Delete</button>
+                  <td className="col-checkbox">{idx + 1}</td>
+                  <td className="col-image">
+                    <div className="brand-image-cell">
+                      {brand.image ? (
+                        <img src={brand.image} alt={brand.name} />
+                      ) : (
+                        <div className="no-image">No Image</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="col-name">
+                    <h4 className="brand-name">{brand.name}</h4>
+                  </td>
+                  <td className="col-description">
+                    <p className="brand-description">
+                      {brand.description ? brand.description.length > 100 ? brand.description.slice(0, 100) + '...' : brand.description : '—'}
+                    </p>
+                  </td>
+                  <td className="col-actions">
+                    <div className="action-buttons">
+                      <button
+                        className="btn-action btn-edit"
+                        title="Edit"
+                        onClick={() => setModal({ mode: 'edit', brand })}
+                      >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button
+                        className="btn-action btn-delete"
+                        title="Delete"
+                        onClick={() => setDeleteTarget(brand)}
+                      >
+                        <i className="fa-solid fa-trash-can"></i>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -100,7 +210,7 @@ export default function AdminBrandsPage() {
             </tbody>
           </table>
         </div>
-      )}
+      </div>
 
       {/* Create modal */}
       {modal === 'create' && (

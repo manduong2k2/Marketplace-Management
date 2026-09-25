@@ -133,21 +133,6 @@ function ProductList({ categoryIds = EMPTY_ARRAY, brandId = null, searchQuery: i
         )}
       </div>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
-        {searchQuery && (
-          <button className="search-clear" onClick={handleSearchClear}>
-            ✕
-          </button>
-        )}
-      </div>
-
       <div className="sort-bar">
         <span className="sort-label">Sort by:</span>
         <button

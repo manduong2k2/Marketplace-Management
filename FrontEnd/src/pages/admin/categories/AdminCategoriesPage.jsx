@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { categoryService } from '../../../services/categoryService';
 import CategoryForm from '../../../components/category/form/CategoryForm';
 import '../shared/AdminPage.css';
+import './AdminCategoriesPage.css';
 
 export default function AdminCategoriesPage() {
   useEffect(() => { document.title = 'Admin - Categories'; }, []);
@@ -13,6 +14,7 @@ export default function AdminCategoriesPage() {
   const [error, setError]               = useState(null);
   const [modal, setModal]               = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [searchQuery, setSearchQuery]   = useState('');
 
   const fetchCategories = async () => {
     try {
@@ -30,6 +32,11 @@ export default function AdminCategoriesPage() {
     const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name : parentId;
   };
+
+  const filteredCategories = categories.filter(cat =>
+    cat.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cat.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleCreate = async (formData) => {
     setSubmitting(true);
@@ -73,35 +80,141 @@ export default function AdminCategoriesPage() {
     finally  { setDeleteTarget(null); }
   };
 
+  if (loading) {
+    return (
+      <div className="categories-page">
+        <div className="admin-loading">
+          <div className="admin-spinner"></div>
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <h2 className="admin-page-title">📂 Categories</h2>
-        <button className="btn-admin-primary" onClick={() => setModal('create')}>+ Add New</button>
+    <div className="categories-page">
+      {/* Header */}
+      <div className="categories-header light-card">
+        <div className="header-left">
+          <div className="header-icon">
+            <i className="fa-solid fa-folder-tree"></i>
+          </div>
+          <div>
+            <h1 className="header-title">Category Management</h1>
+            <p className="header-subtitle">Manage product categorization, hierarchy & structure</p>
+          </div>
+        </div>
+
+        {/* Stats Badges */}
+        <div className="header-stats">
+          <div className="stat-badge">
+            <span className="stat-dot total"></span>
+            <span className="stat-label">Total:</span>
+            <span className="stat-value">{categories.length}</span>
+          </div>
+        </div>
       </div>
 
       {error && <div className="admin-alert admin-alert-error">{error}</div>}
 
-      {loading ? (
-        <div className="admin-loading"><div className="admin-spinner" /><span>Loading...</span></div>
-      ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead><tr><th>#</th><th>Image</th><th>Category Name</th><th>Parent Category</th><th>Description</th><th>Actions</th></tr></thead>
+      {/* Toolbar */}
+      <div className="categories-toolbar light-card">
+        <div className="toolbar-filters">
+          {/* Search */}
+          <div className="search-input-wrapper">
+            <i className="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              placeholder="Search by name, description..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          {/* Reset Button */}
+          {searchQuery && (
+            <button
+              className="reset-button"
+              onClick={() => setSearchQuery('')}
+            >
+              <i className="fa-solid fa-rotate-left"></i> Reset search
+            </button>
+          )}
+        </div>
+
+        {/* Add New Button */}
+        <button
+          className="btn-add-new"
+          onClick={() => setModal('create')}
+        >
+          <i className="fa-solid fa-plus"></i>
+          <span>Add New Category</span>
+        </button>
+      </div>
+
+      {/* Table Container */}
+      <div className="categories-table-container light-card">
+        <div className="table-wrapper">
+          <table className="categories-table">
+            <thead>
+              <tr>
+                <th className="col-checkbox">#</th>
+                <th className="col-image">Category Image</th>
+                <th className="col-name">Category Name</th>
+                <th className="col-parent">Parent Category</th>
+                <th className="col-description">Description</th>
+                <th className="col-actions">Actions</th>
+              </tr>
+            </thead>
             <tbody>
-              {categories.length === 0 ? (
-                <tr><td colSpan={6} className="admin-table-empty">No categories found</td></tr>
-              ) : categories.map((cat, idx) => (
+              {filteredCategories.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="empty-state">
+                    <i className="fa-solid fa-box-open"></i>
+                    <p>No matching categories found</p>
+                    <span>Please try searching again</span>
+                  </td>
+                </tr>
+              ) : filteredCategories.map((cat, idx) => (
                 <tr key={cat.id}>
-                  <td>{idx + 1}</td>
-                  <td>{cat.image ? <img src={cat.image} alt={cat.name} className="admin-table-img" /> : <span className="admin-no-image">—</span>}</td>
-                  <td className="admin-table-name">{cat.name}</td>
-                  <td>{getParentName(cat.parentId)}</td>
-                  <td className="admin-table-desc">{cat.description ? cat.description.length > 60 ? cat.description.slice(0, 60) + '...' : cat.description : '—'}</td>
-                  <td>
-                    <div className="admin-action-btns">
-                      <button className="btn-admin-edit"   onClick={() => setModal({ mode: 'edit', category: cat })}>✏️ Edit</button>
-                      <button className="btn-admin-delete" onClick={() => setDeleteTarget(cat)}>🗑️ Delete</button>
+                  <td className="col-checkbox">{idx + 1}</td>
+                  <td className="col-image">
+                    <div className="category-image-cell">
+                      {cat.image ? (
+                        <img src={cat.image} alt={cat.name} />
+                      ) : (
+                        <div className="no-image">No Image</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="col-name">
+                    <h4 className="category-name">{cat.name}</h4>
+                  </td>
+                  <td className="col-parent">
+                    <span className="parent-badge">{getParentName(cat.parentId)}</span>
+                  </td>
+                  <td className="col-description">
+                    <p className="category-description">
+                      {cat.description ? cat.description.length > 100 ? cat.description.slice(0, 100) + '...' : cat.description : '—'}
+                    </p>
+                  </td>
+                  <td className="col-actions">
+                    <div className="action-buttons">
+                      <button
+                        className="btn-action btn-edit"
+                        title="Edit"
+                        onClick={() => setModal({ mode: 'edit', category: cat })}
+                      >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button
+                        className="btn-action btn-delete"
+                        title="Delete"
+                        onClick={() => setDeleteTarget(cat)}
+                      >
+                        <i className="fa-solid fa-trash-can"></i>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -109,7 +222,7 @@ export default function AdminCategoriesPage() {
             </tbody>
           </table>
         </div>
-      )}
+      </div>
 
       {modal === 'create' && (
         <div className="admin-modal-overlay" onClick={() => setModal(null)}>

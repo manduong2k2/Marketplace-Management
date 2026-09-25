@@ -93,6 +93,10 @@
     border-color: white;
 }
 
+.navbar-center .search-input::placeholder{
+    color:white;
+}
+
 .navbar-search-clear {
     background: none;
     border: none;

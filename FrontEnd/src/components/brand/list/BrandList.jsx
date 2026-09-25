@@ -72,7 +72,7 @@ export default function BrandList({ selectedBrandId, onSelectBrand }) {
       <div className="showcase-header">
         <div className="header-title-wrap">
           <h2>
-            <i className="fa-solid fa-tags"></i> Featured Brands
+            <i className="fa-solid fa-tags"></i>Brands
           </h2>
           <p>Explore top brands with thousands of quality products</p>
         </div>
