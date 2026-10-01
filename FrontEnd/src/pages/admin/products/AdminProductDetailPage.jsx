@@ -120,7 +120,7 @@ export default function AdminProductDetailPage() {
         <div className="admin-alert admin-alert-error">
           {error || 'Product not found'}
         </div>
-        <button className="btn-admin-secondary" onClick={() => navigate('/admin/products')}>
+        <button className="admin-btn-secondary" onClick={() => navigate('/admin/products')}>
           Back to Products
         </button>
       </div>
@@ -134,102 +134,102 @@ export default function AdminProductDetailPage() {
       <div className="admin-page-header">
         <h2 className="admin-page-title">📦 Product Detail</h2>
         <div className="admin-header-actions">
-          <button className="btn-admin-secondary" onClick={() => navigate('/admin/products')}>
+          <button className="admin-btn-secondary" onClick={() => navigate('/admin/products')}>
             Back to List
           </button>
-          <button className="btn-admin-primary" onClick={handleEdit}>
+          <button className="admin-btn-primary" onClick={handleEdit}>
             ✏️ Edit
           </button>
-          <button className="btn-admin-danger" onClick={handleDelete}>
+          <button className="admin-btn-danger" onClick={handleDelete}>
             🗑️ Delete
           </button>
         </div>
       </div>
 
       <div className="admin-product-detail-container">
-        <div className="detail-section">
-          <h3 className="detail-section-title">Product Information</h3>
+        <div className="admin-detail-section">
+          <h3 className="admin-detail-section-title">Product Information</h3>
           
-          <div className="detail-grid">
-            <div className="detail-item">
-              <span className="detail-label">ID:</span>
-              <span className="detail-value">{product.id}</span>
+          <div className="admin-detail-grid">
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">ID:</span>
+              <span className="admin-detail-value">{product.id}</span>
             </div>
             
-            <div className="detail-item">
-              <span className="detail-label">Name:</span>
-              <span className="detail-value">{product.name}</span>
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">Name:</span>
+              <span className="admin-detail-value">{product.name}</span>
             </div>
             
-            <div className="detail-item">
-              <span className="detail-label">Code:</span>
-              <span className="detail-value code">{product.code}</span>
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">Code:</span>
+              <span className="admin-detail-value admin-code">{product.code}</span>
             </div>
             
-            <div className="detail-item">
-              <span className="detail-label">Price:</span>
-              <span className="detail-value price">${Number(product.price).toLocaleString('en-US')}</span>
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">Price:</span>
+              <span className="admin-detail-value admin-price">${Number(product.price).toLocaleString('en-US')}</span>
             </div>
             
-            <div className="detail-item">
-              <span className="detail-label">Stock:</span>
-              <span className="detail-value stock">{product.stock}</span>
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">Stock:</span>
+              <span className="admin-detail-value admin-stock">{product.stock}</span>
             </div>
             
-            <div className="detail-item">
-              <span className="detail-label">Brand:</span>
-              <span className="detail-value">{getBrandName(product)}</span>
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">Brand:</span>
+              <span className="admin-detail-value">{getBrandName(product)}</span>
             </div>
             
-            <div className="detail-item full-width">
-              <span className="detail-label">Categories:</span>
-              <span className="detail-value">{getCategoryNames(product)}</span>
+            <div className="admin-detail-item admin-full-width">
+              <span className="admin-detail-label">Categories:</span>
+              <span className="admin-detail-value">{getCategoryNames(product)}</span>
             </div>
             
-            <div className="detail-item full-width">
-              <span className="detail-label">Status:</span>
-              <span className="detail-value">{getStatusBadge(product.status)}</span>
+            <div className="admin-detail-item admin-full-width">
+              <span className="admin-detail-label">Status:</span>
+              <span className="admin-detail-value">{getStatusBadge(product.status)}</span>
             </div>
             
-            <div className="detail-item full-width">
-              <span className="detail-label">Description:</span>
-              <span className="detail-value description">{product.description || '—'}</span>
+            <div className="admin-detail-item admin-full-width">
+              <span className="admin-detail-label">Description:</span>
+              <span className="admin-detail-value admin-description">{product.description || '—'}</span>
             </div>
           </div>
         </div>
 
-        <div className="detail-section">
-          <h3 className="detail-section-title">Product Images</h3>
+        <div className="admin-detail-section">
+          <h3 className="admin-detail-section-title">Product Images</h3>
           
-          <div className="image-gallery">
+          <div className="admin-image-gallery">
             {product.images && product.images.length > 0 ? (
               product.images.map((img, idx) => (
-                <div key={idx} className="image-item">
+                <div key={idx} className="admin-image-item">
                   <img src={img} alt={`${product.name} ${idx + 1}`} />
                 </div>
               ))
             ) : (
-              <div className="no-images">
+              <div className="admin-no-images">
                 <span className="admin-no-image">No images</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="detail-section">
-          <h3 className="detail-section-title">Timestamps</h3>
+        <div className="admin-detail-section">
+          <h3 className="admin-detail-section-title">Timestamps</h3>
           
-          <div className="detail-grid">
-            <div className="detail-item">
-              <span className="detail-label">Created At:</span>
-              <span className="detail-value">
+          <div className="admin-detail-grid">
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">Created At:</span>
+              <span className="admin-detail-value">
                 {new Date(product.createdAt).toLocaleString()}
               </span>
             </div>
             
-            <div className="detail-item">
-              <span className="detail-label">Updated At:</span>
-              <span className="detail-value">
+            <div className="admin-detail-item">
+              <span className="admin-detail-label">Updated At:</span>
+              <span className="admin-detail-value">
                 {new Date(product.updatedAt).toLocaleString()}
               </span>
             </div>

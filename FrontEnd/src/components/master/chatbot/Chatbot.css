@@ -1,7 +1,4 @@
 :root {
-  --master-color: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-  --master-primary: #6366f1;
-  --master-hover: #4f46e5;
   --bg-glass: rgba(255, 255, 255, 0.85);
   --bg-card: #ffffff;
   --text-main: #0f172a;

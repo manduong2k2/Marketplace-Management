@@ -5,24 +5,11 @@ import { AdminContext } from '../../contexts/AdminContext';
 import { adminAuthService } from '../../services/adminAuthService';
 import PopupManager from '../../components/master/popup/PopupManager';
 import Chatbot from '../../components/master/chatbot';
+import { useTheme } from '../../hooks/useTheme';
 import './AdminLayout.css';
 
 // ── Sidebar mini state helpers ──────────────────────────────────────────────
-const STORAGE_THEME = 'adminHMD.colorTheme';
-
-function canStore() {
-  try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; }
-  catch { return false; }
-}
-
 function isDesktop() { return window.matchMedia('(min-width: 992px)').matches; }
-
-function getPreferredTheme(storable) {
-  const saved = storable ? localStorage.getItem(STORAGE_THEME) : '';
-  if (saved === 'dark' || saved === 'light') return saved;
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-  return 'light';
-}
 
 // ── Nav items mapped to existing routes ─────────────────────────────────────
 const NAV_ITEMS = [
@@ -35,20 +22,11 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminLayout() {
-  const storable = canStore();
   const { admin, setAdmin } = useContext(AdminContext);
   const navigate = useNavigate();
 
   // ── Theme ────────────────────────────────────────────────────────────────
-  const [theme, setTheme] = useState(() => getPreferredTheme(storable));
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.setAttribute('data-bs-theme', theme);
-    if (storable) localStorage.setItem(STORAGE_THEME, theme);
-  }, [theme]);
-
-  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
+  const { theme, toggleTheme } = useTheme();
 
   // ── Sidebar mini (desktop collapse) — handled purely by CSS :hover ───────
 
@@ -90,7 +68,7 @@ export default function AdminLayout() {
   // On desktop: sidebar is always mini, hover expand is handled by CSS
   const sidebarClass = [
     'admin-sidebar',
-    mobileOpen ? 'sidebar-mobile-open' : '',
+    mobileOpen ? 'admin-sidebar-mobile-open' : '',
   ].filter(Boolean).join(' ');
 
   const mainClass = 'admin-main';
@@ -100,7 +78,7 @@ export default function AdminLayout() {
   return (
     <div className="admin-shell">
       {/* Mobile backdrop */}
-      {mobileOpen && <div className="sidebar-backdrop" onClick={closeMobile} />}
+      {mobileOpen && <div className="admin-sidebar-backdrop" onClick={closeMobile} />}
 
       {/* ── SIDEBAR ──────────────────────────────────────────────────────── */}
       <aside
@@ -108,19 +86,19 @@ export default function AdminLayout() {
         id="adminSidebar"
         aria-label="Main navigation"
       >
-        <div className="sidebar-header">
-          <a className="brand-mark" href="/admin" aria-label="Marketplace Admin">
-            <span className="brand-icon">
+        <div className="admin-sidebar-header">
+          <a className="admin-brand-mark" href="/admin" aria-label="Marketplace Admin">
+            <span className="admin-brand-icon">
               <i className="bi bi-grid-1x2-fill" aria-hidden="true"></i>
             </span>
-            <span className="brand-copy">
-              <span className="banner-title">Marketplace</span>
-              <span className="banner-subtitle">Admin Panel</span>
+            <span className="admin-brand-copy">
+              <span className="admin-banner-title">Marketplace</span>
+              <span className="admin-banner-subtitle">Admin Panel</span>
             </span>
           </a>
         </div>
 
-        <nav className="sidebar-nav">
+        <nav className="admin-sidebar-nav">
           {NAV_ITEMS.map(({ to, icon, label }) => (
             <NavLink
               key={to}
@@ -128,17 +106,17 @@ export default function AdminLayout() {
               className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
               onClick={handleNavClick}
             >
-              <span className="nav-icon">
+              <span className="admin-nav-icon">
                 <i className={`bi ${icon}`} aria-hidden="true"></i>
               </span>
-              <span className="nav-text">{label}</span>
+              <span className="admin-nav-text">{label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="sidebar-footer">
-          <span className="status-dot"></span>
-          <span className="sidebar-footer-text">System running smoothly</span>
+        <div className="admin-sidebar-footer">
+          <span className="admin-status-dot"></span>
+          <span className="admin-sidebar-footer-text">System running smoothly</span>
         </div>
       </aside>
 
@@ -149,7 +127,7 @@ export default function AdminLayout() {
           <div className="container-fluid px-3 px-lg-4">
             {/* Sidebar toggle (hamburger) */}
             <button
-              className="sidebar-toggle d-lg-none"
+              className="admin-sidebar-toggle d-lg-none"
               type="button"
               onClick={handleSidebarToggle}
               aria-controls="adminSidebar"
@@ -176,10 +154,10 @@ export default function AdminLayout() {
             </form>
 
             {/* Right actions */}
-            <div className="navbar-actions ms-auto">
+            <div className="admin-navbar-actions ms-auto">
               {/* Theme toggle */}
               <button
-                className="icon-button theme-toggle"
+                className="admin-icon-button theme-toggle"
                 type="button"
                 onClick={toggleTheme}
                 aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -191,57 +169,57 @@ export default function AdminLayout() {
               {/* Notifications */}
               <div className="dropdown">
                 <button
-                  className="icon-button"
+                  className="admin-icon-button"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                   aria-label="Notifications"
                 >
-                  <span className="notification-dot"></span>
+                  <span className="admin-notification-dot"></span>
                   <i className="bi bi-bell" aria-hidden="true"></i>
                 </button>
-                <div className="dropdown-menu dropdown-menu-end notification-menu">
+                <div className="dropdown-menu dropdown-menu-end admin-notification-menu">
                   <div className="dropdown-header fw-bold text-body">Notifications</div>
                   <a className="dropdown-item" href="#">
-                    <span className="notification-title">New order received</span>
-                    <span className="notification-time">Just now</span>
+                    <span className="admin-notification-title">New order received</span>
+                    <span className="admin-notification-time">Just now</span>
                   </a>
                   <a className="dropdown-item" href="#">
-                    <span className="notification-title">New vendor registered</span>
-                    <span className="notification-time">10 minutes ago</span>
+                    <span className="admin-notification-title">New vendor registered</span>
+                    <span className="admin-notification-time">10 minutes ago</span>
                   </a>
                   <a className="dropdown-item" href="#">
-                    <span className="notification-title">Product stock low</span>
-                    <span className="notification-time">1 hour ago</span>
+                    <span className="admin-notification-title">Product stock low</span>
+                    <span className="admin-notification-time">1 hour ago</span>
                   </a>
                 </div>
               </div>
 
               {/* Profile dropdown — opens on hover */}
-              <div className="profile-dropdown">
-                <button className="profile-button" type="button" aria-label="Profile menu">
+              <div className="admin-profile-dropdown">
+                <button className="admin-profile-button" type="button" aria-label="Profile menu">
                   <span className="admin-profile-avatar">
                     <i className="bi bi-person" aria-hidden="true"></i>
                   </span>
-                  <span className="profile-name d-none d-sm-inline">{adminName}</span>
-                  <i className="bi bi-chevron-down profile-caret" aria-hidden="true"></i>
+                  <span className="admin-profile-name d-none d-sm-inline">{adminName}</span>
+                  <i className="bi bi-chevron-down admin-profile-caret" aria-hidden="true"></i>
                 </button>
-                <ul className="profile-menu">
+                <ul className="admin-profile-menu">
                   <li>
-                    <span className="profile-menu-header">
-                      <span className="profile-menu-name">{adminName}</span>
-                      <span className="profile-menu-email">{admin?.email}</span>
+                    <span className="admin-profile-menu-header">
+                      <span className="admin-profile-menu-name">{adminName}</span>
+                      <span className="admin-profile-menu-email">{admin?.email}</span>
                     </span>
                   </li>
-                  <li><hr className="profile-menu-divider" /></li>
+                  <li><hr className="admin-profile-menu-divider" /></li>
                   <li>
-                    <button className="profile-menu-item" onClick={() => navigate('/admin/profile')}>
+                    <button className="admin-profile-menu-item" onClick={() => navigate('/admin/profile')}>
                       <i className="bi bi-person-gear" aria-hidden="true"></i>
                       Profile Management
                     </button>
                   </li>
                   <li>
-                    <button className="profile-menu-item profile-menu-item--danger" onClick={handleLogout}>
+                    <button className="admin-profile-menu-item admin-profile-menu-item--danger" onClick={handleLogout}>
                       <i className="bi bi-box-arrow-right" aria-hidden="true"></i>
                       Logout
                     </button>
@@ -253,7 +231,7 @@ export default function AdminLayout() {
         </nav>
 
         {/* Page content */}
-        <main className="dashboard-content">
+        <main className="admin-dashboard-content">
           <Outlet />
         </main>
 

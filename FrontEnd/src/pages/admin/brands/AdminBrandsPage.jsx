@@ -74,7 +74,7 @@ export default function AdminBrandsPage() {
 
   if (loading) {
     return (
-      <div className="brands-page">
+      <div className="admin-brands-page">
         <div className="admin-loading">
           <div className="admin-spinner"></div>
           <span>Loading...</span>
@@ -84,25 +84,25 @@ export default function AdminBrandsPage() {
   }
 
   return (
-    <div className="brands-page">
+    <div className="admin-brands-page">
       {/* Header */}
-      <div className="brands-header light-card">
-        <div className="header-left">
-          <div className="header-icon">
+      <div className="admin-brands-header admin-light-card">
+        <div className="admin-header-left">
+          <div className="admin-header-icon">
             <i className="fa-solid fa-tags"></i>
           </div>
           <div>
-            <h1 className="header-title">Brand Management</h1>
-            <p className="header-subtitle">Manage brand portfolio, descriptions & visual identity</p>
+            <h1 className="admin-header-title">Brand Management</h1>
+            <p className="admin-header-subtitle">Manage brand portfolio, descriptions & visual identity</p>
           </div>
         </div>
 
         {/* Stats Badges */}
-        <div className="header-stats">
-          <div className="stat-badge">
-            <span className="stat-dot total"></span>
-            <span className="stat-label">Total:</span>
-            <span className="stat-value">{brands.length}</span>
+        <div className="admin-header-stats">
+          <div className="admin-stat-badge">
+            <span className="admin-stat-dot admin-total"></span>
+            <span className="admin-stat-label">Total:</span>
+            <span className="admin-stat-value">{brands.length}</span>
           </div>
         </div>
       </div>
@@ -110,24 +110,24 @@ export default function AdminBrandsPage() {
       {error && <div className="admin-alert admin-alert-error">{error}</div>}
 
       {/* Toolbar */}
-      <div className="brands-toolbar light-card">
-        <div className="toolbar-filters">
+      <div className="admin-brands-toolbar admin-light-card">
+        <div className="admin-toolbar-filters">
           {/* Search */}
-          <div className="search-input-wrapper">
+          <div className="admin-search-input-wrapper">
             <i className="fa-solid fa-magnifying-glass"></i>
             <input
               type="text"
               placeholder="Search by name, description..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="search-input"
+              className="admin-search-input"
             />
           </div>
 
           {/* Reset Button */}
           {searchQuery && (
             <button
-              className="reset-button"
+              className="admin-reset-button"
               onClick={() => setSearchQuery('')}
             >
               <i className="fa-solid fa-rotate-left"></i> Reset search
@@ -137,7 +137,7 @@ export default function AdminBrandsPage() {
 
         {/* Add New Button */}
         <button
-          className="btn-add-new"
+          className="admin-btn-add-new"
           onClick={() => setModal('create')}
         >
           <i className="fa-solid fa-plus"></i>
@@ -146,22 +146,22 @@ export default function AdminBrandsPage() {
       </div>
 
       {/* Table Container */}
-      <div className="brands-table-container light-card">
-        <div className="table-wrapper">
-          <table className="brands-table">
+      <div className="admin-brands-table-container admin-light-card">
+        <div className="admin-table-wrapper">
+          <table className="admin-brands-table">
             <thead>
               <tr>
-                <th className="col-checkbox">#</th>
-                <th className="col-image">Brand Image</th>
-                <th className="col-name">Brand Name</th>
-                <th className="col-description">Description</th>
-                <th className="col-actions">Actions</th>
+                <th className="admin-col-checkbox">#</th>
+                <th className="admin-col-image">Brand Image</th>
+                <th className="admin-col-name">Brand Name</th>
+                <th className="admin-col-description">Description</th>
+                <th className="admin-col-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredBrands.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="empty-state">
+                  <td colSpan="5" className="admin-empty-state">
                     <i className="fa-solid fa-box-open"></i>
                     <p>No matching brands found</p>
                     <span>Please try searching again</span>
@@ -169,35 +169,35 @@ export default function AdminBrandsPage() {
                 </tr>
               ) : filteredBrands.map((brand, idx) => (
                 <tr key={brand.id}>
-                  <td className="col-checkbox">{idx + 1}</td>
-                  <td className="col-image">
-                    <div className="brand-image-cell">
+                  <td className="admin-col-checkbox">{idx + 1}</td>
+                  <td className="admin-col-image">
+                    <div className="admin-brand-image-cell">
                       {brand.image ? (
                         <img src={brand.image} alt={brand.name} />
                       ) : (
-                        <div className="no-image">No Image</div>
+                        <div className="admin-no-image">No Image</div>
                       )}
                     </div>
                   </td>
-                  <td className="col-name">
-                    <h4 className="brand-name">{brand.name}</h4>
+                  <td className="admin-col-name">
+                    <h4 className="admin-brand-name">{brand.name}</h4>
                   </td>
-                  <td className="col-description">
-                    <p className="brand-description">
+                  <td className="admin-col-description">
+                    <p className="admin-brand-description">
                       {brand.description ? brand.description.length > 100 ? brand.description.slice(0, 100) + '...' : brand.description : '—'}
                     </p>
                   </td>
-                  <td className="col-actions">
-                    <div className="action-buttons">
+                  <td className="admin-col-actions">
+                    <div className="admin-action-buttons">
                       <button
-                        className="btn-action btn-edit"
+                        className="admin-btn-action btn-edit"
                         title="Edit"
                         onClick={() => setModal({ mode: 'edit', brand })}
                       >
                         <i className="fa-solid fa-pen-to-square"></i>
                       </button>
                       <button
-                        className="btn-action btn-delete"
+                        className="admin-btn-action admin-btn-delete"
                         title="Delete"
                         onClick={() => setDeleteTarget(brand)}
                       >
@@ -237,8 +237,8 @@ export default function AdminBrandsPage() {
             <h3>Confirm Delete</h3>
             <p>Are you sure you want to delete brand <strong>{deleteTarget.name}</strong>?</p>
             <div className="admin-confirm-actions">
-              <button className="btn-admin-secondary" onClick={() => setDeleteTarget(null)}>Cancel</button>
-              <button className="btn-admin-danger"    onClick={handleDelete}>Delete</button>
+              <button className="admin-btn-secondary" onClick={() => setDeleteTarget(null)}>Cancel</button>
+              <button className="admin-btn-danger"    onClick={handleDelete}>Delete</button>
             </div>
           </div>
         </div>

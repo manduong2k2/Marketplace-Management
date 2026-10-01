@@ -153,7 +153,7 @@ export default function AdminProductEditPage() {
       <div className="admin-page">
         <div className="admin-alert admin-alert-error">{error}</div>
         <button
-          className="btn-admin-secondary"
+          className="admin-btn-secondary"
           onClick={() => navigate('/admin/products')}
         >
           Back to Products

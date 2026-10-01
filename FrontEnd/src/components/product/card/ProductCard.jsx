@@ -98,9 +98,8 @@ function ProductCard({ product, onOpenVariantPopup }) {
             )}
           </span>
 
-          <button className="btn-add-cart" onClick={handleAddToCart} title="Add to cart">
+          <button className="btn-add-cart" onClick={handleAddToCart} title="Add to cart" aria-label="Add to cart">
             <i className="fas fa-shopping-bag"></i>
-            <span>Add</span>
           </button>
         </div>
       </div>

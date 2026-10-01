@@ -104,8 +104,8 @@ function AdminOrderHistoryPage() {
   if (loading) {
     return (
       <div className="admin-order-history-page">
-        <div className="loading-container">
-          <div className="spinner"></div>
+        <div className="admin-loading-container">
+          <div className="admin-spinner"></div>
           <p>Loading orders...</p>
         </div>
       </div>
@@ -115,7 +115,7 @@ function AdminOrderHistoryPage() {
   if (error) {
     return (
       <div className="admin-order-history-page">
-        <div className="error-state">
+        <div className="admin-error-state">
           <p>{error}</p>
         </div>
       </div>
@@ -129,8 +129,8 @@ function AdminOrderHistoryPage() {
           <h1>Manage Orders</h1>
         </div>
 
-        <div className="order-filters">
-          <form className="search-form" onSubmit={handleSearchSubmit}>
+        <div className="admin-order-filters">
+          <form className="admin-search-form" onSubmit={handleSearchSubmit}>
             <input
               type="text"
               placeholder="Search by name, phone, or order ID..."
@@ -138,15 +138,15 @@ function AdminOrderHistoryPage() {
               onChange={handleSearchChange}
               className="admin-order-search-input"
             />
-            <button type="submit" className="search-btn">Search</button>
+            <button type="submit" className="admin-search-btn">Search</button>
           </form>
 
-          <div className="filter-group">
+          <div className="admin-filter-group">
             <label>Status:</label>
             <select
               value={filters.status}
               onChange={(e) => handleStatusFilter(e.target.value)}
-              className="filter-select"
+              className="admin-filter-select"
             >
               <option value="">All</option>
               <option value="PENDING">Pending</option>
@@ -157,15 +157,15 @@ function AdminOrderHistoryPage() {
             </select>
           </div>
 
-          <div className="sort-buttons">
+          <div className="admin-sort-buttons">
             <button
-              className={`sort-btn ${filters.sortBy === 'createdAt' ? 'active' : ''}`}
+              className={`admin-sort-btn ${filters.sortBy === 'createdAt' ? 'active' : ''}`}
               onClick={() => handleSort('createdAt')}
             >
               Date {filters.sortBy === 'createdAt' ? (filters.sortOrder === 'asc' ? '↑' : '↓') : ''}
             </button>
             <button
-              className={`sort-btn ${filters.sortBy === 'total' ? 'active' : ''}`}
+              className={`admin-sort-btn ${filters.sortBy === 'admin-total' ? 'active' : ''}`}
               onClick={() => handleSort('total')}
             >
               Total {filters.sortBy === 'total' ? (filters.sortOrder === 'asc' ? '↑' : '↓') : ''}
@@ -174,70 +174,70 @@ function AdminOrderHistoryPage() {
         </div>
 
         {orders.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">📦</div>
+          <div className="admin-empty-state">
+            <div className="admin-empty-icon">📦</div>
             <h3>No orders found</h3>
             <p>There are no orders matching your criteria.</p>
           </div>
         ) : (
           <>
-            <div className="orders-list">
+            <div className="admin-orders-list">
               {orders.map(order => (
-                <div key={order.id} className="order-card" onClick={() => navigate(`/admin/orders/${order.id}`)}>
-                  <div className="order-header">
-                    <div className="order-info">
-                      <span className="order-id">Order #{order.id.slice(0, 8)}</span>
-                      <span className="order-date">
+                <div key={order.id} className="admin-order-card" onClick={() => navigate(`/admin/orders/${order.id}`)}>
+                  <div className="admin-order-header">
+                    <div className="admin-order-info">
+                      <span className="admin-order-id">Order #{order.id.slice(0, 8)}</span>
+                      <span className="admin-order-date">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </span>
-                      <span className="order-user">User: {order.userId?.slice(0, 8)}</span>
+                      <span className="admin-order-user">User: {order.userId?.slice(0, 8)}</span>
                     </div>
                     <span
-                      className="order-status"
+                      className="admin-order-status"
                       style={{ backgroundColor: getStatusColor(order.status) }}
                     >
                       {order.status}
                     </span>
                   </div>
 
-                  <div className="order-shipping-info">
-                    <span className="shipping-name">{order.name}</span>
-                    <span className="shipping-phone">{order.phone}</span>
+                  <div className="admin-order-shipping-info">
+                    <span className="admin-shipping-name">{order.name}</span>
+                    <span className="admin-shipping-phone">{order.phone}</span>
                   </div>
 
-                  <div className="order-items-preview">
+                  <div className="admin-order-items-preview">
                     {order.items && order.items.slice(0, 3).map((item, index) => (
-                      <div key={index} className="order-item-preview">
+                      <div key={index} className="admin-order-item-preview">
                         <span>{item.quantity}x {item.snapShot?.name || 'Product'}</span>
                       </div>
                     ))}
                     {order.items && order.items.length > 3 && (
-                      <span className="more-items">+{order.items.length - 3} more</span>
+                      <span className="admin-more-items">+{order.items.length - 3} more</span>
                     )}
                   </div>
 
-                  <div className="order-footer">
-                    <span className="order-total">${order.total.toFixed(2)}</span>
-                    <button className="btn-view-details">View Details →</button>
+                  <div className="admin-order-footer">
+                    <span className="admin-order-total">${order.total.toFixed(2)}</span>
+                    <button className="admin-btn-view-details">View Details →</button>
                   </div>
                 </div>
               ))}
             </div>
 
             {pagination.totalPages > 1 && (
-              <div className="pagination-controls">
+              <div className="admin-pagination-controls">
                 <button
-                  className="pagination-btn"
+                  className="admin-pagination-btn"
                   disabled={pagination.currentPage === 0}
                   onClick={() => handlePageChange(pagination.currentPage - 1)}
                 >
                   Previous
                 </button>
-                <span className="pagination-info">
+                <span className="admin-pagination-info">
                   Page {pagination.currentPage + 1} of {pagination.totalPages}
                 </span>
                 <button
-                  className="pagination-btn"
+                  className="admin-pagination-btn"
                   disabled={pagination.currentPage >= pagination.totalPages - 1}
                   onClick={() => handlePageChange(pagination.currentPage + 1)}
                 >

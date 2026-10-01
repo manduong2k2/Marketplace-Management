@@ -24,7 +24,7 @@
   margin: 0;
 }
 
-.pagination-info {
+.admin-pagination-info {
   font-size: 14px;
   color: #7f8c8d;
 }
@@ -81,13 +81,13 @@
   border: 1px solid #e0e0e0;
 }
 
-.sort-label {
+.admin-sort-label {
   font-size: 14px;
   font-weight: 600;
   color: #2c3e50;
 }
 
-.sort-btn {
+.admin-sort-btn {
   padding: 6px 12px;
   background: white;
   border: 1px solid #e0e0e0;
@@ -98,20 +98,20 @@
   transition: all 0.2s ease;
 }
 
-.sort-btn:hover {
+.admin-sort-btn:hover {
   background: var(--master-primary);
   color: white;
   border-color: var(--master-primary);
 }
 
-.sort-btn.active {
+.admin-sort-btn.active {
   background: var(--master-primary);
   color: white;
   border-color: var(--master-primary);
 }
 
 /* ── Buttons ── */
-.btn-admin-primary {
+.admin-btn-primary {
   padding: 10px 22px;
   background: var(--master-color);
   color: #fff;
@@ -123,12 +123,12 @@
   transition: all 0.2s ease;
 }
 
-.btn-admin-primary:hover {
+.admin-btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
 }
 
-.btn-admin-secondary {
+.admin-btn-secondary {
   padding: 9px 20px;
   background: #95a5a6;
   color: #fff;
@@ -140,11 +140,11 @@
   transition: background 0.2s;
 }
 
-.btn-admin-secondary:hover {
+.admin-btn-secondary:hover {
   background: #7f8c8d;
 }
 
-.btn-admin-edit {
+.admin-btn-edit {
   padding: 6px 14px;
   border: #3498db 1px solid;
   color: #0a0a0a;
@@ -154,11 +154,11 @@
   transition: background 0.2s;
 }
 
-.btn-admin-edit:hover {
+.admin-btn-edit:hover {
   background: #2980b9;
 }
 
-.btn-admin-delete {
+.admin-btn-delete {
   padding: 6px 14px;
   border: #e74c3c 1px solid;
   color: #070707;
@@ -168,11 +168,11 @@
   transition: background 0.2s;
 }
 
-.btn-admin-delete:hover {
+.admin-btn-delete:hover {
   background: #c0392b;
 }
 
-.btn-admin-danger {
+.admin-btn-danger {
   padding: 9px 20px;
   background: #e74c3c;
   color: #fff;
@@ -184,11 +184,11 @@
   transition: background 0.2s;
 }
 
-.btn-admin-danger:hover {
+.admin-btn-danger:hover {
   background: #c0392b;
 }
 
-.btn-admin-success {
+.admin-btn-success {
   padding: 6px 14px;
   border: #27ae60 1px solid;
   color: #0a0a0a;
@@ -198,11 +198,11 @@
   transition: background 0.2s;
 }
 
-.btn-admin-success:hover {
+.admin-btn-success:hover {
   background: #219a52;
 }
 
-.btn-admin-warning {
+.admin-btn-warning {
   padding: 6px 14px;
   border: #f39c12 1px solid;
   color: #0a0a0a;
@@ -212,7 +212,7 @@
   transition: background 0.2s;
 }
 
-.btn-admin-warning:hover {
+.admin-btn-warning:hover {
   background: #e67e22;
 }
 
@@ -340,12 +340,12 @@
   border-top: 1px solid #f0f0f0;
 }
 
-.admin-pagination .pagination-numbers {
+.admin-pagination .admin-pagination-numbers {
   display: flex;
   gap: 6px;
 }
 
-.admin-pagination .pagination-number {
+.admin-pagination .admin-pagination-number {
   min-width: 36px;
   height: 36px;
   padding: 0;
@@ -358,12 +358,12 @@
   transition: all 0.2s ease;
 }
 
-.admin-pagination .pagination-number:hover {
+.admin-pagination .admin-pagination-number:hover {
   background: #f4f6f9;
   border-color: #3498db;
 }
 
-.admin-pagination .pagination-number.active {
+.admin-pagination .admin-pagination-number.active {
   background: #3498db;
   color: white;
   border-color: #3498db;

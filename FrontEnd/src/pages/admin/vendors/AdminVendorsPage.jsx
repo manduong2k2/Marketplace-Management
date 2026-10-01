@@ -131,7 +131,7 @@ export default function AdminVendorsPage() {
     <div className="admin-page">
       <div className="admin-page-header">
         <h2 className="admin-page-title">🏪 Vendors</h2>
-        <button className="btn-admin-primary" onClick={() => setModal('create')}>+ Add New</button>
+        <button className="admin-btn-primary" onClick={() => setModal('create')}>+ Add New</button>
       </div>
 
       {error && <div className="admin-alert admin-alert-error">{error}</div>}
@@ -156,17 +156,17 @@ export default function AdminVendorsPage() {
                   <td>{getStatusBadge(vendor.status)}</td>
                   <td>
                     <div className="admin-action-btns">
-                      <button className="btn-admin-edit"   onClick={() => setModal({ mode: 'edit', vendor })}>✏️ Edit</button>
+                      <button className="admin-btn-edit"   onClick={() => setModal({ mode: 'edit', vendor })}>✏️ Edit</button>
                       {vendor.status === 'PENDING' && (
                         <>
-                          <button className="btn-admin-success" onClick={() => handleApprove(vendor)}>✅ Approve</button>
-                          <button className="btn-admin-warning" onClick={() => handleReject(vendor)}>❌ Reject</button>
+                          <button className="admin-btn-success" onClick={() => handleApprove(vendor)}>✅ Approve</button>
+                          <button className="admin-btn-warning" onClick={() => handleReject(vendor)}>❌ Reject</button>
                         </>
                       )}
                       {vendor.status === 'ACTIVE' && (
-                        <button className="btn-admin-warning" onClick={() => handleSuspend(vendor)}>⏸️ Suspend</button>
+                        <button className="admin-btn-warning" onClick={() => handleSuspend(vendor)}>⏸️ Suspend</button>
                       )}
-                      <button className="btn-admin-delete" onClick={() => setDeleteTarget(vendor)}>🗑️ Delete</button>
+                      <button className="admin-btn-delete" onClick={() => setDeleteTarget(vendor)}>🗑️ Delete</button>
                     </div>
                   </td>
                 </tr>
@@ -201,8 +201,8 @@ export default function AdminVendorsPage() {
             <h3>Confirm Delete</h3>
             <p>Are you sure you want to delete vendor <strong>{deleteTarget.name}</strong>?</p>
             <div className="admin-confirm-actions">
-              <button className="btn-admin-secondary" onClick={() => setDeleteTarget(null)}>Cancel</button>
-              <button className="btn-admin-danger"    onClick={handleDelete}>Delete</button>
+              <button className="admin-btn-secondary" onClick={() => setDeleteTarget(null)}>Cancel</button>
+              <button className="admin-btn-danger"    onClick={handleDelete}>Delete</button>
             </div>
           </div>
         </div>

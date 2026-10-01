@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
       label: 'Total Orders',
       value: loading ? '—' : stats.totalOrders.toLocaleString(),
       icon: 'bi-receipt',
-      variant: 'metric-primary',
+      variant: 'admin-metric-primary',
       link: '/admin/orders',
       hint: 'View all orders',
     },
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
       label: 'Products',
       value: loading ? '—' : stats.totalProducts.toLocaleString(),
       icon: 'bi-box-seam',
-      variant: 'metric-success',
+      variant: 'admin-metric-success',
       link: '/admin/products',
       hint: 'Manage products',
     },
@@ -95,7 +95,7 @@ export default function AdminDashboardPage() {
       label: 'Vendors',
       value: loading ? '—' : stats.totalVendors.toLocaleString(),
       icon: 'bi-shop',
-      variant: 'metric-warning',
+      variant: 'admin-metric-warning',
       link: '/admin/vendors',
       hint: 'Manage vendors',
     },
@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
       label: 'Brands',
       value: loading ? '—' : stats.totalBrands.toLocaleString(),
       icon: 'bi-tags',
-      variant: 'metric-danger',
+      variant: 'admin-metric-danger',
       link: '/admin/brands',
       hint: 'Manage brands',
     },
@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
       label: 'Categories',
       value: loading ? '—' : stats.totalCategories.toLocaleString(),
       icon: 'bi-diagram-3',
-      variant: 'metric-primary',
+      variant: 'admin-metric-primary',
       link: '/admin/categories',
       hint: 'Manage categories',
     },
@@ -120,20 +120,20 @@ export default function AdminDashboardPage() {
   return (
     <div className="container-fluid px-0">
       {/* Page heading */}
-      <div className="page-heading">
-        <div className="page-heading-copy">
-          <span className="page-icon">
+      <div className="admin-page-heading">
+        <div className="admin-page-heading-copy">
+          <span className="admin-page-icon">
             <i className="bi bi-speedometer2" aria-hidden="true"></i>
           </span>
           <div>
-            <p className="eyebrow mb-1">Overview</p>
+            <p className="admin-eyebrow mb-1">Overview</p>
             <h1 className="h3 mb-1">Dashboard</h1>
             <p className="text-muted mb-0">
               Monitor orders, products, brands and categories from one place.
             </p>
           </div>
         </div>
-        <div className="heading-actions">
+        <div className="admin-heading-actions">
           <Link className="btn btn-outline-secondary btn-sm" to="/admin/orders">
             <i className="bi bi-receipt" aria-hidden="true"></i> Orders
           </Link>
@@ -147,15 +147,15 @@ export default function AdminDashboardPage() {
       <section className="row g-3 mt-1" aria-label="Dashboard metrics">
         {metrics.map(m => (
           <div key={m.label} className="col-12 col-sm-6 col-xl-3">
-            <article className={`metric-card ${m.variant}`}>
-              <div className="metric-top">
-                <span className="metric-label">{m.label}</span>
-                <span className="metric-icon">
+            <article className={`admin-metric-card ${m.variant}`}>
+              <div className="admin-metric-top">
+                <span className="admin-metric-label">{m.label}</span>
+                <span className="admin-metric-icon">
                   <i className={`bi ${m.icon}`} aria-hidden="true"></i>
                 </span>
               </div>
-              <div className="metric-value">{m.value}</div>
-              <div className="metric-meta">
+              <div className="admin-metric-value">{m.value}</div>
+              <div className="admin-metric-meta">
                 <Link to={m.link} className="text-muted small">{m.hint} →</Link>
               </div>
             </article>
@@ -164,10 +164,10 @@ export default function AdminDashboardPage() {
       </section>
 
       {/* Recent orders */}
-      <section className="panel mt-3">
-        <div className="panel-header">
+      <section className="admin-panel mt-3">
+        <div className="admin-panel-header">
           <div>
-            <h2 className="h5 mb-1 section-title">
+            <h2 className="h5 mb-1 admin-section-title">
               <i className="bi bi-receipt" aria-hidden="true"></i>
               <span>Recent Orders</span>
             </h2>
@@ -179,12 +179,12 @@ export default function AdminDashboardPage() {
         </div>
 
         {loading ? (
-          <div className="dashboard-empty">
+          <div className="admin-dashboard-empty">
             <span className="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
             Loading orders…
           </div>
         ) : recentOrders.length === 0 ? (
-          <div className="dashboard-empty text-muted">No orders found.</div>
+          <div className="admin-dashboard-empty text-muted">No orders found.</div>
         ) : (
           <div className="table-responsive">
             <table className="table align-middle mb-0">
@@ -232,8 +232,8 @@ export default function AdminDashboardPage() {
       {/* Quick navigation */}
       <section className="row g-3 mt-1">
         <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/vendors" className="quick-nav-card panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="page-icon flex-shrink-0">
+          <Link to="/admin/vendors" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
+            <span className="admin-page-icon flex-shrink-0">
               <i className="bi bi-shop" aria-hidden="true"></i>
             </span>
             <div>
@@ -244,8 +244,8 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
         <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/brands" className="quick-nav-card panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="page-icon flex-shrink-0">
+          <Link to="/admin/brands" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
+            <span className="admin-page-icon flex-shrink-0">
               <i className="bi bi-tags" aria-hidden="true"></i>
             </span>
             <div>
@@ -256,8 +256,8 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
         <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/categories" className="quick-nav-card panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="page-icon flex-shrink-0">
+          <Link to="/admin/categories" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
+            <span className="admin-page-icon flex-shrink-0">
               <i className="bi bi-diagram-3" aria-hidden="true"></i>
             </span>
             <div>
@@ -268,8 +268,8 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
         <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/products" className="quick-nav-card panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="page-icon flex-shrink-0">
+          <Link to="/admin/products" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
+            <span className="admin-page-icon flex-shrink-0">
               <i className="bi bi-box-seam" aria-hidden="true"></i>
             </span>
             <div>
@@ -280,8 +280,8 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
         <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/orders" className="quick-nav-card panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="page-icon flex-shrink-0">
+          <Link to="/admin/orders" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
+            <span className="admin-page-icon flex-shrink-0">
               <i className="bi bi-receipt" aria-hidden="true"></i>
             </span>
             <div>

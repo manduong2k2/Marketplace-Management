@@ -125,7 +125,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!user) {
-      navigate('/login');
+      navigate('/auth?action=login');
       return;
     }
     setShowVariantPopup(true);

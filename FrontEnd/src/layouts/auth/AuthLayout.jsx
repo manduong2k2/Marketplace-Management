@@ -19,15 +19,26 @@ export default function AuthLayout() {
     const originalPushState = window.history.pushState;
     const originalReplaceState = window.history.replaceState;
 
+    // Only show the spinner when the page path changes, not for query-param-only updates
+    // (e.g. switching Sign In / Sign Up tabs on /auth?action=...)
+    const isPathChange = (url) => {
+      if (url == null) return false;
+      return new URL(url, window.location.href).pathname !== window.location.pathname;
+    };
+
     window.history.pushState = function(...args) {
-      handleStart();
-      setTimeout(handleEnd, 300); // Simulate loading time
+      if (isPathChange(args[2])) {
+        handleStart();
+        setTimeout(handleEnd, 300); // Simulate loading time
+      }
       return originalPushState.apply(window.history, args);
     };
 
     window.history.replaceState = function(...args) {
-      handleStart();
-      setTimeout(handleEnd, 300); // Simulate loading time
+      if (isPathChange(args[2])) {
+        handleStart();
+        setTimeout(handleEnd, 300); // Simulate loading time
+      }
       return originalReplaceState.apply(window.history, args);
     };
 

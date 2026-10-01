@@ -12,49 +12,77 @@ body {
 }
 
 :root {
-  /* Theme colors */
-  --master-color-dark: linear-gradient(
-    135deg,
-    #6366f1 0%,
-    #8b5cf6 50%,
-    #d946ef 100%
-  );
+  /* ── Gray scale (shared by both themes) ── */
+  --master-gray-0: #ffffff;
+  --master-gray-50: #f8f9fa;
+  --master-gray-100: #f1f3f5;
+  --master-gray-200: #e5e7ea;
+  --master-gray-300: #d1d5d9;
+  --master-gray-400: #a8adb3;
+  --master-gray-500: #7c8288;
+  --master-gray-600: #5c6166;
+  --master-gray-700: #3f4347;
+  --master-gray-800: #2b2e31;
+  --master-gray-850: #222427;
+  --master-gray-900: #18191b;
+  --master-gray-950: #111213;
 
-  --master-color-light: linear-gradient(
-    90deg,
-    #d8dbee,
-    #727e7c,
-    #0b1d1f
-  );
-
+  /* ── Light theme palette ── */
+  /* Main gradient: navbar, footer, buttons, small cards */
+  --master-color-light: linear-gradient(90deg, #d8dbee, #727e7c, #0b1d1f);
+  --master-secondary-light: linear-gradient(135deg, var(--master-gray-300) 0%, var(--master-gray-500) 100%);
   --master-primary-light: #9a9aa1;
-  --master-primary-dark: #6366f1;
+  --master-hover-light: var(--master-gray-600);
+  --master-background-light: var(--master-gray-100);   /* page background */
+  --master-surface-light: var(--master-gray-0);        /* containers: cards, forms, modals */
+  --master-surface-alt-light: var(--master-gray-50);   /* inputs, nested blocks */
+  --master-border-light: var(--master-gray-200);
+  --master-text-light: var(--master-gray-900);         /* text on surface / background */
+  --master-text-muted-light: var(--master-gray-600);
 
-  --master-background-light: #cfcdcd;
-  --master-background-dark: #1a1a1a;
+  /* ── Dark theme palette ── */
+  --master-color-dark: linear-gradient(90deg, #8a8f96, #4a4f52, #121416);
+  --master-secondary-dark: linear-gradient(135deg, var(--master-gray-600) 0%, var(--master-gray-800) 100%);
+  --master-primary-dark: #6b7076;
+  --master-hover-dark: var(--master-gray-400);
+  --master-background-dark: var(--master-gray-950);
+  --master-surface-dark: var(--master-gray-850);
+  --master-surface-alt-dark: var(--master-gray-800);
+  --master-border-dark: var(--master-gray-700);
+  --master-text-dark: var(--master-gray-200);
+  --master-text-muted-dark: var(--master-gray-400);
 
-  --master-text-dark: #b4b4b9;
-  --master-text-light: #333333;
-
-  --master-hover-dark: #4f46e5;
-  --master-hover-light: #4a4a5a;
-
-  /* Current theme color */
+  /* ── Current theme (light by default) ── */
   --master-color: var(--master-color-light);
-  --master-background: var(--master-background-light);
+  --master-secondary: var(--master-secondary-light);
   --master-primary: var(--master-primary-light);
-  --master-hover: var(--master-hover-light);  
-  --master-secondary: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+  --master-hover: var(--master-hover-light);
+  --master-background: var(--master-background-light);
+  --master-surface: var(--master-surface-light);
+  --master-surface-alt: var(--master-surface-alt-light);
+  --master-border: var(--master-border-light);
   --master-text: var(--master-text-light);
+  --master-text-muted: var(--master-text-muted-light);
+  --master-on-color: #ffffff;                          /* text on gradient / primary fills */
+
+  color-scheme: light;
 }
 
 /* Dark theme */
-[data-theme="dark"] { 
+[data-theme="dark"] {
   --master-color: var(--master-color-dark);
+  --master-secondary: var(--master-secondary-dark);
   --master-primary: var(--master-primary-dark);
   --master-hover: var(--master-hover-dark);
-  --master-text: var(--master-text-dark);
   --master-background: var(--master-background-dark);
+  --master-surface: var(--master-surface-dark);
+  --master-surface-alt: var(--master-surface-alt-dark);
+  --master-border: var(--master-border-dark);
+  --master-text: var(--master-text-dark);
+  --master-text-muted: var(--master-text-muted-dark);
+  --master-on-color: #ffffff;
+
+  color-scheme: dark;
 }
 
 html {
@@ -67,7 +95,8 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--master-color);
+  background: var(--master-background);
+  color: var(--master-text);
   overflow-x: hidden;
 }
 

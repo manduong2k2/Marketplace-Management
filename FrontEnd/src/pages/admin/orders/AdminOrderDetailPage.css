@@ -28,7 +28,7 @@
   color: #333;
 }
 
-.btn-back {
+.admin-btn-back {
   padding: 10px 20px;
   background: #f8f9fa;
   border: 1px solid #e1e5e9;
@@ -39,7 +39,7 @@
   transition: all 0.2s ease;
 }
 
-.btn-back:hover {
+.admin-btn-back:hover {
   background: #e1e5e9;
 }
 
@@ -50,27 +50,27 @@
 }
 
 /* ── Order Info Section ── */
-.order-info-section {
+.admin-order-info-section {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 20px;
 }
 
-.info-header {
+.admin-info-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.info-header h2 {
+.admin-info-header h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
   color: #333;
 }
 
-.order-status-badge {
+.admin-order-status-badge {
   padding: 6px 16px;
   border-radius: 12px;
   font-size: 12px;
@@ -79,96 +79,96 @@
   color: white;
 }
 
-.info-grid {
+.admin-info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
-.info-item {
+.admin-info-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.info-item label {
+.admin-info-item label {
   font-size: 12px;
   font-weight: 600;
   color: #6c757d;
   text-transform: uppercase;
 }
 
-.info-item span {
+.admin-info-item span {
   font-size: 14px;
   color: #333;
 }
 
-.total-price {
+.admin-total-price {
   font-size: 18px;
   font-weight: 700;
   color: #667eea;
 }
 
 /* ── Shipping Info Section ── */
-.shipping-info-section {
+.admin-shipping-info-section {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 20px;
 }
 
-.shipping-info-section h2 {
+.admin-shipping-info-section h2 {
   margin: 0 0 16px 0;
   font-size: 18px;
   font-weight: 600;
   color: #333;
 }
 
-.shipping-details {
+.admin-shipping-details {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.shipping-item {
+.admin-shipping-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.shipping-item label {
+.admin-shipping-item label {
   font-size: 12px;
   font-weight: 600;
   color: #6c757d;
   text-transform: uppercase;
 }
 
-.shipping-item span {
+.admin-shipping-item span {
   font-size: 14px;
   color: #333;
 }
 
 /* ── Order Items Section ── */
-.order-items-section {
+.admin-order-items-section {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 20px;
 }
 
-.order-items-section h2 {
+.admin-order-items-section h2 {
   margin: 0 0 16px 0;
   font-size: 18px;
   font-weight: 600;
   color: #333;
 }
 
-.items-list {
+.admin-items-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 20px;
 }
 
-.order-item-card {
+.admin-order-item-card {
   display: flex;
   gap: 16px;
   background: white;
@@ -177,7 +177,7 @@
   border: 1px solid #e1e5e9;
 }
 
-.item-image {
+.admin-item-image {
   width: 80px;
   height: 80px;
   flex-shrink: 0;
@@ -186,56 +186,56 @@
   background: #f8f9fa;
 }
 
-.item-image img {
+.admin-item-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.item-details {
+.admin-item-details {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.item-name {
+.admin-item-name {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
   color: #333;
 }
 
-.item-meta {
+.admin-item-meta {
   margin: 0;
   font-size: 13px;
   color: #6c757d;
 }
 
-.item-product-id {
+.admin-item-product-id {
   margin: 0;
   font-size: 12px;
   color: #667eea;
   font-weight: 600;
 }
 
-.item-total {
+.admin-item-total {
   display: flex;
   align-items: center;
 }
 
-.item-total-price {
+.admin-item-total-price {
   font-size: 16px;
   font-weight: 700;
   color: #667eea;
 }
 
-.order-summary {
+.admin-order-summary {
   padding-top: 16px;
   border-top: 1px solid #e1e5e9;
 }
 
-.summary-row {
+.admin-summary-row {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
@@ -243,7 +243,7 @@
   color: #6c757d;
 }
 
-.summary-row.total {
+.admin-summary-row.admin-total {
   font-size: 18px;
   font-weight: 700;
   color: #333;
@@ -252,8 +252,8 @@
 }
 
 /* ── Shared States ── */
-.loading-container,
-.error-state {
+.admin-loading-container,
+.admin-error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -262,7 +262,7 @@
   text-align: center;
 }
 
-.spinner {
+.admin-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid #f3f3f3;
@@ -277,13 +277,13 @@
   100% { transform: rotate(360deg); }
 }
 
-.loading-container p,
-.error-state p {
+.admin-loading-container p,
+.admin-error-state p {
   color: #6c757d;
   font-size: 16px;
 }
 
-.error-state p {
+.admin-error-state p {
   color: #dc3545;
 }
 
@@ -307,16 +307,24 @@
     font-size: 24px;
   }
 
-  .info-grid {
+  .admin-info-grid {
     grid-template-columns: 1fr;
   }
 
-  .order-item-card {
+  .admin-order-item-card {
     flex-direction: column;
   }
 
-  .item-image {
+  .admin-item-image {
     width: 100%;
     height: 200px;
   }
+}
+
+/* ── Shared components rendered inside admin (ProductForm, BrandForm, …) ── */
+.admin-shell .items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
 }

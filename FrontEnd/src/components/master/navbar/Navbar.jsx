@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { CartContext } from '../../../contexts/CartContext';
 import { authService } from '../../../services/authService';
+import { useTheme } from '../../../hooks/useTheme';
 import './Navbar.css';
 import shopIcon from '../../../../public/logo.png';
 import { APP_NAME, APP_SLOGAN } from '../../../configs/constants';
@@ -21,6 +22,7 @@ export default function Navbar() {
   const { cart } = useContext(CartContext);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const cartCount = cart?.totalItemCount || 0;
   const location = useLocation();
@@ -83,6 +85,15 @@ export default function Navbar() {
       )}
 
       <div className="navbar-right">
+        <button
+          type="button"
+          className="navbar-theme-toggle"
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          <i className={`bi ${theme === 'dark' ? 'bi-sun' : 'bi-moon-stars'}`} aria-hidden="true"></i>
+        </button>
         {user ? (
           <>
             <CartIcon count={cartCount} />
@@ -148,7 +159,7 @@ export default function Navbar() {
             <Link to="/auth?action=login" className="navbar-btn">
               Login
             </Link>
-            <Link to="/auth?action=signup" className="navbar-btn">
+            <Link to="/auth?action=register" className="navbar-btn">
               Register
             </Link>
           </>

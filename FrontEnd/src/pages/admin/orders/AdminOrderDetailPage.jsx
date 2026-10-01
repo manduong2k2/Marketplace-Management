@@ -46,8 +46,8 @@ function AdminOrderDetailPage() {
   if (loading) {
     return (
       <div className="admin-order-detail-page">
-        <div className="loading-container">
-          <div className="spinner"></div>
+        <div className="admin-loading-container">
+          <div className="admin-spinner"></div>
           <p>Loading order details...</p>
         </div>
       </div>
@@ -57,9 +57,9 @@ function AdminOrderDetailPage() {
   if (error || !order) {
     return (
       <div className="admin-order-detail-page">
-        <div className="error-state">
+        <div className="admin-error-state">
           <p>{error || 'Order not found'}</p>
-          <button className="btn-back" onClick={() => navigate('/admin/orders')}>
+          <button className="admin-btn-back" onClick={() => navigate('/admin/orders')}>
             Back to Orders
           </button>
         </div>
@@ -71,7 +71,7 @@ function AdminOrderDetailPage() {
     <div className="admin-order-detail-page">
       <div className="admin-order-detail-container">
         <div className="admin-order-detail-header">
-          <button className="btn-back" onClick={() => navigate('/admin/orders')}>
+          <button className="admin-btn-back" onClick={() => navigate('/admin/orders')}>
             ← Back to Orders
           </button>
           <h1>Order Details</h1>
@@ -79,59 +79,59 @@ function AdminOrderDetailPage() {
 
         <div className="admin-order-detail-content">
           {/* Order Info */}
-          <div className="order-info-section">
-            <div className="info-header">
+          <div className="admin-order-info-section">
+            <div className="admin-info-header">
               <h2>Order Information</h2>
               <span
-                className="order-status-badge"
+                className="admin-order-status-badge"
                 style={{ backgroundColor: getStatusColor(order.status) }}
               >
                 {order.status}
               </span>
             </div>
 
-            <div className="info-grid">
-              <div className="info-item">
+            <div className="admin-info-grid">
+              <div className="admin-info-item">
                 <label>Order ID:</label>
                 <span>{order.id}</span>
               </div>
-              <div className="info-item">
+              <div className="admin-info-item">
                 <label>User ID:</label>
                 <span>{order.userId}</span>
               </div>
-              <div className="info-item">
+              <div className="admin-info-item">
                 <label>Order Date:</label>
                 <span>{new Date(order.createdAt).toLocaleString()}</span>
               </div>
-              <div className="info-item">
+              <div className="admin-info-item">
                 <label>Last Updated:</label>
                 <span>{new Date(order.updatedAt).toLocaleString()}</span>
               </div>
-              <div className="info-item">
+              <div className="admin-info-item">
                 <label>Total:</label>
-                <span className="total-price">${order.total.toFixed(2)}</span>
+                <span className="admin-total-price">${order.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
           {/* Shipping Info */}
-          <div className="shipping-info-section">
+          <div className="admin-shipping-info-section">
             <h2>Shipping Information</h2>
-            <div className="shipping-details">
-              <div className="shipping-item">
+            <div className="admin-shipping-details">
+              <div className="admin-shipping-item">
                 <label>Name:</label>
                 <span>{order.name}</span>
               </div>
-              <div className="shipping-item">
+              <div className="admin-shipping-item">
                 <label>Phone:</label>
                 <span>{order.phone}</span>
               </div>
-              <div className="shipping-item">
+              <div className="admin-shipping-item">
                 <label>Address:</label>
                 <span>{order.address}</span>
               </div>
               {order.note && (
-                <div className="shipping-item">
+                <div className="admin-shipping-item">
                   <label>Note:</label>
                   <span>{order.note}</span>
                 </div>
@@ -140,12 +140,12 @@ function AdminOrderDetailPage() {
           </div>
 
           {/* Order Items */}
-          <div className="order-items-section">
+          <div className="admin-order-items-section">
             <h2>Order Items</h2>
-            <div className="items-list">
+            <div className="admin-items-list">
               {order.items && order.items.map((item) => (
-                <div key={item.id} className="order-item-card">
-                  <div className="item-image">
+                <div key={item.id} className="admin-order-item-card">
+                  <div className="admin-item-image">
                     {item.snapShot?.productImages ? (
                       <img src={item.snapShot.productImages[0]} alt={item.snapShot.productName} />
                     ) : (
@@ -153,27 +153,27 @@ function AdminOrderDetailPage() {
                     )}
                   </div>
 
-                  <div className="item-details">
-                    <h3 className="item-name">{item.snapShot?.productName || 'Product'}</h3>
-                    <p className="item-meta">
+                  <div className="admin-item-details">
+                    <h3 className="admin-item-name">{item.snapShot?.productName || 'Product'}</h3>
+                    <p className="admin-item-meta">
                       ${item.snapShot?.price?.toFixed(2) || '0.00'} × {item.quantity}
                     </p>
-                    <p className="item-product-id">Code: {item.snapShot.productCode}</p>
+                    <p className="admin-item-product-id">Code: {item.snapShot.productCode}</p>
                   </div>
 
-                  <div className="item-total">
-                    <span className="item-total-price">${item.total.toFixed(2)}</span>
+                  <div className="admin-item-total">
+                    <span className="admin-item-total-price">${item.total.toFixed(2)}</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="order-summary">
-              <div className="summary-row">
+            <div className="admin-order-summary">
+              <div className="admin-summary-row">
                 <span>Subtotal:</span>
                 <span>${order.total.toFixed(2)}</span>
               </div>
-              <div className="summary-row total">
+              <div className="admin-summary-row admin-total">
                 <span>Total:</span>
                 <span>${order.total.toFixed(2)}</span>
               </div>

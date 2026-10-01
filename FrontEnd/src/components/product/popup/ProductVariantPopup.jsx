@@ -119,7 +119,7 @@ function ProductVariantPopup({ product, onClose }) {
 
   const handleAddToCart = async () => {
     if (!user) {
-      navigate('/login');
+      navigate('/auth?action=login');
       return;
     }
 

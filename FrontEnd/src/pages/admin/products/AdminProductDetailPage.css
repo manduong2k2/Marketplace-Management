@@ -5,14 +5,14 @@
   gap: 24px;
 }
 
-.detail-section {
+.admin-detail-section {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   padding: 24px;
 }
 
-.detail-section-title {
+.admin-detail-section-title {
   font-size: 18px;
   font-weight: 700;
   color: #2c3e50;
@@ -21,79 +21,79 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
-.detail-grid {
+.admin-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.detail-item {
+.admin-detail-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.detail-item.full-width {
+.admin-detail-item.admin-full-width {
   grid-column: 1 / -1;
 }
 
-.detail-label {
+.admin-detail-label {
   font-size: 13px;
   font-weight: 600;
   color: #7f8c8d;
   text-transform: uppercase;
 }
 
-.detail-value {
+.admin-detail-value {
   font-size: 14px;
   color: #2c3e50;
   font-weight: 500;
 }
 
-.detail-value.code {
+.admin-detail-value.admin-code {
   font-family: 'Courier New', monospace;
   background: #f8f9fa;
   padding: 4px 8px;
   border-radius: 4px;
 }
 
-.detail-value.price {
+.admin-detail-value.admin-price {
   font-size: 18px;
   font-weight: 700;
   color: #27ae60;
 }
 
-.detail-value.stock {
+.admin-detail-value.admin-stock {
   font-size: 16px;
   font-weight: 600;
 }
 
-.detail-value.description {
+.admin-detail-value.admin-description {
   line-height: 1.6;
   white-space: pre-wrap;
 }
 
 /* ── Image Gallery ── */
-.image-gallery {
+.admin-image-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
 }
 
-.image-item {
+.admin-image-item {
   aspect-ratio: 1;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #e0e0e0;
 }
 
-.image-item img {
+.admin-image-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.no-images {
+.admin-no-images {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,11 +105,11 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .detail-grid {
+  .admin-detail-grid {
     grid-template-columns: 1fr;
   }
 
-  .image-gallery {
+  .admin-image-gallery {
     grid-template-columns: repeat(2, 1fr);
   }
 }
