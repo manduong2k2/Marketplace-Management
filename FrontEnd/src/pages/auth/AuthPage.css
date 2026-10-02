@@ -207,71 +207,55 @@
 }
 
 .auth-social-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
   margin-bottom: 1.25rem;
 }
 
-/* Google button: custom look (.auth-social-btn) with Google's official button stacked on top,
-   fully transparent, so clicks go through Google Sign-In (which returns the ID token) */
+/* Google's official Sign-In button (rendered by Google in an iframe; size/style set via props) */
 .auth-google-btn {
-  position: relative;
   display: flex;
-  border-radius: 0.75rem;
-  overflow: hidden;
+  justify-content: center;
+  min-height: 40px;
 }
 
-.auth-google-btn > .auth-social-btn {
-  flex: 1;
+/* Google's button CSS assumes the default content-box. The global border-box reset
+   (index.css + Bootstrap) shrinks the round icon button's content to 0, hiding the G logo. */
+.auth-google-btn * {
+  box-sizing: content-box;
 }
 
-.auth-google-overlay {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-/* Stretch Google's rendered button/iframe over the whole custom button */
-.auth-google-overlay > div,
-.auth-google-overlay iframe {
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-}
-
-/* The overlay receives the mouse, so drive the hover style from the wrapper */
-.auth-google-btn:hover > .auth-social-btn {
-  background: var(--master-surface-alt);
-  border-color: var(--master-primary);
-}
-
-.auth-social-btn {
-  display: flex;
+/* Facebook button styled after Google's round icon button (type="icon", shape="circle", size="large").
+   Fixed colors on purpose: Google's button looks the same in light and dark theme. */
+.auth-facebook-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border: 1px solid var(--master-border);
-  border-radius: 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--master-text);
-  background: var(--master-surface);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #dadce0;
+  border-radius: 50%;
+  background: #ffffff;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.218s, border-color 0.218s;
 }
 
-.auth-social-btn:hover {
-  background: var(--master-surface-alt);
-  border-color: var(--master-primary);
+.auth-facebook-btn:hover {
+  background: #f7f8f8;
+  border-color: #d2e3fc;
 }
 
-.auth-social-icon {
-  width: 1rem;
-  height: 1rem;
+.auth-facebook-btn:focus-visible {
+  outline: 2px solid #1877f2;
+  outline-offset: 2px;
+}
+
+.auth-facebook-icon {
+  font-size: 18px;
+  color: #1877f2;
 }
 
 .auth-divider {
@@ -625,9 +609,6 @@
     padding: 3.5rem 1.25rem 1.25rem;
   }
 
-  .auth-social-buttons {
-    grid-template-columns: 1fr;
-  }
 }
 
 @keyframes slide-in-right {
