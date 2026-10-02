@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    environment: local
+    environment: production
     name: store-management-system
     base-url: http://localhost:8083
     auth:
