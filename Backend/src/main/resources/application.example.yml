@@ -3,9 +3,14 @@ server:
 
 spring:
   application:
+    environment: local
     name: store-management-system
     base-url: http://localhost:8083
-    auth-domain: localhost
+    auth:
+      domain: localhost
+      secure: false
+      samesite: none
+      http-only: true
 
   datasource:
     url: jdbc:postgresql://localhost:5432/store_management_db

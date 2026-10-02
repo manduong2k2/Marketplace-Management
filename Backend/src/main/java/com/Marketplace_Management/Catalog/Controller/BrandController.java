@@ -24,13 +24,14 @@ import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.GetListBrandReques
 import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.UpdateBrandRequest;
 import com.Marketplace_Management.Catalog.DTOs.Response.BrandResponse;
 import com.Marketplace_Management.Shared.Constants.UserRole;
+import com.Marketplace_Management.Shared.Controllers.BaseController;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/brands")
-public class BrandController {
+public class BrandController extends BaseController {
     private final IBrandService brandService;
 
     public BrandController(IBrandService brandService) {

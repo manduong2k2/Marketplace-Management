@@ -24,7 +24,14 @@ public abstract class BaseController {
         return ResponseEntity.status(201).body(response);
     }
 
-    protected ResponseEntity<Map<String, Object>> simpleResponse(String message) {
+    protected ResponseEntity<Map<String, Object>> successResponse(String message) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", false);
+        response.put("message", message);
+        return ResponseEntity.ok().body(response);
+    }
+
+    protected ResponseEntity<Map<String, Object>> badRequestResponse(String message) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("success", false);
         response.put("message", message);

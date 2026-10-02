@@ -5,9 +5,29 @@
     "description": "Base API URL to access this service"
   },
   {
-    "name": "spring.application.auth-domain",
+    "name": "spring.application.environment",
+    "type": "java.lang.String",
+    "description": "Environment for the application (local, dev, prod)"
+  },
+  {
+    "name": "spring.application.auth.domain",
     "type": "java.lang.String",
     "description": "Domain for authentication, authorization and CORS configuration"
+  },
+  {
+    "name": "spring.application.auth.secure",
+    "type": "java.lang.Boolean",
+    "description": "Secure flag for authentication cookies"
+  },
+  {
+    "name": "spring.application.auth.samesite",
+    "type": "java.lang.String",
+    "description": "SameSite attribute for authentication cookies"
+  },
+  {
+    "name": "spring.application.auth.http-only",
+    "type": "java.lang.Boolean",
+    "description": "HttpOnly flag for authentication cookies"
   },
   {
     "name": "jwt.public-key",

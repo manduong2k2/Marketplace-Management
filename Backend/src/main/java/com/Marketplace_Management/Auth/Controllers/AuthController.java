@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -36,15 +37,15 @@ import com.Marketplace_Management.Auth.DTOs.Request.ResetPasswordRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.UpdateProfileRequest;
 import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
 import com.Marketplace_Management.Auth.DTOs.Response.ProfileResponse;
-import com.Marketplace_Management.Auth.DTOs.Response.RegisterResponse;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
+import com.Marketplace_Management.Shared.Controllers.BaseController;
 import com.Marketplace_Management.Shared.Security.JwtService;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController extends BaseController {
 
     private final JwtService jwtService;
     private final IAuthService auth;
@@ -63,14 +64,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public RegisterResponse register(@Valid @ModelAttribute RegisterRequest req)
+    public ResponseEntity<Map<String, Object>> register(@Valid @ModelAttribute RegisterRequest req)
             throws MessagingException {
         RegisterCommand command = RegisterCommand.fromRequest(req);
-        return auth.register(command);
+        return objectResponse(auth.register(command));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<HashMap<String, Object>> login(@Valid @RequestBody(required = true) LoginRequest req) {
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody(required = true) LoginRequest req) {
         LoginCommand command = LoginCommand.fromRequest(req);
         AuthResponse authRes = auth.login(command);
         HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
@@ -84,12 +85,12 @@ public class AuthController {
     }
 
     @PostMapping("/admin/login")
-    public ResponseEntity<HashMap<String, Object>> loginAdmin(@Valid @RequestBody(required = true) LoginRequest req) {
+    public ResponseEntity<Map<String, Object>> loginAdmin(@Valid @RequestBody(required = true) LoginRequest req) {
         LoginCommand command = LoginCommand.fromRequest(req);
         AuthResponse authRes = auth.loginAdmin(command);
         HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
 
-        HashMap<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("message", authRes.getMessage());
 
         return ResponseEntity.ok()
@@ -98,13 +99,13 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<HashMap<String, Object>> refreshToken(
+    public ResponseEntity<Map<String, Object>> refreshToken(
             @Valid @RequestBody(required = true) RefreshTokenRequest req) {
         RefreshTokenCommand command = RefreshTokenCommand.fromRequest(req);
         var authRes = auth.refreshToken(command);
         HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
 
-        HashMap<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("message", authRes.getMessage());
 
         return ResponseEntity.ok()
@@ -113,7 +114,7 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity<HashMap<String, Object>> activeUser(@Valid @ModelAttribute ActivateUserRequest request) {
+    public ResponseEntity<Map<String, Object>> activeUser(@Valid @ModelAttribute ActivateUserRequest request) {
         ActivateUserCommand command = ActivateUserCommand.fromRequest(request);
         var authRes = auth.activeUser(command);
         HttpHeaders headers = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
@@ -127,54 +128,46 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public String forgotPassword(@Valid @RequestBody(required = true) ForgotPasswordRequest req)
+    public ResponseEntity<Map<String, Object>> forgotPassword(@Valid @RequestBody(required = true) ForgotPasswordRequest req)
             throws MessagingException {
         ForgotPasswordCommand command = ForgotPasswordCommand.fromRequest(req);
-        boolean sent = auth.sendResetPasswordEmail(command);
-        if (sent) {
-            return Message.RECOVERY_MAIL_SENT;
-        } else {
-            return Message.RECOVERY_MAIL_FAILED;
-        }
+        auth.sendResetPasswordEmail(command);
+        return successResponse(Message.RECOVERY_MAIL_SENT);
     }
 
     @PostMapping("/reset-password")
-    public String resetPassword(@Valid @RequestBody(required = true) ResetPasswordRequest req) {
+    public ResponseEntity<Map<String, Object>> resetPassword(@Valid @RequestBody(required = true) ResetPasswordRequest req) {
         ResetPasswordCommand command = ResetPasswordCommand.fromRequest(req);
-        boolean reset = auth.resetPassword(command);
-        if (reset) {
-            return Message.PASSWORD_UPDATED;
-        } else {
-            return Message.PASSWORD_RESET_FAILED;
-        }
+        auth.resetPassword(command);
+        return successResponse(Message.PASSWORD_UPDATED);
     }
 
     @Authenticated
     @GetMapping("/profile")
-    public ResponseEntity<HashMap<String, Object>> profile() {
+    public ResponseEntity<Map<String, Object>> profile() {
         UUID userId = SecurityUtils.currentUserId();
         User user = auth.getUserById(userId);
-        HashMap<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("data", new ProfileResponse(user).withUrl(baseUrl));
         return ResponseEntity.ok(response);
     }
 
     @Authenticated
     @PutMapping("/profile")
-    public ResponseEntity<HashMap<String, Object>> updateProfile(@Valid @ModelAttribute UpdateProfileRequest req) throws IOException {
+    public ResponseEntity<Map<String, Object>> updateProfile(@Valid @ModelAttribute UpdateProfileRequest req) throws IOException {
         UUID userId = SecurityUtils.currentUserId();
         UpdateProfileCommand command = UpdateProfileCommand.fromRequest(req);
         auth.updateProfile(userId, command);
 
-        HashMap<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("message", Message.PROFILE_UPDATED);
         return ResponseEntity.ok(response);
     }
 
     @Authenticated
     @PostMapping("/logout")
-    public ResponseEntity<HashMap<String, Object>> logout(HttpServletRequest request) {
-        HashMap<String, String> cookieMap = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
+        Map<String, String> cookieMap = new HashMap<>();
 
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
@@ -190,7 +183,7 @@ public class AuthController {
 
         HttpHeaders headers = cookieService.createClearCookies();
 
-        HashMap<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("message", Message.LOGOUT_SUCCESS);
 
         return ResponseEntity.ok()

@@ -22,8 +22,11 @@ import com.Marketplace_Management.Shared.Security.JwtAuthenticationFilter;
 @EnableMethodSecurity
 @EnableAspectJAutoProxy
 public class SecurityConfig {
-    @Value("${spring.application.auth-domain}")
+    @Value("${spring.application.auth.domain}")
     private String authDomain;
+
+    @Value("${spring.application.environment}")
+    private String environment;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -46,10 +49,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
-                "https://*." + authDomain,
-                "https://" + authDomain,
-                "http://localhost:*")); // frontend & other services & local development
+
+        var allowedPatterns = "local".equalsIgnoreCase(environment) ? List.of("*") : List.of("https://*." + authDomain, "https://" + authDomain);
+        
+        config.setAllowedOriginPatterns(allowedPatterns);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

@@ -75,7 +75,7 @@ public class ProductController extends BaseController{
 
     @GetMapping("/{productId}/variants")
     public ResponseEntity<Map<String, Object>> getProductVariants(@PathVariable UUID productId) {
-        return simpleResponse(null);
+        return successResponse(null);
     }
     
 
@@ -103,6 +103,6 @@ public class ProductController extends BaseController{
     public ResponseEntity<Map<String, Object>> delete(@PathVariable UUID productId) {
         productService.deleteProduct(productId);
         
-        return simpleResponse("Product deleted successfully");
+        return successResponse("Product deleted successfully");
     }
 }

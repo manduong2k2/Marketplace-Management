@@ -21,8 +21,7 @@ public interface IAuthService {
     AuthResponse login(LoginCommand command);
     AuthResponse loginAdmin(LoginCommand command);
     AuthResponse refreshToken(RefreshTokenCommand command);
-    boolean sendActivationEmail(String email) throws MessagingException;
-    boolean sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException;
+    void sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException;
     boolean resetPassword(ResetPasswordCommand command);
     void logout(String key, String token);
     User getUserById(UUID userId);

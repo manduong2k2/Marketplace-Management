@@ -103,7 +103,7 @@ public class VendorController extends BaseController{
     public ResponseEntity<Map<String, Object>> activate(@PathVariable UUID id) {
         vendorService.active(id);
 
-        return simpleResponse("Vendor activated successfully");
+        return successResponse("Vendor activated successfully");
     }
 
     @Authenticated
@@ -113,7 +113,7 @@ public class VendorController extends BaseController{
         UpdateVendorCommand command = UpdateVendorCommand.fromRequest(request);
         vendorService.update(id, command);
 
-        return simpleResponse("Vendor updated successfully");
+        return successResponse("Vendor updated successfully");
     }
 
     @Authenticated

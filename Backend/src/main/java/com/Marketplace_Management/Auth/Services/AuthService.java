@@ -13,6 +13,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Constants.UserStatus;
@@ -35,6 +37,7 @@ import com.Marketplace_Management.Shared.Contracts.IFileService;
 import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
 import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 import com.Marketplace_Management.Shared.Security.JwtService;
+import com.Marketplace_Management.Shared.Utils.Helpers.Helper;
 
 @Service
 public class AuthService implements IAuthService {
@@ -74,8 +77,6 @@ public class AuthService implements IAuthService {
         user.setRoles(roles);
 
         this.repo.save(user);
-        
-        sendActivationEmail(user.getEmail());
 
         return new RegisterResponse(true, Message.ACTIVATION_MAIL_SENT);
     }
@@ -151,20 +152,11 @@ public class AuthService implements IAuthService {
                 Message.TOKEN_REFRESHED);
     }
 
-    public boolean sendActivationEmail(String email) throws MessagingException {
-        String token = UUID.randomUUID().toString(); // switch
-
-        emailVerificationTokenService.createToken(email, token);
-        emailVerificationTokenService.sendVerifyEmail(email, token);
-        return true;
-    }
-
-    public boolean sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException {
-        String token = UUID.randomUUID().toString();
-
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException {
+        String token = Helper.randomString(16);
         emailVerificationTokenService.createToken(command.getEmail(), token);
         emailVerificationTokenService.sendResetPasswordEmail(command.getEmail(), token);
-        return true;
     }
 
     @CacheEvict(value = "users", key = "#command.email")

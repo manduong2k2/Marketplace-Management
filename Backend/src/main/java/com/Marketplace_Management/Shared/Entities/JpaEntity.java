@@ -7,7 +7,10 @@ import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.Marketplace_Management.Shared.Events.EntityEventListener;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,6 +19,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @MappedSuperclass
+@EntityListeners(EntityEventListener.class) // publishes EntityEvent<T> on create/update/delete for every entity
 public abstract class JpaEntity {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
