@@ -213,6 +213,41 @@
   margin-bottom: 1.25rem;
 }
 
+/* Google button: custom look (.auth-social-btn) with Google's official button stacked on top,
+   fully transparent, so clicks go through Google Sign-In (which returns the ID token) */
+.auth-google-btn {
+  position: relative;
+  display: flex;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.auth-google-btn > .auth-social-btn {
+  flex: 1;
+}
+
+.auth-google-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Stretch Google's rendered button/iframe over the whole custom button */
+.auth-google-overlay > div,
+.auth-google-overlay iframe {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+/* The overlay receives the mouse, so drive the hover style from the wrapper */
+.auth-google-btn:hover > .auth-social-btn {
+  background: var(--master-surface-alt);
+  border-color: var(--master-primary);
+}
+
 .auth-social-btn {
   display: flex;
   align-items: center;

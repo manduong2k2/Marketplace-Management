@@ -2,6 +2,7 @@ package com.Marketplace_Management.Catalog.Controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class BrandController extends BaseController {
     }
 
     @GetMapping
-    public ResponseEntity<HashMap<String,Object>> getAll(@Valid @ModelAttribute GetListBrandRequest request) {
+    public ResponseEntity<Map<String,Object>> getAll(@Valid @ModelAttribute GetListBrandRequest request) {
         GetListBrandCommand command = GetListBrandCommand.fromRequest(request);
         PaginatedResponse<BrandResponse> brands = brandService.getAllBrands(command);
 
@@ -60,7 +61,7 @@ public class BrandController extends BaseController {
 
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping
-    public ResponseEntity<HashMap<String,Object>> create(@Valid @ModelAttribute CreateBrandRequest request) {
+    public ResponseEntity<Map<String,Object>> create(@Valid @ModelAttribute CreateBrandRequest request) {
         try {
             CreateBrandCommand command = CreateBrandCommand.fromRequest(request);
             BrandResponse brand = brandService.createBrand(command);
@@ -80,7 +81,7 @@ public class BrandController extends BaseController {
     }
 
     @GetMapping("/{brandId}")
-    public ResponseEntity<HashMap<String,Object>> details(@PathVariable UUID brandId) {
+    public ResponseEntity<Map<String,Object>> details(@PathVariable UUID brandId) {
         BrandResponse brand = brandService.getBrand(brandId);
         
         HashMap<String,Object> response = new HashMap<>();
@@ -92,7 +93,7 @@ public class BrandController extends BaseController {
     
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PutMapping("/{brandId}")
-    public ResponseEntity<HashMap<String,Object>> update(
+    public ResponseEntity<Map<String,Object>> update(
         @PathVariable UUID brandId, 
         @Valid @ModelAttribute UpdateBrandRequest request
     ) throws IOException {
@@ -108,7 +109,7 @@ public class BrandController extends BaseController {
     
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @DeleteMapping("/{brandId}")
-    public ResponseEntity<HashMap<String,Object>> delete(@PathVariable UUID brandId) {
+    public ResponseEntity<Map<String,Object>> delete(@PathVariable UUID brandId) {
         brandService.deleteBrand(brandId);
         
         HashMap<String,Object> response = new HashMap<>();

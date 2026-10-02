@@ -23,6 +23,7 @@ import com.Marketplace_Management.Auth.Contracts.IRoleRepository;
 import com.Marketplace_Management.Auth.Contracts.IUserRepository;
 import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.ForgotPasswordCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.GoogleLoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RefreshTokenCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RegisterCommand;
@@ -32,6 +33,7 @@ import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
 import com.Marketplace_Management.Auth.DTOs.Response.RegisterResponse;
 import com.Marketplace_Management.Auth.Models.Role;
 import com.Marketplace_Management.Auth.Models.User;
+import com.Marketplace_Management.Auth.Services.GoogleIdTokenService.GoogleUserInfo;
 import com.Marketplace_Management.Shared.Constants.UserRole;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
 import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
@@ -47,15 +49,18 @@ public class AuthService implements IAuthService {
     private final JwtService tokenService;
     private final PasswordEncoder encoder;
     private final EmailVerificationTokenService emailVerificationTokenService;
+    private final GoogleIdTokenService googleIdTokenService;
 
     public AuthService(IUserRepository repo, IRoleRepository roleRepo, JwtService tokenService,
-                      PasswordEncoder encoder, EmailVerificationTokenService emailVerificationTokenService, IFileService fileService) {
+                      PasswordEncoder encoder, EmailVerificationTokenService emailVerificationTokenService, IFileService fileService,
+                      GoogleIdTokenService googleIdTokenService) {
         this.repo = repo;
         this.roleRepo = roleRepo;
         this.tokenService = tokenService;
         this.encoder = encoder;
         this.emailVerificationTokenService = emailVerificationTokenService;
         this.fileService = fileService;
+        this.googleIdTokenService = googleIdTokenService;
     }
 
     @Transactional
@@ -69,16 +74,61 @@ public class AuthService implements IAuthService {
             .status(UserStatus.DEFAULT)
             .build();
 
-        Role userRole = this.roleRepo.findByCode("USER").orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
-        
-        Set<Role> roles = new java.util.HashSet<Role>();
+        createUserWithDefaultRole(user);
 
+        return new RegisterResponse(true, Message.ACTIVATION_MAIL_SENT);
+    }
+
+    @Transactional
+    public AuthResponse loginWithGoogle(GoogleLoginCommand command) {
+        GoogleUserInfo google = googleIdTokenService.verify(command.getIdToken());
+
+        if (!google.emailVerified()) {
+            throw new AuthenticationException(Message.GOOGLE_EMAIL_NOT_VERIFIED) {};
+        }
+
+        User user = repo.findByGoogleId(google.googleId())
+                .orElseGet(() -> repo.findByEmail(google.email())
+                        .map(existing -> linkGoogleAccount(existing, google))
+                        .orElseGet(() -> createGoogleUser(google)));
+
+        return new AuthResponse(
+                tokenService.generateAccessToken(user),
+                tokenService.generateRefreshToken(user),
+                Message.LOGIN_SUCCESS);
+    }
+
+    private User linkGoogleAccount(User user, GoogleUserInfo google) {
+        user.setGoogleId(google.googleId());
+        // Google has verified the email, so the account no longer needs email activation
+        user.setStatus(UserStatus.ACTIVE);
+        if (user.getAvatar() == null || user.getAvatar().isBlank()) {
+            user.setAvatar(google.picture());
+        }
+        return repo.save(user);
+    }
+
+    private User createGoogleUser(GoogleUserInfo google) {
+        User user = User.builder()
+            .email(google.email())
+            .password(encoder.encode(Helper.randomString(32)))
+            .name(google.name())
+            .avatar(google.picture())
+            .googleId(google.googleId())
+            .status(UserStatus.ACTIVE)
+            .build();
+
+        return createUserWithDefaultRole(user);
+    }
+
+    private User createUserWithDefaultRole(User user) {
+        Role userRole = this.roleRepo.findByCode(UserRole.USER).orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
+
+        Set<Role> roles = new java.util.HashSet<Role>();
         roles.add(userRole);
         user.setRoles(roles);
 
-        this.repo.save(user);
-
-        return new RegisterResponse(true, Message.ACTIVATION_MAIL_SENT);
+        return this.repo.save(user);
     }
 
     @Transactional

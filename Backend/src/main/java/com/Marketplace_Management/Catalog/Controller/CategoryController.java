@@ -2,6 +2,7 @@ package com.Marketplace_Management.Catalog.Controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<HashMap<String,Object>> getAll(@Valid @ModelAttribute GetListCategoryRequest request) {
+    public ResponseEntity<Map<String,Object>> getAll(@Valid @ModelAttribute GetListCategoryRequest request) {
         GetListCategoryCommand command = GetListCategoryCommand.fromRequest(request);
         PaginatedResponse<CategoryResponse> categories = categoryService.getAllCategories(command);
 
@@ -59,7 +60,7 @@ public class CategoryController {
 
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping
-    public ResponseEntity<HashMap<String,Object>> create(@Valid @ModelAttribute CreateCategoryRequest request) {
+    public ResponseEntity<Map<String,Object>> create(@Valid @ModelAttribute CreateCategoryRequest request) {
         try {
             CreateCategoryCommand command = CreateCategoryCommand.fromRequest(request);
             CategoryResponse category = categoryService.createCategory(command);
@@ -80,7 +81,7 @@ public class CategoryController {
 
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @GetMapping("/{categoryId}")
-    public ResponseEntity<HashMap<String,Object>> details(@PathVariable UUID categoryId) {
+    public ResponseEntity<Map<String,Object>> details(@PathVariable UUID categoryId) {
         CategoryResponse category = categoryService.getCategory(categoryId);
         
         HashMap<String,Object> response = new HashMap<>();
@@ -92,7 +93,7 @@ public class CategoryController {
     
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PutMapping("/{categoryId}")
-    public ResponseEntity<HashMap<String,Object>> update(
+    public ResponseEntity<Map<String,Object>> update(
         @PathVariable UUID categoryId, 
         @Valid @ModelAttribute UpdateCategoryRequest request
     ) throws IOException {
@@ -108,7 +109,7 @@ public class CategoryController {
     
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<HashMap<String,Object>> delete(@PathVariable UUID categoryId) {
+    public ResponseEntity<Map<String,Object>> delete(@PathVariable UUID categoryId) {
         categoryService.deleteCategory(categoryId);
         
         HashMap<String,Object> response = new HashMap<>();

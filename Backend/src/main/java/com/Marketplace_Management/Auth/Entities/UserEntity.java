@@ -35,6 +35,9 @@ public class UserEntity extends UuidEntity {
     @Column(name = "status", length = 20, columnDefinition = "varchar(20) default 'INACTIVE'")
     private String status;
 
+    @Column(name = "google_id", unique = true, columnDefinition = "varchar(255)", nullable = true)
+    private String googleId;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -50,7 +53,7 @@ public class UserEntity extends UuidEntity {
         this.status = status;
     }
 
-    public UserEntity(UUID id, String email, String password, String status, String name, String avatar, String phone, Set<RoleEntity> roles) {
+    public UserEntity(UUID id, String email, String password, String status, String name, String avatar, String phone, String googleId, Set<RoleEntity> roles) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -58,6 +61,7 @@ public class UserEntity extends UuidEntity {
         this.name = name;
         this.avatar = avatar;
         this.phone = phone;
+        this.googleId = googleId;
         this.roles = roles;
     }
 }

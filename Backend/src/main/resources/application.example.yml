@@ -67,6 +67,8 @@ spring:
 application:
   frontend:
     base-url: http://localhost:5173
+  google:
+    client-id: your-google-oauth-client-id.apps.googleusercontent.com
     
 # Logging Configuration
 logging:

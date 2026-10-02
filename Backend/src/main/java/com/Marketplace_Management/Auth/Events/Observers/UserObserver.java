@@ -1,6 +1,5 @@
 package com.Marketplace_Management.Auth.Events.Observers;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -22,10 +21,11 @@ public class UserObserver {
     private final EmailVerificationTokenService tokenService;
 
     @Async
-    // Only on CREATED: EntityEventListener also publishes UPDATED/DELETED (e.g. account activation)
+    // Skip users created already active (Google sign-in): their email is verified by Google
     @TransactionalEventListener(
         phase = TransactionPhase.AFTER_COMMIT,
-        condition = "#event.type == T(com.Marketplace_Management.Shared.Events.EntityEvent.Type).CREATED")
+        condition = "#event.type == T(com.Marketplace_Management.Shared.Events.EntityEvent.Type).CREATED"
+                + " && #event.entity.status != T(com.Marketplace_Management.Auth.Constants.UserStatus).ACTIVE")
     public void onUserRegistered(EntityEvent<UserEntity> event) throws MessagingException {
         String token = Helper.randomString(16);
         tokenService.createToken(event.getEntity().getEmail(), token);  

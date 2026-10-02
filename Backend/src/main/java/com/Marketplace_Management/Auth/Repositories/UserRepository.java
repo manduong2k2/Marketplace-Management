@@ -25,6 +25,10 @@ public class UserRepository implements IUserRepository{
         return entity != null ? Optional.of(userMapper.toDomain(entity)) : Optional.empty();
     }
 
+    public Optional<User> findByGoogleId(String googleId) {
+        return userJpaRepository.findByGoogleId(googleId).map(userMapper::toDomain);
+    }
+
     public Optional<User> findById(UUID id) {
         UserEntity entity = userJpaRepository.findById(id).orElse(null);
         return entity != null ? Optional.of(userMapper.toDomain(entity)) : Optional.empty();

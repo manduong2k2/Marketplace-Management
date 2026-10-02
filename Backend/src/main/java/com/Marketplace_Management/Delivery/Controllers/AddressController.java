@@ -2,6 +2,7 @@ package com.Marketplace_Management.Delivery.Controllers;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
@@ -33,7 +34,7 @@ public class AddressController {
     }
 
     @GetMapping("/master-regions")
-    public ResponseEntity<HashMap<String, Object>> getMasterRegions() {
+    public ResponseEntity<Map<String, Object>> getMasterRegions() {
         List<ProvinceResponse> provinces = addressService.getMasterRegions();
         HashMap<String, Object> response = new HashMap<>();
         response.put("data", provinces);
@@ -42,7 +43,7 @@ public class AddressController {
 
     @Authenticated
     @GetMapping("/mine")
-    public ResponseEntity<HashMap<String, Object>> getMyAddresses(@Valid GetMyAddressesRequest request) {
+    public ResponseEntity<Map<String, Object>> getMyAddresses(@Valid GetMyAddressesRequest request) {
         UUID userId = SecurityUtils.currentUserId();
         GetMyAddressesCommand command = GetMyAddressesCommand.fromRequest(request);
         List<AddressResponse> addresses = addressService.getMyAddresses(userId, command);
@@ -53,7 +54,7 @@ public class AddressController {
 
     @Authenticated
     @GetMapping("/default")
-    public ResponseEntity<HashMap<String, Object>> getDefaultAddress() {
+    public ResponseEntity<Map<String, Object>> getDefaultAddress() {
         UUID userId = SecurityUtils.currentUserId();
         DetailAdressResponse address = addressService.getDefaultAddress(userId);
         HashMap<String, Object> response = new HashMap<>();
@@ -63,7 +64,7 @@ public class AddressController {
 
     @Authenticated
     @GetMapping("/{addressId}")
-    public ResponseEntity<HashMap<String, Object>> getAddressById(@PathVariable Long addressId) {
+    public ResponseEntity<Map<String, Object>> getAddressById(@PathVariable Long addressId) {
         DetailAdressResponse address = addressService.getAddressById(addressId);
         HashMap<String, Object> response = new HashMap<>();
         response.put("data", address);
@@ -72,7 +73,7 @@ public class AddressController {
 
     @Authenticated
     @PostMapping
-    public ResponseEntity<HashMap<String, Object>> createAddress(@Valid @RequestBody CreateAddressRequest request) {
+    public ResponseEntity<Map<String, Object>> createAddress(@Valid @RequestBody CreateAddressRequest request) {
         UUID userId = SecurityUtils.currentUserId();
         CreateAddressCommand command = CreateAddressCommand.fromRequest(request);
         DetailAdressResponse address = addressService.createAddress(userId, command);
@@ -83,7 +84,7 @@ public class AddressController {
 
     @Authenticated
     @PutMapping("/{addressId}")
-    public ResponseEntity<HashMap<String, Object>> updateAddress(
+    public ResponseEntity<Map<String, Object>> updateAddress(
             @PathVariable Long addressId,
             @Valid @RequestBody UpdateAddressRequest request) {
         UpdateAddressCommand command = UpdateAddressCommand.fromRequest(request);
@@ -95,7 +96,7 @@ public class AddressController {
 
     @Authenticated
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<HashMap<String, Object>> deleteAddress(@PathVariable Long addressId) {
+    public ResponseEntity<Map<String, Object>> deleteAddress(@PathVariable Long addressId) {
         addressService.deleteAddress(addressId);
         HashMap<String, Object> response = new HashMap<>();
         response.put("message", "Address deleted successfully");

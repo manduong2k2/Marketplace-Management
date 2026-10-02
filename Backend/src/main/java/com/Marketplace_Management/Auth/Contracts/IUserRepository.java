@@ -6,6 +6,7 @@ import com.Marketplace_Management.Auth.Models.User;
 
 public interface IUserRepository{
     Optional<User> findByEmail(String email);
+    Optional<User> findByGoogleId(String googleId);
     Optional<User> findById(UUID id);
     User save(User user);
     void delete(User user);

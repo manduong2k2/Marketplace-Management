@@ -2,6 +2,7 @@ package com.Marketplace_Management.Order.Controllers;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -56,7 +57,7 @@ public class OrderController {
 
     @PostMapping
     @Authenticated
-    public ResponseEntity<HashMap<String, Object>> place(@Valid @RequestBody PlaceOrderRequest request) {
+    public ResponseEntity<Map<String, Object>> place(@Valid @RequestBody PlaceOrderRequest request) {
         PlaceOrderCommand command = PlaceOrderCommand.fromRequest(request);
 
         OrderResponse orderRes = orderService.placeOrder(command);

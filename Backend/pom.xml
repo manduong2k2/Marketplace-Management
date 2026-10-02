@@ -109,6 +109,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Verify Google Sign-In ID tokens offline (cached Google public keys) -->
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>2.7.2</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>

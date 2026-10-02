@@ -41,7 +41,8 @@ public class ProfileResponse {
     }
 
     public ProfileResponse withUrl(String baseUrl) {
-        if (this.avatar != null && !this.avatar.isEmpty()) {
+        // Absolute URLs (e.g. Google profile picture) are returned as-is
+        if (this.avatar != null && !this.avatar.isEmpty() && !this.avatar.matches("^https?://.*")) {
             this.avatar = baseUrl + "/" + this.avatar;
         }
         return this;

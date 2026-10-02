@@ -42,6 +42,7 @@ async function request(path, options = {}) {
 // ===== Auth APIs =====
 export const authService = {
   login: (data) => request('/api/auth/login', { method: 'POST', body: data }),
+  googleLogin: (idToken) => request('/api/auth/google', { method: 'POST', body: { idToken } }),
   register: (data) => request('/api/auth/register', { method: 'POST', body: data }),
   refreshToken: (data) => request('/api/auth/refresh-token', { method: 'POST', body: data }),
   verifyEmail: (email, token) =>

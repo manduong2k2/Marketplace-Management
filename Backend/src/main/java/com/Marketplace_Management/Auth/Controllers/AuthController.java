@@ -23,6 +23,7 @@ import com.Marketplace_Management.Auth.Contracts.IAuthService;
 import com.Marketplace_Management.Auth.Contracts.ICookieService;
 import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.ForgotPasswordCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.GoogleLoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RefreshTokenCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RegisterCommand;
@@ -30,6 +31,7 @@ import com.Marketplace_Management.Auth.DTOs.Commands.ResetPasswordCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.UpdateProfileCommand;
 import com.Marketplace_Management.Auth.DTOs.Request.ActivateUserRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.ForgotPasswordRequest;
+import com.Marketplace_Management.Auth.DTOs.Request.GoogleLoginRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.LoginRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.RefreshTokenRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.RegisterRequest;
@@ -77,6 +79,20 @@ public class AuthController extends BaseController {
         HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
 
         HashMap<String, Object> response = new HashMap<>();
+        response.put("message", authRes.getMessage());
+
+        return ResponseEntity.ok()
+                .headers(cookies)
+                .body(response);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<Map<String, Object>> loginWithGoogle(@Valid @RequestBody(required = true) GoogleLoginRequest req) {
+        GoogleLoginCommand command = GoogleLoginCommand.fromRequest(req);
+        AuthResponse authRes = auth.loginWithGoogle(command);
+        HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
+
+        Map<String, Object> response = new HashMap<>();
         response.put("message", authRes.getMessage());
 
         return ResponseEntity.ok()

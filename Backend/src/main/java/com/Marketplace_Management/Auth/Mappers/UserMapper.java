@@ -23,6 +23,7 @@ public class UserMapper implements EntityDomainMapper<User, UserEntity>{
             .name(entity.getName())
             .avatar(entity.getAvatar())
             .phone(entity.getPhone())
+            .googleId(entity.getGoogleId())
             .status(entity.getStatus())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
@@ -40,6 +41,7 @@ public class UserMapper implements EntityDomainMapper<User, UserEntity>{
             domain.getName(),
             domain.getAvatar(),
             domain.getPhone(),
+            domain.getGoogleId(),
             domain.getRoles().stream().map(roleMapper::toEntity).collect(java.util.stream.Collectors.toSet())
         );
     }

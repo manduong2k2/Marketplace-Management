@@ -60,6 +60,11 @@
     "description": "Base URL for frontend application"
   },
   {
+    "name": "application.google.client-id",
+    "type": "java.lang.String",
+    "description": "Google OAuth client ID, used as the expected audience when verifying Google Sign-In ID tokens"
+  },
+  {
     "name": "spring.liquibase.enabled",
     "type": "java.lang.String",
     "description": "Enable or disable Liquibase"
