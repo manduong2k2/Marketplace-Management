@@ -352,6 +352,82 @@
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .product-title {
+    font-size: 14px;
+  }
+
+  .price-value {
+    font-size: 14px;
+  }
+
+  .variant-count {
+    font-size: 12px;
+  }
+
+  .option-label {
+    font-size: 7px;
+  }
+
+  .option-value {
+    font-size: 9px;
+  }
+
+  .color-text {
+    font-size: 9px;
+  }
+
+  .stock-label {
+    font-size: 7px;
+  }
+
+  .stock-value {
+    font-size: 9px;
+  }
+
+  .price-label {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 992px) {
+  .product-title {
+    font-size: 13px;
+  }
+
+  .price-value {
+    font-size: 13px;
+  }
+
+  .variant-count {
+    font-size: 11px;
+  }
+
+  .option-label {
+    font-size: 7px;
+  }
+
+  .option-value {
+    font-size: 9px;
+  }
+
+  .color-text {
+    font-size: 9px;
+  }
+
+  .stock-label {
+    font-size: 7px;
+  }
+
+  .stock-value {
+    font-size: 9px;
+  }
+
+  .price-label {
+    font-size: 8px;
+  }
+}
+
 @media (max-width: 768px) {
   .product-card {
     border-radius: 16px;
@@ -363,15 +439,121 @@
   }
 
   .product-title {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .price-value {
-    font-size: 15px;
+    font-size: 13px;
+  }
+
+  .variant-count {
+    font-size: 11px;
+  }
+
+  .option-label {
+    font-size: 7px;
+  }
+
+  .option-value {
+    font-size: 9px;
+  }
+
+  .color-text {
+    font-size: 9px;
+  }
+
+  .stock-label {
+    font-size: 7px;
+  }
+
+  .stock-value {
+    font-size: 9px;
+  }
+
+  .price-label {
+    font-size: 8px;
+  }
+
+  .status-badge {
+    font-size: 10px;
+    padding: 7px 11px;
+  }
+
+  .brand-tag {
+    font-size: 9px;
+    padding: 3px 6px;
   }
 
   .options-group {
-    gap: 20px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .img-container {
+    height: 180px;
+    padding: 10px;
+  }
+
+  .product-content {
+    padding: 12px;
+  }
+
+  .product-title {
+    font-size: 12px;
+  }
+
+  .price-value {
+    font-size: 12px;
+  }
+
+  .variant-count {
+    font-size: 10px;
+  }
+
+  .option-label {
+    font-size: 7px;
+  }
+
+  .option-value {
+    font-size: 8px;
+    padding: 3px 5px;
+  }
+
+  .color-text {
+    font-size: 8px;
+  }
+
+  .stock-label {
+    font-size: 7px;
+  }
+
+  .stock-value {
+    font-size: 8px;
+  }
+
+  .price-label {
+    font-size: 8px;
+  }
+
+  .status-badge {
+    font-size: 9px;
+    padding: 6px 10px;
+  }
+
+  .brand-tag {
+    font-size: 8px;
+    padding: 3px 5px;
+  }
+
+  .options-group {
+    gap: 12px;
+  }
+
+  .btn-add-cart {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
   }
 }
 
@@ -381,9 +563,96 @@
     padding: 10px;
   }
 
+  .product-title {
+    font-size: 12px;
+  }
+
+  .price-value {
+    font-size: 12px;
+  }
+
+  .variant-count {
+    font-size: 10px;
+  }
+
   .btn-add-cart {
     width: 34px;
     height: 34px;
     font-size: 14px;
+  }
+}
+
+/* ── iPhone large (iPhone 16: 402px, iPhone 14 Pro Max: 428px, iPhone 14 Pro Max: 430px) ── */
+@media (max-width: 430px) {
+  .img-container {
+    height: 160px;
+    padding: 8px;
+  }
+
+  .product-content {
+    padding: 10px;
+  }
+
+  .product-title {
+    font-size: 11px;
+  }
+
+  .price-value {
+    font-size: 11px;
+  }
+
+  .variant-count {
+    font-size: 9px;
+  }
+
+  .option-label {
+    font-size: 6px;
+  }
+
+  .option-value {
+    font-size: 8px;
+    padding: 3px 4px;
+  }
+
+  .color-text {
+    font-size: 8px;
+  }
+
+  .stock-label {
+    font-size: 6px;
+  }
+
+  .stock-value {
+    font-size: 8px;
+  }
+
+  .price-label {
+    font-size: 7px;
+  }
+
+  .status-badge {
+    font-size: 9px;
+    padding: 5px 8px;
+  }
+
+  .brand-tag {
+    font-size: 8px;
+    padding: 3px 5px;
+  }
+
+  .btn-add-cart {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .favorite-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
+
+  .options-group {
+    gap: 10px;
   }
 }

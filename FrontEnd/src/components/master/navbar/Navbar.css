@@ -449,3 +449,50 @@
         margin: 0 6px;
     }
 }
+
+/* ── iPhone large (iPhone 16: 402px, iPhone 14 Pro Max: 428px, iPhone 14 Pro Max: 430px) ── */
+@media (max-width: 430px) {
+    .navbar {
+        padding: 0 10px;
+    }
+
+    .navbar-logo {
+        margin: 0 4px;
+    }
+
+    .navbar-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .navbar-logo-title {
+        font-size: 15px;
+    }
+
+    .navbar-right {
+        gap: 4px;
+    }
+
+    .navbar-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .user-dropdown-toggle {
+        padding: 4px 8px;
+        font-size: 12px;
+        gap: 4px;
+    }
+
+    .user-dropdown-avatar {
+        width: 24px;
+        height: 24px;
+    }
+
+    .navbar-cart-btn,
+    .navbar-theme-toggle {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+}

@@ -14,6 +14,7 @@
   max-width: 1550px;
   margin: 0 auto;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .homepage-title {
@@ -78,6 +79,11 @@
 
 /* ── Mobile: ≤ 768px — stack vertically ── */
 @media (max-width: 768px) {
+  .homepage-content {
+    max-width: 100%;
+    padding: 0;
+  }
+
   .catalog-section {
     flex-direction: column;
     gap: 0;
@@ -110,5 +116,24 @@
   .homepage-title {
     font-size: 18px;
     padding: 10px 12px;
+  }
+}
+
+/* ── iPhone large (iPhone 16: 402px, iPhone 14 Pro Max: 428px, iPhone 14 Pro Max: 430px) ── */
+@media (max-width: 430px) {
+  .category-section,
+  .product-section {
+    padding: 8px 8px;
+  }
+
+  .homepage-title {
+    font-size: 17px;
+    padding: 8px 10px;
+  }
+
+  .catalog-section {
+    gap: 4px;
+    margin-left: 4px;
+    margin-right: 4px;
   }
 }

@@ -173,24 +173,52 @@
   border-color: #667eea;
 }
 
-/* Fluid grid — 4 cards per row */
+/* Fluid grid — responsive width with minmax for smooth resizing on desktop */
 .product-grid {
   display: grid !important;
   gap: 12px;
-  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments — specific breakpoints for control */
+@media (max-width: 1400px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  }
+}
+
 @media (max-width: 1200px) {
-  .product-grid { grid-template-columns: repeat(3, 1fr); }
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  }
 }
 
 @media (max-width: 992px) {
-  .product-grid { grid-template-columns: repeat(2, 1fr); }
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+  }
 }
 
+/* Mobile: Fixed 2 columns per row */
 @media (max-width: 768px) {
-  .product-grid { grid-template-columns: repeat(2, 1fr) !important; } 
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 430px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px;
+  }
 }
 
 /* ── Shared states ── */

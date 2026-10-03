@@ -250,3 +250,37 @@
     height: 36px;
   }
 }
+
+/* ── iPhone large (iPhone 16: 402px, iPhone 14 Pro Max: 428px, iPhone 14 Pro Max: 430px) ── */
+@media (max-width: 430px) {
+  .brand-list-container {
+    padding: 16px 10px;
+  }
+
+  .showcase-header {
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+
+  .header-title-wrap h2 {
+    font-size: 1.1rem;
+  }
+
+  .header-title-wrap p {
+    font-size: 0.85rem;
+  }
+
+  .nav-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
+  }
+
+  .slider-track {
+    gap: 12px;
+  }
+
+  .slider-viewport {
+    padding: 8px 4px 16px 4px;
+  }
+}
