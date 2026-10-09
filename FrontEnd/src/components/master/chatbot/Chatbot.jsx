@@ -1,5 +1,48 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { assistantService } from '../../../services/assistantService';
 import './Chatbot.css';
+
+const getCurrentTime = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
+const escapeHTML = (str) => {
+  return str.replace(/[&<>'"]/g,
+    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+  );
+};
+
+/**
+ * Renders a message as safe HTML. Everything is HTML-escaped FIRST (AI replies may echo user input),
+ * then only a small subset of Markdown (Gemini's usual output) is turned back into tags.
+ */
+const formatMessage = (text) =>
+  escapeHTML(text)
+    .replace(/^#{1,6}\s+(.+)$/gm, '<b>$1</b>')               // headings -> bold line
+    .replace(/^\s*[*-]\s+/gm, '• ')                          // bullet lists
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')                  // **bold**
+    .replace(/(^|[^*])\*(\S(?:[^*\n]*\S)?)\*(?!\*)/g, '$1<i>$2</i>') // *italic* (no spaces inside the markers, so "2 * 3" stays)
+    .replace(/`([^`\n]+)`/g, '<code>$1</code>')              // `code`
+    .replace(/\n/g, '<br>');
+
+const welcomeMessage = (content) => ({
+  id: Date.now(),
+  type: 'bot',
+  content,
+  time: getCurrentTime(),
+  showQuickChips: true
+});
+
+// Maps an API failure to a reply shown inside the conversation
+const errorReply = (response) => {
+  if (response?.status === 401) {
+    return 'Vui lòng đăng nhập để trò chuyện với Trợ lý AI.';
+  }
+  return response?.data?.message || 'Trợ lý AI tạm thời không phản hồi. Vui lòng thử lại sau.';
+};
 
 const Chatbot = () => {
   const [isActive, setIsActive] = useState(false);
@@ -10,14 +53,7 @@ const Chatbot = () => {
 
   // Initialize with welcome message
   useEffect(() => {
-    const initialMessage = {
-      id: 1,
-      type: 'bot',
-      content: 'Xin chào! 👋 Tôi là Trợ lý AI. Tôi có thể giúp gì cho bạn hôm nay?',
-      time: getCurrentTime(),
-      showQuickChips: true
-    };
-    setMessages([initialMessage]);
+    setMessages([welcomeMessage('Xin chào! 👋 Tôi là Trợ lý AI. Tôi có thể giúp gì cho bạn hôm nay?')]);
   }, []);
 
   // Scroll to bottom when messages change
@@ -32,96 +68,61 @@ const Chatbot = () => {
   };
 
   const clearChat = () => {
-    const resetMessage = {
-      id: Date.now(),
-      type: 'bot',
-      content: 'Lịch sử hội thoại đã được làm mới! 👋 Tôi có thể giúp gì cho bạn?',
-      time: getCurrentTime(),
-      showQuickChips: true
-    };
-    setMessages([resetMessage]);
+    setMessages([welcomeMessage('Lịch sử hội thoại đã được làm mới! 👋 Tôi có thể giúp gì cho bạn?')]);
   };
 
-  const handleSendMessage = (text) => {
-    if (!text.trim()) return;
+  const addMessage = (type, content, extra = {}) => {
+    setMessages(prev => [
+      ...prev,
+      { id: `${Date.now()}-${prev.length}`, type, content, time: getCurrentTime(), ...extra }
+    ]);
+  };
 
-    // Add user message
-    const userMessage = {
-      id: Date.now(),
-      type: 'user',
-      content: text,
-      time: getCurrentTime()
-    };
-    setMessages(prev => [...prev, userMessage]);
+  const handleSendMessage = async (text) => {
+    const message = text.trim();
+    // One request at a time: a reply can take several seconds
+    if (!message || showTyping) return;
+
+    addMessage('user', message);
     setInputValue('');
-
-    // Show typing indicator
     setShowTyping(true);
 
-    // Simulate bot response
-    setTimeout(() => {
+    try {
+      const response = await assistantService.chat(message);
+      if (response.ok) {
+        addMessage('bot', response.data?.data?.reply || '');
+      } else {
+        addMessage('bot', errorReply(response), { isError: true });
+      }
+    } catch {
+      addMessage('bot', 'Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng và thử lại.', { isError: true });
+    } finally {
       setShowTyping(false);
-      const botReply = generateBotReply(text);
-      const botMessage = {
-        id: Date.now() + 1,
-        type: 'bot',
-        content: botReply,
-        time: getCurrentTime()
-      };
-      setMessages(prev => [...prev, botMessage]);
-    }, 1200);
-  };
-
-  const handleQuickMessage = (text) => {
-    setInputValue(text);
-    handleSendMessage(text);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage(inputValue);
     }
   };
 
-  const getCurrentTime = () => {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+  const handleQuickMessage = (text) => {
+    handleSendMessage(text);
   };
 
-  const escapeHTML = (str) => {
-    return str.replace(/[&<>'"]/g, 
-      tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-    );
-  };
-
-  const generateBotReply = (userInput) => {
-    const input = userInput.toLowerCase();
-
-    if (input.includes('sản phẩm') || input.includes('nổi bật')) {
-      return 'Các sản phẩm nổi bật nhất tuần này bao gồm:<br>• <b>Laptop Bacon Pro 16"</b><br>• <b>Smartphone X100</b><br>• <b>Tai nghe chống ồn Pro</b>';
-    } else if (input.includes('đổi trả') || input.includes('bảo hành')) {
-      return 'Chính sách bảo hành & đổi trả:<br>1. Đổi mới trong <b>30 ngày</b> nếu có lỗi nhà sản xuất.<br>2. Bảo hành chính hãng <b>12-24 tháng</b>.';
-    } else if (input.includes('cấu hình') || input.includes('tư vấn')) {
-      return 'Bạn đang tìm kiếm cấu hình cho nhu cầu công việc gì? (Ví dụ: <i>Đồ họa, Lập trình, hay Văn phòng nhẹ nhàng?</i>)';
-    } else if (input.includes('chào') || input.includes('hello') || input.includes('hi')) {
-      return 'Chào bạn! Chúc bạn một ngày tốt lành. Bạn cần hỗ trợ thông tin gì ạ?';
-    } else {
-      return 'Cảm ơn bạn đã nhắn tin! Yêu cầu của bạn đã được ghi nhận. Chuyên viên chăm sóc khách hàng sẽ phản hồi ngay lập tức.';
+  const handleKeyDown = (e) => {
+    // isComposing: ignore Enter while an IME (e.g. Vietnamese Telex) is still composing a character
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      handleSendMessage(inputValue);
     }
   };
 
   return (
     <div className={`chatbot-widget ${isActive ? 'active' : ''}`}>
       {/* Floating Toggle Button */}
-      <button 
-        className="chatbot-toggle" 
+      <button
+        className="chatbot-toggle"
         onClick={toggleChat}
         aria-label="Toggle Chat"
       >
         <div className="pulse-ring"></div>
-        
+
         {/* Chat Icon with stars */}
         <div className="icon-chat">
           <i className="fa-solid fa-comments"></i>
@@ -146,9 +147,9 @@ const Chatbot = () => {
         <div className="chat-header">
           <div className="bot-info">
             <div className="avatar-container">
-              <img 
-                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=120&q=80" 
-                alt="AI Avatar" 
+              <img
+                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=120&q=80"
+                alt="AI Avatar"
                 className="avatar-img"
               />
               <span className="status-dot"></span>
@@ -156,21 +157,21 @@ const Chatbot = () => {
             <div className="bot-details">
               <h3>AI Assistant ✨</h3>
               <p>
-                <i className="fa-solid fa-circle" style={{fontSize: '6px', color: '#4ade80'}}></i> 
-                Sẵn sàng hỗ trợ
+                <i className="fa-solid fa-circle" style={{fontSize: '6px', color: '#4ade80'}}></i>{' '}
+                {showTyping ? 'Đang trả lời...' : 'Sẵn sàng hỗ trợ'}
               </p>
             </div>
           </div>
           <div className="header-actions">
-            <button 
-              className="header-btn" 
+            <button
+              className="header-btn"
               onClick={clearChat}
               title="Xóa lịch sử chat"
             >
               <i className="fa-solid fa-rotate-right"></i>
             </button>
-            <button 
-              className="header-btn" 
+            <button
+              className="header-btn"
               onClick={toggleChat}
               title="Đóng"
             >
@@ -182,34 +183,38 @@ const Chatbot = () => {
         {/* Scrollable Message Body */}
         <div className="chat-body" ref={chatBodyRef}>
           {messages.map((msg) => (
-            <div key={msg.id} className={`message-row ${msg.type}`}>
+            <div key={msg.id} className={`message-row ${msg.type}${msg.isError ? ' error' : ''}`}>
               {msg.type === 'bot' && (
                 <div className="msg-avatar">
                   <i className="fa-solid fa-robot"></i>
                 </div>
               )}
               <div className="msg-content">
-                <div 
+                <div
                   className="msg-bubble"
-                  dangerouslySetInnerHTML={{ __html: msg.content }}
+                  // Safe: formatMessage escapes all HTML before adding its own tags
+                  dangerouslySetInnerHTML={{ __html: formatMessage(msg.content) }}
                 />
                 {msg.showQuickChips && (
                   <div className="quick-chips">
-                    <button 
+                    <button
                       className="chip-btn"
                       onClick={() => handleQuickMessage('Sản phẩm nổi bật')}
+                      disabled={showTyping}
                     >
                       🔥 Sản phẩm nổi bật
                     </button>
-                    <button 
+                    <button
                       className="chip-btn"
                       onClick={() => handleQuickMessage('Chính sách đổi trả')}
+                      disabled={showTyping}
                     >
                       📦 Chính sách đổi trả
                     </button>
-                    <button 
+                    <button
                       className="chip-btn"
                       onClick={() => handleQuickMessage('Tư vấn cấu hình')}
+                      disabled={showTyping}
                     >
                       💻 Tư vấn cấu hình
                     </button>
@@ -238,28 +243,29 @@ const Chatbot = () => {
         {/* Footer / Input Controls */}
         <div className="chat-footer">
           <div className="input-wrapper">
-            <input 
-              type="text" 
+            <input
+              type="text"
               className="chat-input"
               placeholder="Nhập tin nhắn..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
+              maxLength={4000}
               autoComplete="off"
             />
-            <button 
-              className="attach-btn" 
+            <button
+              className="attach-btn"
               title="Đính kèm tệp"
               onClick={() => alert('Tính năng tải tệp đang phát triển!')}
             >
               <i className="fa-solid fa-paperclip"></i>
             </button>
           </div>
-          <button 
+          <button
             className="send-btn"
             onClick={() => handleSendMessage(inputValue)}
             title="Gửi tin nhắn"
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || showTyping}
           >
             <i className="fa-solid fa-paper-plane"></i>
           </button>

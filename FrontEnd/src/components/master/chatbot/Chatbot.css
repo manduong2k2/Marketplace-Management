@@ -381,6 +381,21 @@
   border-top-right-radius: 4px;
 }
 
+/* Failed reply (not logged in, assistant busy, network error...) */
+.message-row.bot.error .msg-bubble {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Inline `code` from the AI's Markdown reply */
+.msg-bubble code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .msg-time {
   font-size: 0.68rem;
   color: var(--text-muted);
@@ -412,11 +427,17 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.03);
 }
 
-.chip-btn:hover {
+.chip-btn:hover:not(:disabled) {
   background: var(--master-primary);
   color: #ffffff;
   border-color: var(--master-primary);
   transform: translateY(-1px);
+}
+
+/* Disabled while waiting for a reply */
+.chip-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Typing Indicator Animation */
