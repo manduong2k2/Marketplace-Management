@@ -1,6 +1,7 @@
 package com.Marketplace_Management.Auth.Service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Auth.Contracts.IUserSessionRepository;
 import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
@@ -103,5 +105,33 @@ class UserSessionServiceTest {
 
         assertEquals(0, sessionService.revokeAll(List.of(userId)));
         verify(jwtService, never()).blacklist(any(), any());
+    }
+
+    @Test
+    void revokeAllBeforeDelete_blacklistsAndDeletesEverySession() {
+        UUID userId = UUID.randomUUID();
+        Instant exp = Instant.now().plusSeconds(3600);
+        UserSession a = UserSession.builder().id(UUID.randomUUID()).userId(userId).accessJti("jti-a").accessExpiresAt(exp).build();
+        UserSession b = UserSession.builder().id(UUID.randomUUID()).userId(userId).accessJti("jti-b").accessExpiresAt(exp).build();
+
+        when(sessionRepo.findByUserIds(List.of(userId))).thenReturn(List.of(a, b));
+        when(jwtService.blacklist(any(), any())).thenReturn(true);
+
+        sessionService.revokeAllBeforeDelete(userId);
+
+        verify(sessionRepo).deleteByIds(List.of(a.getId(), b.getId()));
+    }
+
+    @Test
+    void revokeAllBeforeDelete_throwsWhenATokenCannotBeBlacklisted() {
+        UUID userId = UUID.randomUUID();
+        Instant exp = Instant.now().plusSeconds(3600);
+        UserSession s1 = UserSession.builder().id(UUID.randomUUID()).userId(userId).accessJti("jti-1").accessExpiresAt(exp).build();
+
+        when(sessionRepo.findByUserIds(List.of(userId))).thenReturn(List.of(s1));
+        when(jwtService.blacklist("jti-1", exp)).thenReturn(false);   // e.g. Redis down
+
+        // Throwing aborts the user delete; otherwise the cascade would drop a still-valid session
+        assertThrows(ResponseStatusException.class, () -> sessionService.revokeAllBeforeDelete(userId));
     }
 }

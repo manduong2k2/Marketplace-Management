@@ -8,13 +8,16 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Contracts.IUserSessionRepository;
 import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
 import com.Marketplace_Management.Auth.Models.User;
@@ -97,20 +100,45 @@ public class UserSessionService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public int revokeAll(Collection<UUID> userIds) {
         List<UserSession> sessions = sessionRepo.findByUserIds(userIds);
-        List<UUID> revoked = new ArrayList<>();
+        List<UUID> revoked = blacklistAndDelete(sessions);
 
-        for (UserSession session : sessions) {
-            if (jwtService.blacklist(session.getAccessJti(), session.getAccessExpiresAt())) {
-                revoked.add(session.getId());
-            }
-        }
-
-        sessionRepo.deleteByIds(revoked);
         if (revoked.size() < sessions.size()) {
             logger.error("Revoked {}/{} sessions for users {}: blacklist failed for the rest (kept for retry)",
                     revoked.size(), sessions.size(), userIds);
         }
         return revoked.size();
+    }
+
+    /**
+     * Revokes every session of a user who is about to be deleted. Must run BEFORE the delete:
+     * user_sessions.user_id cascades on delete, so an AFTER_COMMIT revokeAll would find no rows and the
+     * user's access tokens would stay valid until they expire. Unlike revokeAll there is no later retry
+     * (the rows are gone with the user), so a blacklist failure throws and aborts the delete.
+     *
+     * REQUIRES_NEW: the revocation stands even if the delete then fails (the user just has to log in again).
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void revokeAllBeforeDelete(UUID userId) {
+        List<UserSession> sessions = sessionRepo.findByUserIds(List.of(userId));
+        List<UUID> revoked = blacklistAndDelete(sessions);
+
+        if (revoked.size() < sessions.size()) {
+            logger.error("Revoked {}/{} sessions of user {} before delete: blacklist failed, delete aborted",
+                    revoked.size(), sessions.size(), userId);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, Message.SESSION_REVOKE_FAILED);
+        }
+    }
+
+    /** Blacklists each access token; deletes (and returns) only the sessions whose token was blacklisted. */
+    private List<UUID> blacklistAndDelete(List<UserSession> sessions) {
+        List<UUID> revoked = new ArrayList<>();
+        for (UserSession session : sessions) {
+            if (jwtService.blacklist(session.getAccessJti(), session.getAccessExpiresAt())) {
+                revoked.add(session.getId());
+            }
+        }
+        sessionRepo.deleteByIds(revoked);
+        return revoked;
     }
 
     /** Daily at 03:00: sessions whose access token has expired have nothing left to revoke. */

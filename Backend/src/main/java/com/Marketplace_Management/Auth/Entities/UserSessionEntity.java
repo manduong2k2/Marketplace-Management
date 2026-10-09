@@ -3,16 +3,24 @@ package com.Marketplace_Management.Auth.Entities;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * One active login (token pair). Tracking only — never used to verify a token.
@@ -34,7 +42,6 @@ import lombok.NoArgsConstructor;
 )
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserSessionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -42,6 +49,17 @@ public class UserSessionEntity {
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    // Read-only mapping that only declares the FK (writes go through userId).
+    // ON DELETE CASCADE: deleting a user removes their sessions — so tokens must be revoked BEFORE
+    // the delete (see UserSessionService.revokeAllBeforeDelete).
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(name = "fk_user_sessions_user"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private UserEntity user;
 
     // IPv6 max length is 45
     @Column(name = "ip_address", length = 45)
@@ -61,4 +79,16 @@ public class UserSessionEntity {
 
     @Column(name = "refresh_expires_at", nullable = false)
     private Instant refreshExpiresAt;
+
+    public UserSessionEntity(UUID id, UUID userId, String ipAddress, Instant loginAt, String accessJti,
+            Instant accessExpiresAt, String refreshJti, Instant refreshExpiresAt) {
+        this.id = id;
+        this.userId = userId;
+        this.ipAddress = ipAddress;
+        this.loginAt = loginAt;
+        this.accessJti = accessJti;
+        this.accessExpiresAt = accessExpiresAt;
+        this.refreshJti = refreshJti;
+        this.refreshExpiresAt = refreshExpiresAt;
+    }
 }

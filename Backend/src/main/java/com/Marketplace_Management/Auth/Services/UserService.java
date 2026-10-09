@@ -41,13 +41,15 @@ public class UserService implements IUserService {
     private final IRoleRepository roleRepo;
     private final PasswordEncoder encoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserSessionService sessionService;
 
     public UserService(IUserRepository userRepo, IRoleRepository roleRepo, PasswordEncoder encoder,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher, UserSessionService sessionService) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.encoder = encoder;
         this.eventPublisher = eventPublisher;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -117,8 +119,9 @@ public class UserService implements IUserService {
         }
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
+        // Sessions cascade with the user row, so revoke their tokens first (not via the AFTER_COMMIT event)
+        sessionService.revokeAllBeforeDelete(id);
         userRepo.delete(user);
-        eventPublisher.publishEvent(UserAccessChangedEvent.of(id, "deleted"));
     }
 
     @Override

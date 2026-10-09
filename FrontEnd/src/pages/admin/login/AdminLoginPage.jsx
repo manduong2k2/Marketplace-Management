@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../../contexts/AdminContext';
 import { adminAuthService } from '../../../services/adminAuthService';
 import './AdminLoginPage.css';
@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { setAdmin } = useContext(AdminContext);
+  const { admin, setAdmin, loading: sessionLoading } = useContext(AdminContext);
   const navigate = useNavigate();
 
   const togglePassword = (inputId, iconId) => {
@@ -55,6 +55,9 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
+
+  // Already signed in as an admin (e.g. from the store): skip the login form
+  if (!sessionLoading && admin) return <Navigate to="/admin" replace />;
 
   return (
     <div className="admin-auth-page-container">

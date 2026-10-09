@@ -1,37 +1,19 @@
 // src/contexts/AdminContext.jsx
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
-import { authService } from '../services/authService';
-import { AUTH_REFRESHED_EVENT } from '../services/authInterceptor';
+import React, { createContext, useContext, useCallback } from 'react';
+import { AuthContext } from './AuthContext';
 
 export const AdminContext = createContext();
 
+// Admin access is derived from the shared AuthContext user (one session for the store and the admin area),
+// so logging in from /auth, /admin/login or via Google/Facebook is reflected here immediately, and
+// AuthContext's reload on token refresh also re-checks the Admin role.
 export function AdminProvider({ children }) {
-  const [admin, setAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, setUser, loading } = useContext(AuthContext);
 
-  const fetchProfile = useCallback(async () => {
-    try {
-      const profile = await authService.profile();
-      const user = profile.data?.data;
-      // Check if user has Admin role
-      if (user && user.roles && user.roles.includes('Admin')) {
-        setAdmin(user);
-      } else {
-        setAdmin(null);
-      }
-    } catch {
-      setAdmin(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const admin = user?.roles?.includes('Admin') ? user : null;
 
-  useEffect(() => {
-    fetchProfile();
-    // Token refreshed: roles may have changed (e.g. ADMIN revoked) -> re-check admin access
-    window.addEventListener(AUTH_REFRESHED_EVENT, fetchProfile);
-    return () => window.removeEventListener(AUTH_REFRESHED_EVENT, fetchProfile);
-  }, [fetchProfile]);
+  // Setting/clearing the admin is setting/clearing the logged-in user
+  const setAdmin = useCallback((value) => setUser(value), [setUser]);
 
   return (
     <AdminContext.Provider value={{ admin, setAdmin, loading }}>
