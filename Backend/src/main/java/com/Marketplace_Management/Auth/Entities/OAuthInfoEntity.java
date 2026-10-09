@@ -3,21 +3,29 @@ package com.Marketplace_Management.Auth.Entities;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.Marketplace_Management.Auth.Constants.OAuthProvider;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * A third-party account linked to a user: (provider, provider subject) -> user.
@@ -36,7 +44,6 @@ import lombok.NoArgsConstructor;
 )
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class OAuthInfoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -44,6 +51,16 @@ public class OAuthInfoEntity {
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    // Read-only mapping that only declares the FK (writes go through userId).
+    // ON DELETE CASCADE: deleting a user removes their provider links.
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(name = "fk_oauth_infos_user"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private UserEntity user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "oauth_provider", nullable = false, length = 20)
@@ -54,4 +71,12 @@ public class OAuthInfoEntity {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+
+    public OAuthInfoEntity(UUID id, UUID userId, OAuthProvider oauthProvider, String oauthProviderSubject, Instant createdAt) {
+        this.id = id;
+        this.userId = userId;
+        this.oauthProvider = oauthProvider;
+        this.oauthProviderSubject = oauthProviderSubject;
+        this.createdAt = createdAt;
+    }
 }
