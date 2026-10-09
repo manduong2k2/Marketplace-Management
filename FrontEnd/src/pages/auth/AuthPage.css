@@ -227,6 +227,13 @@
   box-sizing: content-box;
 }
 
+/* Dark theme sets color-scheme: dark on the page; Google's button document is light. When an
+   iframe's color-scheme differs from its content's, the browser paints an opaque (white) backdrop
+   behind it. Matching it to Google's light scheme keeps the area around the round button transparent. */
+.auth-google-btn iframe {
+  color-scheme: light;
+}
+
 /* Facebook button styled after Google's round icon button (type="icon", shape="circle", size="large").
    Fixed colors on purpose: Google's button looks the same in light and dark theme. */
 .auth-facebook-btn {
