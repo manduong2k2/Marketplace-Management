@@ -69,6 +69,9 @@ application:
     base-url: http://localhost:5173
   google:
     client-id: your-google-oauth-client-id.apps.googleusercontent.com
+  facebook:
+    app-id: your-facebook-app-id
+    app-secret: your-facebook-app-secret
   gemini:
     api-key: your-gemini-api-key
     model: gemini-3.8-flash

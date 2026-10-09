@@ -11,7 +11,6 @@ import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 public interface IUserRepository{
     Optional<User> findByEmail(String email);
-    Optional<User> findByGoogleId(String googleId);
     Optional<User> findByPhone(String phone);
     Optional<User> findById(UUID id);
     User save(User user);

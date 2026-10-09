@@ -26,7 +26,6 @@ public class User extends AggregateRoot<UUID>{
     private String name;
     private String avatar;
     private String phone;
-    private String googleId;
     private Set<Role> roles;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

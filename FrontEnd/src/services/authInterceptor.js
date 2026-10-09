@@ -24,13 +24,13 @@ const SKIP_REFRESH = [
   '/api/auth/refresh-token',
   '/api/auth/login',
   '/api/auth/admin/login',
-  '/api/auth/google',
+  '/api/auth/oauth',
   '/api/auth/register',
   '/api/auth/logout',
 ];
 
 // A successful response from these means the browser now has a session
-const SESSION_START = ['/api/auth/login', '/api/auth/admin/login', '/api/auth/google', '/api/auth/profile'];
+const SESSION_START = ['/api/auth/login', '/api/auth/admin/login', '/api/auth/oauth', '/api/auth/profile'];
 
 const storage = {
   has: () => { try { return localStorage.getItem(SESSION_KEY) === '1'; } catch { return false; } },

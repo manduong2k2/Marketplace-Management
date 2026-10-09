@@ -25,9 +25,10 @@ public final class Message {
     public static final String CANNOT_REVOKE_OWN_ADMIN = "You cannot revoke your own ADMIN role";
     public static final String SYSTEM_ROLE_PROTECTED = "System roles (ADMIN, USER, VENDOR) cannot be edited or deleted";
     public static final String ROLE_HAS_USERS = "This role is still assigned to users. Revoke it from all users before deleting";
-    public static final String GOOGLE_TOKEN_INVALID = "Invalid Google credential";
-    public static final String GOOGLE_EMAIL_NOT_VERIFIED = "Google account email is not verified";
-    public static final String GOOGLE_UNAVAILABLE = "Google sign-in is temporarily unavailable. Please try again later.";
+    public static final String OAUTH_TOKEN_INVALID = "Invalid sign-in credential";
+    public static final String OAUTH_PROVIDER_UNSUPPORTED = "Unsupported sign-in provider";
+    public static final String OAUTH_EMAIL_REQUIRED = "Your account does not share a verified email address. Please allow email access or sign up with email.";
+    public static final String OAUTH_UNAVAILABLE = "Sign-in with this provider is temporarily unavailable. Please try again later.";
     public static final String TOKEN_REFRESHED = "Token refreshed successfully";
     public static final String PROFILE_UPDATED = "Profile updated successfully";
     public static final String LOGOUT_SUCCESS = "Logout successful";

@@ -1,7 +1,8 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { authService } from '../../services/authService';
+import { loadFacebookSdk, facebookLogin } from '../../services/facebookSdk';
 import { AuthContext } from '../../contexts/AuthContext';
 import { showSuccess, showError } from '../../components/master/popup';
 import './AuthPage.css';
@@ -29,6 +30,14 @@ export default function AuthPage() {
 
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // Preload the Facebook SDK so the login popup can open synchronously on click
+  const facebookSdk = useRef(null);
+  useEffect(() => {
+    loadFacebookSdk()
+      .then((FB) => { facebookSdk.current = FB; })
+      .catch(() => { /* retried on click; the error is shown there */ });
+  }, []);
 
   useEffect(() => {
     setIsLogin(action === 'login');
@@ -177,17 +186,12 @@ export default function AuthPage() {
     }
   };
 
-  // Google Sign-In returns an ID token (JWT) in response.credential; the backend verifies it
-  const handleGoogleSuccess = async (credentialResponse) => {
-    const idToken = credentialResponse?.credential;
-    if (!idToken) {
-      showError('Google did not return a credential', 'Google Login');
-      return;
-    }
-
+  // Sends the provider credential to the backend, which verifies it and signs the user in
+  // (creating or linking the account by email when needed)
+  const loginWithProvider = async (provider, label, credential) => {
     setLoading(true);
     try {
-      const response = await authService.googleLogin(idToken);
+      const response = await authService.oauthLogin(provider, credential);
 
       if (response.ok) {
         const user = await authService.profile();
@@ -197,12 +201,38 @@ export default function AuthPage() {
           navigate('/home');
         }, 1000);
       } else {
-        showError(response.data.message || 'Google login failed', 'Google Login');
+        showError(response.data.message || `${label} login failed`, `${label} Login`);
       }
-    } catch (err) {
-      showError('Google login failed! Please try again.', 'Connection Error');
+    } catch {
+      showError(`${label} login failed! Please try again.`, 'Connection Error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Google Sign-In returns an ID token (JWT) in response.credential
+  const handleGoogleSuccess = (credentialResponse) => {
+    const idToken = credentialResponse?.credential;
+    if (!idToken) {
+      showError('Google did not return a credential', 'Google Login');
+      return;
+    }
+    loginWithProvider('google', 'Google', idToken);
+  };
+
+  // Facebook Login returns a user access token
+  const handleFacebookLogin = async () => {
+    try {
+      // The SDK is preloaded on mount, so FB.login normally runs within the click and the popup is not blocked
+      const FB = facebookSdk.current ?? await loadFacebookSdk();
+      const accessToken = await facebookLogin(FB);
+      if (!accessToken) {
+        showError('Facebook sign-in was cancelled', 'Facebook Login');
+        return;
+      }
+      loginWithProvider('facebook', 'Facebook', accessToken);
+    } catch {
+      showError('Facebook sign-in is unavailable right now. Please try again later.', 'Facebook Login');
     }
   };
 
@@ -231,7 +261,8 @@ export default function AuthPage() {
         {/* Styled to match Google's round icon button */}
         <button
           type="button"
-          onClick={() => socialLogin('Facebook')}
+          onClick={handleFacebookLogin}
+          disabled={loading}
           className="auth-facebook-btn"
           aria-label="Sign in with Facebook"
           title="Sign in with Facebook"
@@ -241,10 +272,6 @@ export default function AuthPage() {
       </div>
     </>
   );
-
-  const socialLogin = (provider) => {
-    showSuccess('Connecting to authentication service...', `${provider} Login`);
-  };
 
   return (
     <div className="auth-page-container">

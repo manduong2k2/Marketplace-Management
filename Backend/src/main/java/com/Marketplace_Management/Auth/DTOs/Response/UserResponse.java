@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** Admin view of a user. Never contains the password hash or the raw Google ID. */
+/** Admin view of a user. Never contains the password hash or provider account ids. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,7 +23,8 @@ public class UserResponse {
     private String avatar;
     private String phone;
     private String status;
-    private boolean googleLinked;
+    // Linked sign-in providers, e.g. ["FACEBOOK", "GOOGLE"]
+    private List<String> oauthProviders = new ArrayList<>();
     private LocalDateTime createdAt;
     private List<RoleResponse> roles = new ArrayList<>();
 }

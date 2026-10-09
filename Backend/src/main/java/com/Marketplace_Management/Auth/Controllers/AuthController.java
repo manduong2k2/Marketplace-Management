@@ -20,11 +20,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.Marketplace_Management.Auth.Constants.Http;
 import com.Marketplace_Management.Auth.Constants.Message;
+import com.Marketplace_Management.Auth.Constants.OAuthProvider;
 import com.Marketplace_Management.Auth.Contracts.IAuthService;
 import com.Marketplace_Management.Auth.Contracts.ICookieService;
 import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.ForgotPasswordCommand;
-import com.Marketplace_Management.Auth.DTOs.Commands.GoogleLoginCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.OAuthLoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RefreshTokenCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RegisterCommand;
@@ -32,7 +33,7 @@ import com.Marketplace_Management.Auth.DTOs.Commands.ResetPasswordCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.UpdateProfileCommand;
 import com.Marketplace_Management.Auth.DTOs.Request.ActivateUserRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.ForgotPasswordRequest;
-import com.Marketplace_Management.Auth.DTOs.Request.GoogleLoginRequest;
+import com.Marketplace_Management.Auth.DTOs.Request.OAuthLoginRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.LoginRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.RefreshTokenRequest;
 import com.Marketplace_Management.Auth.DTOs.Request.RegisterRequest;
@@ -43,6 +44,7 @@ import com.Marketplace_Management.Auth.DTOs.Response.ProfileResponse;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
 import com.Marketplace_Management.Shared.Controllers.BaseController;
+import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
 @RestController
@@ -84,10 +86,14 @@ public class AuthController extends BaseController {
                 .body(response);
     }
 
-    @PostMapping("/google")
-    public ResponseEntity<Map<String, Object>> loginWithGoogle(@Valid @RequestBody(required = true) GoogleLoginRequest req) {
-        GoogleLoginCommand command = GoogleLoginCommand.fromRequest(req);
-        AuthResponse authRes = auth.loginWithGoogle(command);
+    /** Sign in with a provider: /api/auth/oauth/google (ID token) or /api/auth/oauth/facebook (access token). */
+    @PostMapping("/oauth/{provider}")
+    public ResponseEntity<Map<String, Object>> loginWithOAuth(
+            @PathVariable String provider, @Valid @RequestBody(required = true) OAuthLoginRequest req) {
+        OAuthProvider oauthProvider = OAuthProvider.fromPath(provider)
+                .orElseThrow(() -> new BadRequestException(Message.OAUTH_PROVIDER_UNSUPPORTED));
+        OAuthLoginCommand command = OAuthLoginCommand.fromRequest(oauthProvider, req);
+        AuthResponse authRes = auth.loginWithOAuth(command);
         HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
 
         Map<String, Object> response = new HashMap<>();

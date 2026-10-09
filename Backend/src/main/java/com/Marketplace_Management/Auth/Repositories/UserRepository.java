@@ -12,6 +12,8 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
+import com.Marketplace_Management.Auth.Constants.OAuthProvider;
+import com.Marketplace_Management.Auth.Contracts.IOAuthInfoRepository;
 import com.Marketplace_Management.Auth.Contracts.IUserRepository;
 import com.Marketplace_Management.Auth.DTOs.Commands.GetListUserCommand;
 import com.Marketplace_Management.Auth.DTOs.Response.UserResponse;
@@ -36,25 +38,23 @@ public class UserRepository implements IUserRepository{
     private final DSLContext dsl;
     private final EntityMetadataRegistry metadataRegistry;
     private final ObjectMapper objectMapper;
+    private final IOAuthInfoRepository oauthInfoRepo;
 
     public UserRepository(UserJpaRepository userJpaRepository, RoleJpaRepository roleJpaRepository,
             EntityDomainMapper<User, UserEntity> userMapper, DSLContext dsl,
-            EntityMetadataRegistry metadataRegistry, ObjectMapper objectMapper) {
+            EntityMetadataRegistry metadataRegistry, ObjectMapper objectMapper, IOAuthInfoRepository oauthInfoRepo) {
         this.userJpaRepository = userJpaRepository;
         this.roleJpaRepository = roleJpaRepository;
         this.userMapper = userMapper;
         this.dsl = dsl;
         this.metadataRegistry = metadataRegistry;
         this.objectMapper = objectMapper;
+        this.oauthInfoRepo = oauthInfoRepo;
     }
 
     public Optional<User> findByEmail(String email) {
         UserEntity entity = userJpaRepository.findByEmail(email).orElse(null);
         return entity != null ? Optional.of(userMapper.toDomain(entity)) : Optional.empty();
-    }
-
-    public Optional<User> findByGoogleId(String googleId) {
-        return userJpaRepository.findByGoogleId(googleId).map(userMapper::toDomain);
     }
 
     public Optional<User> findByPhone(String phone) {
@@ -96,13 +96,16 @@ public class UserRepository implements IUserRepository{
                 .map(item -> toResponse(queryBuilder, item))
                 .toList();
 
+        withOAuthProviders(data);
         return new PaginatedResponse<>(data, command.getPage(), command.getSize(), total);
     }
 
     @Override
     public Optional<UserResponse> findResponseById(UUID id) {
         QueryBuilder<UserEntity> queryBuilder = baseQuery().where("id", "=", id);
-        return queryBuilder.get().stream().findFirst().map(item -> toResponse(queryBuilder, item));
+        Optional<UserResponse> user = queryBuilder.get().stream().findFirst().map(item -> toResponse(queryBuilder, item));
+        user.ifPresent(u -> withOAuthProviders(List.of(u)));
+        return user;
     }
 
     // ===== Role assignment (JPA: keeps the user_roles join table managed by Hibernate) =====
@@ -154,7 +157,7 @@ public class UserRepository implements IUserRepository{
         QueryBuilder<UserEntity> queryBuilder = new QueryBuilder<>(dsl, metadataRegistry, objectMapper);
         return queryBuilder.query(UserEntity.class)
                 // Explicit columns: never select the password hash
-                .select("id", "email", "name", "avatar", "phone", "status", "googleId", "createdAt")
+                .select("id", "email", "name", "avatar", "phone", "status", "createdAt")
                 .with("roles", role -> role.select("id", "name", "code"));
     }
 
@@ -171,8 +174,14 @@ public class UserRepository implements IUserRepository{
     }
 
     private UserResponse toResponse(QueryBuilder<UserEntity> queryBuilder, Map<String, Object> item) {
-        // Expose only whether a Google account is linked, not the Google ID itself
-        item.put("googleLinked", item.remove("googleId") != null);
         return queryBuilder.to(QueryResults.normalize(item), UserResponse.class);
+    }
+
+    /** Linked sign-in providers (GOOGLE, FACEBOOK…), one query for the whole page. Never the provider ids. */
+    private void withOAuthProviders(List<UserResponse> users) {
+        Map<UUID, List<OAuthProvider>> providers =
+                oauthInfoRepo.findProvidersByUserIds(users.stream().map(UserResponse::getId).toList());
+        users.forEach(u -> u.setOauthProviders(
+                providers.getOrDefault(u.getId(), List.of()).stream().map(Enum::name).sorted().toList()));
     }
 }

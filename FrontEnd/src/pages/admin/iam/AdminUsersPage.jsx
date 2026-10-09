@@ -144,9 +144,7 @@ export default function AdminUsersPage() {
                   <td><StatusPill status={user.status} /></td>
                   <td>
                     <span className="admin-iam-signin">
-                      {user.googleLinked
-                        ? <><i className="bi bi-google"></i> Google</>
-                        : <><i className="bi bi-key"></i> Password</>}
+                      <SignInMethods providers={user.oauthProviders} />
                     </span>
                   </td>
                   <td className="admin-ui-muted">{formatDate(user.createdAt)}</td>
@@ -204,6 +202,23 @@ export default function AdminUsersPage() {
         />
       )}
     </div>
+  );
+}
+
+const PROVIDERS = {
+  GOOGLE: { icon: 'bi-google', label: 'Google' },
+  FACEBOOK: { icon: 'bi-facebook', label: 'Facebook' },
+};
+
+// Linked OAuth providers (e.g. ["FACEBOOK", "GOOGLE"]), or "Password" when there are none
+function SignInMethods({ providers = [], linked = false }) {
+  if (!providers.length) return <><i className="bi bi-key"></i> Password</>;
+  const labels = providers.map((code) => PROVIDERS[code]?.label ?? code).join(', ');
+  return (
+    <span title={`${labels}${linked ? ' linked' : ''}`}>
+      {providers.map((code) => <i key={code} className={`bi ${PROVIDERS[code]?.icon ?? 'bi-person-badge'}`}></i>)}
+      {' '}{labels}{linked ? ' linked' : ''}
+    </span>
   );
 }
 
@@ -274,7 +289,7 @@ function UserDrawer({ user, roles, isSelf, onClose, onChanged }) {
           <div className="admin-ui-drawer-meta">
             <StatusPill status={user.status} />
             <span className="admin-iam-signin">
-              {user.googleLinked ? <><i className="bi bi-google"></i> Google linked</> : <><i className="bi bi-key"></i> Password</>}
+              <SignInMethods providers={user.oauthProviders} linked />
             </span>
             <span className="admin-ui-muted"><i className="bi bi-calendar3"></i> {formatDate(user.createdAt)}</span>
           </div>

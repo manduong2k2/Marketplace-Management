@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GoogleLoginRequest {
+public class OAuthLoginRequest {
 
-    @NotBlank(message = "idToken must not be empty")
-    private String idToken;
+    // What the provider's SDK returned: Google ID token (response.credential) or Facebook access token
+    @NotBlank(message = "credential must not be empty")
+    private String credential;
 }

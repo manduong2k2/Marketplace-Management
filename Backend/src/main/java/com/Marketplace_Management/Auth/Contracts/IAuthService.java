@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.ForgotPasswordCommand;
-import com.Marketplace_Management.Auth.DTOs.Commands.GoogleLoginCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.OAuthLoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RefreshTokenCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RegisterCommand;
@@ -21,7 +21,7 @@ public interface IAuthService {
     AuthResponse activeUser(ActivateUserCommand command);
     AuthResponse login(LoginCommand command);
     AuthResponse loginAdmin(LoginCommand command);
-    AuthResponse loginWithGoogle(GoogleLoginCommand command);
+    AuthResponse loginWithOAuth(OAuthLoginCommand command);
     AuthResponse refreshToken(RefreshTokenCommand command);
     void sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException;
     boolean resetPassword(ResetPasswordCommand command);

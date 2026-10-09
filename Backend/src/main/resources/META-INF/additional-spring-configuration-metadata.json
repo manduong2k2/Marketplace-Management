@@ -65,6 +65,22 @@
     "description": "Google OAuth client ID, used as the expected audience when verifying Google Sign-In ID tokens"
   },
   {
+    "name": "application.facebook.app-id",
+    "type": "java.lang.String",
+    "description": "Facebook App ID; access tokens from Facebook Login must be issued for this app"
+  },
+  {
+    "name": "application.facebook.app-secret",
+    "type": "java.lang.String",
+    "description": "Facebook App Secret, used for the app access token and appsecret_proof when calling the Graph API"
+  },
+  {
+    "name": "application.facebook.graph-url",
+    "type": "java.lang.String",
+    "description": "Base URL of the Facebook Graph API",
+    "defaultValue": "https://graph.facebook.com"
+  },
+  {
     "name": "spring.liquibase.enabled",
     "type": "java.lang.String",
     "description": "Enable or disable Liquibase"

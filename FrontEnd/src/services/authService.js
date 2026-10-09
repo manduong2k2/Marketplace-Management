@@ -42,7 +42,9 @@ async function request(path, options = {}) {
 // ===== Auth APIs =====
 export const authService = {
   login: (data) => request('/api/auth/login', { method: 'POST', body: data }),
-  googleLogin: (idToken) => request('/api/auth/google', { method: 'POST', body: { idToken } }),
+  // provider: 'google' (credential = ID token) | 'facebook' (credential = access token)
+  oauthLogin: (provider, credential) =>
+    request(`/api/auth/oauth/${provider}`, { method: 'POST', body: { credential } }),
   register: (data) => request('/api/auth/register', { method: 'POST', body: data }),
   refreshToken: (data) => request('/api/auth/refresh-token', { method: 'POST', body: data }),
   verifyEmail: (email, token) =>

@@ -3,6 +3,7 @@ package com.Marketplace_Management.Auth.Services;
 import jakarta.mail.MessagingException;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,11 +21,12 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Constants.UserStatus;
 import com.Marketplace_Management.Auth.Contracts.IAuthService;
+import com.Marketplace_Management.Auth.Contracts.IOAuthInfoRepository;
 import com.Marketplace_Management.Auth.Contracts.IRoleRepository;
 import com.Marketplace_Management.Auth.Contracts.IUserRepository;
 import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.ForgotPasswordCommand;
-import com.Marketplace_Management.Auth.DTOs.Commands.GoogleLoginCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.OAuthLoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RefreshTokenCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.RegisterCommand;
@@ -34,8 +36,10 @@ import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
 import com.Marketplace_Management.Auth.DTOs.Response.RegisterResponse;
 import com.Marketplace_Management.Auth.Events.UserAccessChangedEvent;
 import com.Marketplace_Management.Auth.Models.Role;
+import com.Marketplace_Management.Auth.Models.OAuthInfo;
 import com.Marketplace_Management.Auth.Models.User;
-import com.Marketplace_Management.Auth.Services.GoogleIdTokenService.GoogleUserInfo;
+import com.Marketplace_Management.Auth.Services.OAuth.OAuthStrategyResolver;
+import com.Marketplace_Management.Auth.Services.OAuth.OAuthUserInfo;
 import com.Marketplace_Management.Shared.Constants.UserRole;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
 import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
@@ -51,13 +55,14 @@ public class AuthService implements IAuthService {
     private final JwtService tokenService;
     private final PasswordEncoder encoder;
     private final EmailVerificationTokenService emailVerificationTokenService;
-    private final GoogleIdTokenService googleIdTokenService;
+    private final OAuthStrategyResolver oauthStrategies;
+    private final IOAuthInfoRepository oauthInfoRepo;
     private final UserSessionService sessionService;
     private final ApplicationEventPublisher eventPublisher;
 
     public AuthService(IUserRepository repo, IRoleRepository roleRepo, JwtService tokenService,
                       PasswordEncoder encoder, EmailVerificationTokenService emailVerificationTokenService, IFileService fileService,
-                      GoogleIdTokenService googleIdTokenService, UserSessionService sessionService,
+                      OAuthStrategyResolver oauthStrategies, IOAuthInfoRepository oauthInfoRepo, UserSessionService sessionService,
                       ApplicationEventPublisher eventPublisher) {
         this.repo = repo;
         this.roleRepo = roleRepo;
@@ -65,7 +70,8 @@ public class AuthService implements IAuthService {
         this.encoder = encoder;
         this.emailVerificationTokenService = emailVerificationTokenService;
         this.fileService = fileService;
-        this.googleIdTokenService = googleIdTokenService;
+        this.oauthStrategies = oauthStrategies;
+        this.oauthInfoRepo = oauthInfoRepo;
         this.sessionService = sessionService;
         this.eventPublisher = eventPublisher;
     }
@@ -86,39 +92,66 @@ public class AuthService implements IAuthService {
         return new RegisterResponse(true, Message.ACTIVATION_MAIL_SENT);
     }
 
+    /**
+     * Sign in with a third-party provider (Google, Facebook…). The provider's strategy verifies
+     * the credential, then:
+     * 1. provider account already linked -> that user
+     * 2. a user with the same (provider-verified) email exists -> link the provider account to it
+     * 3. otherwise -> create an active user from the provider profile and link it
+     */
     @Transactional
-    public AuthResponse loginWithGoogle(GoogleLoginCommand command) {
-        GoogleUserInfo google = googleIdTokenService.verify(command.getIdToken());
+    public AuthResponse loginWithOAuth(OAuthLoginCommand command) {
+        OAuthUserInfo info = oauthStrategies.resolve(command.getProvider()).verify(command.getCredential());
 
-        if (!google.emailVerified()) {
-            throw new AuthenticationException(Message.GOOGLE_EMAIL_NOT_VERIFIED) {};
-        }
-
-        User user = repo.findByGoogleId(google.googleId())
-                .orElseGet(() -> repo.findByEmail(google.email())
-                        .map(existing -> linkGoogleAccount(existing, google))
-                        .orElseGet(() -> createGoogleUser(google)));
+        User user = oauthInfoRepo.findByProviderAndSubject(info.provider(), info.subject())
+                .flatMap(link -> repo.findById(link.getUserId()))
+                .map(linked -> {
+                    // Linked accounts were activated when linked: INACTIVE now means deactivated by an admin
+                    if (!UserStatus.ACTIVE.equals(linked.getStatus())) {
+                        throw new AuthenticationException(Message.ACTIVATION) {};
+                    }
+                    return linked;
+                })
+                .orElseGet(() -> linkOrCreateUser(info));
 
         return sessionService.issue(user, Message.LOGIN_SUCCESS);
     }
 
-    private User linkGoogleAccount(User user, GoogleUserInfo google) {
-        user.setGoogleId(google.googleId());
-        // Google has verified the email, so the account no longer needs email activation
+    private User linkOrCreateUser(OAuthUserInfo info) {
+        // Linking/creating relies on the email: it must exist and be verified by the provider
+        if (info.email() == null || info.email().isBlank() || !info.emailVerified()) {
+            throw new AuthenticationException(Message.OAUTH_EMAIL_REQUIRED) {};
+        }
+
+        User user = repo.findByEmail(info.email())
+                .map(existing -> activateWithProviderProfile(existing, info))
+                .orElseGet(() -> createOAuthUser(info));
+
+        oauthInfoRepo.save(OAuthInfo.builder()
+                .userId(user.getId())
+                .oauthProvider(info.provider())
+                .oauthProviderSubject(info.subject())
+                .createdAt(Instant.now())
+                .build());
+        return user;
+    }
+
+    private User activateWithProviderProfile(User user, OAuthUserInfo info) {
+        // The provider has verified the email, so the account no longer needs email activation
         user.setStatus(UserStatus.ACTIVE);
-        if (user.getAvatar() == null || user.getAvatar().isBlank()) {
-            user.setAvatar(google.picture());
+        if ((user.getAvatar() == null || user.getAvatar().isBlank()) && info.picture() != null) {
+            user.setAvatar(info.picture());
         }
         return repo.save(user);
     }
 
-    private User createGoogleUser(GoogleUserInfo google) {
+    private User createOAuthUser(OAuthUserInfo info) {
         User user = User.builder()
-            .email(google.email())
+            .email(info.email())
+            // Random unusable password: the user signs in with the provider, or sets one via "forgot password"
             .password(encoder.encode(Helper.randomString(32)))
-            .name(google.name())
-            .avatar(google.picture())
-            .googleId(google.googleId())
+            .name(info.name())
+            .avatar(info.picture())
             .status(UserStatus.ACTIVE)
             .build();
 
