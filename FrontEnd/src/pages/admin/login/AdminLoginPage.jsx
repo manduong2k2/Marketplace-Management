@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
   return (
     <div className="admin-auth-page-container">
       <div className="admin-auth-container">
-        <div className="admin-auth-form">
+        <form className="admin-auth-form" onSubmit={handleSubmit}>
           <div className="admin-form-header">
             <div className="admin-icon-wrapper">
               <i className="fa-solid fa-shield-halved"></i>
@@ -128,7 +128,7 @@ export default function AdminLoginPage() {
               )}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

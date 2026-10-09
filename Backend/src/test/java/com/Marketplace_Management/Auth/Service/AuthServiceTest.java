@@ -1,6 +1,7 @@
 package com.Marketplace_Management.Auth.Service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -12,12 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Contracts.IUserRepository;
 import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Auth.Services.AuthService;
-import com.Marketplace_Management.Shared.Security.JwtService;
+import com.Marketplace_Management.Auth.Services.UserSessionService;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -28,8 +30,9 @@ class AuthServiceTest {
     @Mock
     PasswordEncoder passwordEncoder;
 
+    // Token issuing (JWT + user_sessions row) is delegated to UserSessionService
     @Mock
-    JwtService jwtService;
+    UserSessionService sessionService;
 
     @InjectMocks
     AuthService authService;
@@ -54,8 +57,8 @@ class AuthServiceTest {
         when(passwordEncoder.matches(rawPassword, encodedPassword))
                 .thenReturn(true);
 
-        when(jwtService.generateAccessToken(user))
-                .thenReturn("fake-token");
+        when(sessionService.issue(user, Message.LOGIN_SUCCESS))
+                .thenReturn(new AuthResponse("fake-token", "fake-refresh-token", Message.LOGIN_SUCCESS));
 
         // act
         AuthResponse response = authService.login(
@@ -64,5 +67,7 @@ class AuthServiceTest {
 
         // assert
         assertEquals("fake-token", response.getAccessToken());
+        assertEquals("fake-refresh-token", response.getRefreshToken());
+        verify(sessionService).issue(user, Message.LOGIN_SUCCESS);
     }
 }

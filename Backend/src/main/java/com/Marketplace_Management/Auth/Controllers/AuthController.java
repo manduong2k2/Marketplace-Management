@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import com.Marketplace_Management.Auth.Constants.Http;
@@ -42,14 +43,12 @@ import com.Marketplace_Management.Auth.DTOs.Response.ProfileResponse;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
 import com.Marketplace_Management.Shared.Controllers.BaseController;
-import com.Marketplace_Management.Shared.Security.JwtService;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController extends BaseController {
 
-    private final JwtService jwtService;
     private final IAuthService auth;
     private final ICookieService cookieService;
 
@@ -59,8 +58,7 @@ public class AuthController extends BaseController {
     @Value("${application.frontend.base-url}")
     private String frontendBaseUrl;
 
-    public AuthController(JwtService jwtService, IAuthService auth, ICookieService cookieService) {
-        this.jwtService = jwtService;
+    public AuthController(IAuthService auth, ICookieService cookieService) {
         this.auth = auth;
         this.cookieService = cookieService;
     }
@@ -114,10 +112,21 @@ public class AuthController extends BaseController {
                 .body(response);
     }
 
+    /**
+     * Body { refreshToken } is optional: the web app cannot read the httpOnly REFRESH_TOKEN cookie,
+     * so when the body has no token the cookie is used instead.
+     */
     @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, Object>> refreshToken(
-            @Valid @RequestBody(required = true) RefreshTokenRequest req) {
-        RefreshTokenCommand command = RefreshTokenCommand.fromRequest(req);
+            @RequestBody(required = false) RefreshTokenRequest req, HttpServletRequest request) {
+        String refreshToken = req != null && req.getRefreshToken() != null && !req.getRefreshToken().isBlank()
+                ? req.getRefreshToken()
+                : readCookie(request, Http.REFRESH_TOKEN_COOKIE);
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new AuthenticationCredentialsNotFoundException(Message.TOKEN_INVALID);
+        }
+
+        RefreshTokenCommand command = new RefreshTokenCommand(refreshToken);
         var authRes = auth.refreshToken(command);
         HttpHeaders cookies = cookieService.createAuthCookies(authRes.getAccessToken(), authRes.getRefreshToken());
 
@@ -180,22 +189,14 @@ public class AuthController extends BaseController {
         return ResponseEntity.ok(response);
     }
 
-    @Authenticated
+    // No @Authenticated: logout must work even when the access token has already expired.
+    // Revokes both tokens, deletes their session and clears the cookies.
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
-        Map<String, String> cookieMap = new HashMap<>();
+        String accessToken = readCookie(request, Http.ACCESS_TOKEN_COOKIE);
+        String refreshToken = readCookie(request, Http.REFRESH_TOKEN_COOKIE);
 
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                cookieMap.put(cookie.getName(), cookie.getValue());
-            }
-        }
-
-        String accessToken = cookieMap.get(Http.ACCESS_TOKEN_COOKIE);
-        String refreshToken = cookieMap.get(Http.REFRESH_TOKEN_COOKIE);
-
-        jwtService.invalidateToken(accessToken);
-        jwtService.invalidateToken(refreshToken);
+        auth.logout(accessToken, refreshToken);
 
         HttpHeaders headers = cookieService.createClearCookies();
 
@@ -205,5 +206,17 @@ public class AuthController extends BaseController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(response);
+    }
+
+    private String readCookie(HttpServletRequest request, String name) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+        for (Cookie cookie : request.getCookies()) {
+            if (name.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

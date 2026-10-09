@@ -1,17 +1,20 @@
 // src/layouts/admin/AdminLayout.jsx
 import { useState, useEffect, useContext } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AdminContext } from '../../contexts/AdminContext';
 import { adminAuthService } from '../../services/adminAuthService';
 import PopupManager from '../../components/master/popup/PopupManager';
 import Chatbot from '../../components/master/chatbot';
 import { useTheme } from '../../hooks/useTheme';
 import './AdminLayout.css';
+// Shared admin design system (tokens + admin-ui-* components) for every admin page
+import '../../pages/admin/shared/admin-index.css';
 
 // ── Sidebar mini state helpers ──────────────────────────────────────────────
 function isDesktop() { return window.matchMedia('(min-width: 992px)').matches; }
 
 // ── Nav items mapped to existing routes ─────────────────────────────────────
+// An item with `children` renders as an expandable group
 const NAV_ITEMS = [
   { to: '/admin/dashboard', icon: 'bi-speedometer2', label: 'Dashboard' },
   { to: '/admin/brands',    icon: 'bi-tags',          label: 'Brands' },
@@ -19,7 +22,60 @@ const NAV_ITEMS = [
   { to: '/admin/products',  icon: 'bi-box-seam',      label: 'Products' },
   { to: '/admin/vendors',   icon: 'bi-shop',          label: 'Vendors' },
   { to: '/admin/orders',    icon: 'bi-receipt',       label: 'Orders' },
+  {
+    key: 'iam',
+    icon: 'bi-shield-lock',
+    label: 'Identity & Access',
+    children: [
+      { to: '/admin/users', icon: 'bi-people',       label: 'Users' },
+      { to: '/admin/roles', icon: 'bi-person-badge', label: 'Roles' },
+    ],
+  },
 ];
+
+// Expandable sidebar group; opens by itself when one of its pages is active
+function NavGroup({ item, onNavigate }) {
+  const location = useLocation();
+  const hasActiveChild = item.children.some(child => location.pathname.startsWith(child.to));
+  // null = not toggled by the user yet: follow the current route
+  const [userOpen, setUserOpen] = useState(null);
+  const open = userOpen ?? hasActiveChild;
+  const setOpen = (update) => setUserOpen(update(open));
+
+  return (
+    <div className={`admin-nav-group${open ? ' admin-nav-group--open' : ''}${hasActiveChild ? ' admin-nav-group--active' : ''}`}>
+      <button
+        type="button"
+        className="nav-link admin-nav-group-toggle"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+      >
+        <span className="admin-nav-icon">
+          <i className={`bi ${item.icon}`} aria-hidden="true"></i>
+        </span>
+        <span className="admin-nav-text">{item.label}</span>
+        <i className="bi bi-chevron-down admin-nav-caret" aria-hidden="true"></i>
+      </button>
+
+      <div className="admin-nav-children">
+        <div className="admin-nav-children-inner">
+          {item.children.map(child => (
+            <NavLink
+              key={child.to}
+              to={child.to}
+              className={({ isActive }) => `admin-nav-sublink${isActive ? ' active' : ''}`}
+              onClick={onNavigate}
+              tabIndex={open ? 0 : -1}
+            >
+              <i className={`bi ${child.icon}`} aria-hidden="true"></i>
+              <span>{child.label}</span>
+            </NavLink>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminLayout() {
   const { admin, setAdmin } = useContext(AdminContext);
@@ -99,7 +155,9 @@ export default function AdminLayout() {
         </div>
 
         <nav className="admin-sidebar-nav">
-          {NAV_ITEMS.map(({ to, icon, label }) => (
+          {NAV_ITEMS.map(({ to, icon, label, children, key }) => children ? (
+            <NavGroup key={key} item={{ icon, label, children }} onNavigate={handleNavClick} />
+          ) : (
             <NavLink
               key={to}
               to={to}

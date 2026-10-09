@@ -1,71 +1,71 @@
-import React, { useEffect, useState } from 'react';
+// Sales → Orders
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orderService } from '../../../services/orderService';
-import { showSuccess, showError } from '../../../components/master/popup';
+import { PageHeader, SearchBox, Avatar, Pill, Pagination, EmptyState } from '../shared/AdminUi';
+import { PAGE_SIZE, useDebounce, useApiQuery, formatDate, formatCurrency } from '../shared/adminUiUtils';
 import './AdminOrderHistoryPage.css';
+
+const SORT_LABELS = { createdAt: 'Date', total: 'Total' };
+
+// Order statuses (backend OrderStatusEnum) → label + Pill tone
+const ORDER_STATUS = {
+  PENDING:    { label: 'Pending',    tone: 'warning' },
+  PAID:       { label: 'Paid',       tone: 'info' },
+  PROCESSING: { label: 'Processing', tone: 'info' },
+  SHIPPING:   { label: 'Shipping',   tone: 'info' },
+  COMPLETED:  { label: 'Completed',  tone: 'success' },
+  CANCELLED:  { label: 'Cancelled',  tone: 'danger' },
+  EXPIRED:    { label: 'Expired',    tone: 'neutral' },
+};
+// Legacy / alternative names that may still come back from the API
+const EXTRA_TONES = {
+  CONFIRMED: 'info', SHIPPED: 'success', DELIVERED: 'success', FAILED: 'danger', REFUNDED: 'neutral',
+};
+
+function OrderStatusPill({ status }) {
+  const key = (status || '').toUpperCase();
+  const cfg = ORDER_STATUS[key];
+  const tone = cfg?.tone || EXTRA_TONES[key] || 'neutral';
+  const label = cfg?.label || (key ? key.charAt(0) + key.slice(1).toLowerCase() : 'Unknown');
+  return <Pill tone={tone}>{label}</Pill>;
+}
+
+const shortOrderId = (id) => String(id || '').slice(0, 8).toUpperCase();
+const itemName = (item) => item.snapShot?.name || item.snapShot?.productName || item.productName || 'Product';
 
 function AdminOrderHistoryPage() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({
-    currentPage: 0,
-    pageSize: 10,
-    totalElements: 0,
-    totalPages: 0,
-  });
+  const [page, setPage] = useState(0);
   const [filters, setFilters] = useState({
     status: '',
     search: '',
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });
+  const debouncedSearch = useDebounce(filters.search);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [filters.status, filters.search, filters.sortBy, filters.sortOrder, pagination.currentPage]);
+  useEffect(() => { document.title = 'Admin - Orders'; }, []);
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const params = {
-        page: pagination.currentPage,
-        size: pagination.pageSize,
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder,
-      };
-      if (filters.status) {
-        params.status = filters.status;
-      }
-      if (filters.search) {
-        params.search = filters.search;
-      }
-      const response = await orderService.getAllOrders(params);
-      if (response.ok && response.data) {
-        const ordersData = Array.isArray(response.data.data) ? response.data.data : [];
-        setOrders(ordersData);
-        setPagination({
-          currentPage: response.data.currentPage || 0,
-          pageSize: response.data.pageSize || 10,
-          totalElements: response.data.totalElements || 0,
-          totalPages: response.data.totalPages || 0,
-          hasNext: response.data.hasNext || false,
-          hasPrevious: response.data.hasPrevious || false,
-        });
-      } else {
-        setError('Failed to load orders');
-      }
-    } catch (err) {
-      setError('Failed to load orders');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const params = { page, size: PAGE_SIZE, sortBy: filters.sortBy, sortOrder: filters.sortOrder };
+  if (filters.status) params.status = filters.status;
+  if (debouncedSearch) params.search = debouncedSearch;
 
-  const handlePageChange = (newPage) => {
-    setPagination(prev => ({ ...prev, currentPage: newPage }));
-  };
+  const { response, loading } = useApiQuery(() => orderService.getAllOrders(params), JSON.stringify(params));
+  const ok = response?.ok && response.data;
+  const orders = ok && Array.isArray(response.data.data) ? response.data.data : [];
+  // Paging fields sit at the top level of this endpoint's response
+  const currentPage = ok ? response.data.currentPage || 0 : 0;
+  const totalPages = ok ? response.data.totalPages || 0 : 0;
+  const pagination = ok ? {
+    currentPage,
+    totalPages,
+    pageSize: response.data.pageSize || PAGE_SIZE,
+    totalElements: response.data.totalElements || 0,
+    hasNext: response.data.hasNext ?? currentPage < totalPages - 1,
+    hasPrevious: response.data.hasPrevious ?? currentPage > 0,
+  } : null;
+  const error = !loading && !ok ? 'Failed to load orders' : null;
 
   const handleSort = (field) => {
     setFilters(prev => ({
@@ -73,183 +73,129 @@ function AdminOrderHistoryPage() {
       sortBy: field,
       sortOrder: prev.sortBy === field && prev.sortOrder === 'desc' ? 'asc' : 'desc',
     }));
-    setPagination(prev => ({ ...prev, currentPage: 0 }));
+    setPage(0);
   };
 
-  const handleStatusFilter = (status) => {
-    setFilters(prev => ({ ...prev, status }));
-    setPagination(prev => ({ ...prev, currentPage: 0 }));
+  const updateFilter = (field) => (value) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+    setPage(0);
   };
 
-  const handleSearchChange = (e) => {
-    setFilters(prev => ({ ...prev, search: e.target.value }));
-  };
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setPagination(prev => ({ ...prev, currentPage: 0 }));
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDING': return '#ffc107';
-      case 'CONFIRMED': return '#17a2b8';
-      case 'SHIPPED': return '#007bff';
-      case 'DELIVERED': return '#28a745';
-      case 'CANCELLED': return '#dc3545';
-      default: return '#6c757d';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="admin-order-history-page">
-        <div className="admin-loading-container">
-          <div className="admin-spinner"></div>
-          <p>Loading orders...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="admin-order-history-page">
-        <div className="admin-error-state">
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
+  const openOrder = (order) => navigate(`/admin/orders/${order.id}`);
 
   return (
-    <div className="admin-order-history-page">
-      <div className="admin-order-history-container">
-        <div className="admin-order-history-header">
-          <h1>Manage Orders</h1>
+    <div className="admin-ui-page">
+      <PageHeader
+        eyebrow="Sales"
+        eyebrowIcon="bi-receipt"
+        title="Orders"
+        description="Track every order placed on the marketplace, from checkout to delivery."
+      />
+
+      <div className="admin-ui-toolbar">
+        <SearchBox
+          value={filters.search}
+          onChange={updateFilter('search')}
+          placeholder="Search by name, phone, or order ID…"
+        />
+
+        <select
+          className="admin-ui-select"
+          value={filters.status}
+          onChange={(e) => updateFilter('status')(e.target.value)}
+          aria-label="Status filter"
+        >
+          <option value="">All statuses</option>
+          {Object.entries(ORDER_STATUS).map(([value, { label }]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+
+        <div className="admin-ui-segmented admin-orders-sort" role="group" aria-label="Sort by">
+          {Object.entries(SORT_LABELS).map(([field, label]) => {
+            const active = filters.sortBy === field;
+            return (
+              <button key={field} type="button" className={active ? 'active' : ''} onClick={() => handleSort(field)}>
+                {label}
+                {active && <i className={`bi ${filters.sortOrder === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'}`}></i>}
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        <div className="admin-order-filters">
-          <form className="admin-search-form" onSubmit={handleSearchSubmit}>
-            <input
-              type="text"
-              placeholder="Search by name, phone, or order ID..."
-              value={filters.search}
-              onChange={handleSearchChange}
-              className="admin-order-search-input"
-            />
-            <button type="submit" className="admin-search-btn">Search</button>
-          </form>
-
-          <div className="admin-filter-group">
-            <label>Status:</label>
-            <select
-              value={filters.status}
-              onChange={(e) => handleStatusFilter(e.target.value)}
-              className="admin-filter-select"
-            >
-              <option value="">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="CONFIRMED">Confirmed</option>
-              <option value="SHIPPED">Shipped</option>
-              <option value="DELIVERED">Delivered</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div>
-
-          <div className="admin-sort-buttons">
-            <button
-              className={`admin-sort-btn ${filters.sortBy === 'createdAt' ? 'active' : ''}`}
-              onClick={() => handleSort('createdAt')}
-            >
-              Date {filters.sortBy === 'createdAt' ? (filters.sortOrder === 'asc' ? '↑' : '↓') : ''}
-            </button>
-            <button
-              className={`admin-sort-btn ${filters.sortBy === 'admin-total' ? 'active' : ''}`}
-              onClick={() => handleSort('total')}
-            >
-              Total {filters.sortBy === 'total' ? (filters.sortOrder === 'asc' ? '↑' : '↓') : ''}
-            </button>
-          </div>
-        </div>
-
-        {orders.length === 0 ? (
-          <div className="admin-empty-state">
-            <div className="admin-empty-icon">📦</div>
-            <h3>No orders found</h3>
-            <p>There are no orders matching your criteria.</p>
-          </div>
-        ) : (
-          <>
-            <div className="admin-orders-list">
-              {orders.map(order => (
-                <div key={order.id} className="admin-order-card" onClick={() => navigate(`/admin/orders/${order.id}`)}>
-                  <div className="admin-order-header">
-                    <div className="admin-order-info">
-                      <span className="admin-order-id">Order #{order.id.slice(0, 8)}</span>
-                      <span className="admin-order-date">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </span>
-                      <span className="admin-order-user">User: {order.userId?.slice(0, 8)}</span>
-                    </div>
-                    <span
-                      className="admin-order-status"
-                      style={{ backgroundColor: getStatusColor(order.status) }}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-
-                  <div className="admin-order-shipping-info">
-                    <span className="admin-shipping-name">{order.name}</span>
-                    <span className="admin-shipping-phone">{order.phone}</span>
-                  </div>
-
-                  <div className="admin-order-items-preview">
-                    {order.items && order.items.slice(0, 3).map((item, index) => (
-                      <div key={index} className="admin-order-item-preview">
-                        <span>{item.quantity}x {item.snapShot?.name || 'Product'}</span>
-                      </div>
-                    ))}
-                    {order.items && order.items.length > 3 && (
-                      <span className="admin-more-items">+{order.items.length - 3} more</span>
-                    )}
-                  </div>
-
-                  <div className="admin-order-footer">
-                    <span className="admin-order-total">${order.total.toFixed(2)}</span>
-                    <button className="admin-btn-view-details">View Details →</button>
-                  </div>
-                </div>
+      <div className="admin-ui-card">
+        <div className="admin-ui-table-wrap">
+          <table className="admin-ui-table">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th className="admin-ui-col-actions"><span className="visually-hidden">Open</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && orders.length === 0 && [...Array(5)].map((_, i) => (
+                <tr key={i} className="admin-ui-skeleton-row"><td colSpan={7}><span></span></td></tr>
               ))}
-            </div>
-
-            {pagination.totalPages > 1 && (
-              <div className="admin-pagination-controls">
-                <button
-                  className="admin-pagination-btn"
-                  disabled={pagination.currentPage === 0}
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                >
-                  Previous
-                </button>
-                <span className="admin-pagination-info">
-                  Page {pagination.currentPage + 1} of {pagination.totalPages}
-                </span>
-                <button
-                  className="admin-pagination-btn"
-                  disabled={pagination.currentPage >= pagination.totalPages - 1}
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </>
-        )}
+              {orders.map(order => {
+                const items = order.items || [];
+                const count = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                return (
+                  <tr key={order.id} onClick={() => openOrder(order)}>
+                    <td>
+                      <span className="admin-ui-mono admin-orders-id">#{shortOrderId(order.id)}</span>
+                      {order.userId && <span className="admin-orders-sub admin-ui-mono">User {order.userId.slice(0, 8)}</span>}
+                    </td>
+                    <td>
+                      <div className="admin-ui-user">
+                        <Avatar user={{ name: order.name, email: order.phone }} size={32} />
+                        <div>
+                          <strong>{order.name || 'Unknown'}</strong>
+                          <span>{order.phone || '—'}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="admin-orders-items">
+                      {items.length === 0 ? (
+                        <span className="admin-ui-muted">—</span>
+                      ) : (
+                        <>
+                          <strong>{count} {count === 1 ? 'item' : 'items'}</strong>
+                          <span className="admin-orders-sub">
+                            {items.slice(0, 2).map(item => `${item.quantity}× ${itemName(item)}`).join(', ')}
+                            {items.length > 2 && ` +${items.length - 2} more`}
+                          </span>
+                        </>
+                      )}
+                    </td>
+                    <td className="admin-orders-total">{formatCurrency(order.total)}</td>
+                    <td><OrderStatusPill status={order.status} /></td>
+                    <td className="admin-ui-muted">{formatDate(order.createdAt)}</td>
+                    <td className="admin-ui-col-actions">
+                      <span className="admin-ui-icon-btn admin-orders-open" aria-hidden="true">
+                        <i className="bi bi-chevron-right"></i>
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {error && <EmptyState icon="bi-exclamation-octagon" title={error} text="Check your connection and try again." />}
+          {!loading && !error && orders.length === 0 && (
+            <EmptyState icon="bi-box-seam" title="No orders found" text="There are no orders matching your criteria." />
+          )}
+        </div>
+        <Pagination pagination={pagination} onChange={setPage} />
       </div>
     </div>
   );
 }
+
 
 export default AdminOrderHistoryPage;

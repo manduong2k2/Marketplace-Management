@@ -2,8 +2,41 @@
 import React, { useEffect, useState } from 'react';
 import { categoryService } from '../../../services/categoryService';
 import CategoryForm from '../../../components/category/form/CategoryForm';
-import '../shared/AdminPage.css';
+import { PageHeader, SearchBox, EmptyState, Modal, ConfirmDialog } from '../shared/AdminUi';
 import './AdminCategoriesPage.css';
+
+const truncate = (text, max = 100) => (text.length > max ? text.slice(0, max) + '...' : text);
+
+/**
+ * Orders the flat category list as a tree (parent followed by its children) and computes each
+ * category's depth. Categories whose parent is missing from the list are treated as top-level.
+ */
+const buildTreeRows = (categories) => {
+  const ids = new Set(categories.map(c => c.id));
+  const childrenOf = new Map();
+  categories.forEach(cat => {
+    const key = cat.parentId && ids.has(cat.parentId) ? cat.parentId : null;
+    if (!childrenOf.has(key)) childrenOf.set(key, []);
+    childrenOf.get(key).push(cat);
+  });
+
+  const rows = [];
+  const visited = new Set();
+  const walk = (parentId, depth) => {
+    (childrenOf.get(parentId) || []).forEach(cat => {
+      if (visited.has(cat.id)) return;
+      visited.add(cat.id);
+      rows.push({ category: cat, depth, childCount: (childrenOf.get(cat.id) || []).length });
+      walk(cat.id, depth + 1);
+    });
+  };
+  walk(null, 0);
+  // Safety net for cycles: anything not reached is listed at the top level
+  categories.forEach(cat => {
+    if (!visited.has(cat.id)) rows.push({ category: cat, depth: 0, childCount: (childrenOf.get(cat.id) || []).length });
+  });
+  return rows;
+};
 
 export default function AdminCategoriesPage() {
   useEffect(() => { document.title = 'Admin - Categories'; }, []);
@@ -11,6 +44,7 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories]     = useState([]);
   const [loading, setLoading]           = useState(true);
   const [submitting, setSubmitting]     = useState(false);
+  const [deleting, setDeleting]         = useState(false);
   const [error, setError]               = useState(null);
   const [modal, setModal]               = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -28,15 +62,16 @@ export default function AdminCategoriesPage() {
   useEffect(() => { fetchCategories(); }, []);
 
   const getParentName = (parentId) => {
-    if (!parentId) return '—';
+    if (!parentId) return null;
     const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name : parentId;
   };
 
-  const filteredCategories = categories.filter(cat =>
+  const matchesSearch = (cat) =>
     cat.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cat.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    cat.description?.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const rows = buildTreeRows(categories).filter(row => matchesSearch(row.category));
 
   const handleCreate = async (formData) => {
     setSubmitting(true);
@@ -72,185 +107,138 @@ export default function AdminCategoriesPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    setDeleting(true);
     try {
       const res = await categoryService.delete(deleteTarget.id);
       if (res.ok) { window.showSuccess('Category deleted successfully'); fetchCategories(); }
       else window.showError(res.data?.message || 'Failed to delete category');
     } catch { window.showError('Server connection error'); }
-    finally  { setDeleteTarget(null); }
+    finally  { setDeleting(false); setDeleteTarget(null); }
   };
 
-  if (loading) {
-    return (
-      <div className="admin-categories-page">
-        <div className="admin-loading">
-          <div className="admin-spinner"></div>
-          <span>Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  const closeModal = () => setModal(null);
+  const editing = modal?.mode === 'edit' ? modal.category : null;
 
   return (
-    <div className="admin-categories-page">
-      {/* Header */}
-      <div className="admin-categories-header admin-light-card">
-        <div className="admin-header-left">
-          <div className="admin-header-icon">
-            <i className="fa-solid fa-folder-tree"></i>
-          </div>
-          <div>
-            <h1 className="admin-header-title">Category Management</h1>
-            <p className="admin-header-subtitle">Manage product categorization, hierarchy & structure</p>
-          </div>
-        </div>
+    <div className="admin-ui-page admin-categories-page">
+      <PageHeader
+        eyebrow="Catalog"
+        eyebrowIcon="bi-box-seam"
+        title="Categories"
+        description="Organize products into a category hierarchy. Sub-categories are shown under their parent."
+        actions={
+          <button type="button" className="admin-ui-btn admin-ui-btn--primary" onClick={() => setModal('create')}>
+            <i className="bi bi-plus-lg"></i> New category
+          </button>
+        }
+      />
 
-        {/* Stats Badges */}
-        <div className="admin-header-stats">
-          <div className="admin-stat-badge">
-            <span className="admin-stat-dot admin-total"></span>
-            <span className="admin-stat-label">Total:</span>
-            <span className="admin-stat-value">{categories.length}</span>
-          </div>
+      {error && (
+        <div className="admin-categories-alert" role="alert">
+          <i className="bi bi-exclamation-circle"></i> {error}
         </div>
+      )}
+
+      <div className="admin-ui-toolbar">
+        <SearchBox value={searchQuery} onChange={setSearchQuery} placeholder="Search by name or description…" />
+        <span className="admin-ui-muted admin-categories-count">
+          {searchQuery ? `${rows.length} of ${categories.length}` : categories.length} categor{categories.length === 1 ? 'y' : 'ies'}
+        </span>
       </div>
 
-      {error && <div className="admin-alert admin-alert-error">{error}</div>}
-
-      {/* Toolbar */}
-      <div className="admin-categories-toolbar admin-light-card">
-        <div className="admin-toolbar-filters">
-          {/* Search */}
-          <div className="admin-search-input-wrapper">
-            <i className="fa-solid fa-magnifying-glass"></i>
-            <input
-              type="text"
-              placeholder="Search by name, description..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="admin-search-input"
-            />
-          </div>
-
-          {/* Reset Button */}
-          {searchQuery && (
-            <button
-              className="admin-reset-button"
-              onClick={() => setSearchQuery('')}
-            >
-              <i className="fa-solid fa-rotate-left"></i> Reset search
-            </button>
-          )}
-        </div>
-
-        {/* Add New Button */}
-        <button
-          className="admin-btn-add-new"
-          onClick={() => setModal('create')}
-        >
-          <i className="fa-solid fa-plus"></i>
-          <span>Add New Category</span>
-        </button>
-      </div>
-
-      {/* Table Container */}
-      <div className="admin-categories-table-container admin-light-card">
-        <div className="admin-table-wrapper">
-          <table className="admin-categories-table">
+      <div className="admin-ui-card">
+        <div className="admin-ui-table-wrap">
+          <table className="admin-ui-table admin-categories-table">
             <thead>
               <tr>
-                <th className="admin-col-checkbox">#</th>
-                <th className="admin-col-image">Category Image</th>
-                <th className="admin-col-name">Category Name</th>
-                <th className="admin-col-parent">Parent Category</th>
-                <th className="admin-col-description">Description</th>
-                <th className="admin-col-actions">Actions</th>
+                <th>Category</th>
+                <th>Parent</th>
+                <th>Description</th>
+                <th>Sub-categories</th>
+                <th className="admin-ui-col-actions"><span className="visually-hidden">Actions</span></th>
               </tr>
             </thead>
             <tbody>
-              {filteredCategories.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="admin-empty-state">
-                    <i className="fa-solid fa-box-open"></i>
-                    <p>No matching categories found</p>
-                    <span>Please try searching again</span>
-                  </td>
-                </tr>
-              ) : filteredCategories.map((cat, idx) => (
-                <tr key={cat.id}>
-                  <td className="admin-col-checkbox">{idx + 1}</td>
-                  <td className="admin-col-image">
-                    <div className="admin-category-image-cell">
-                      {cat.image ? (
-                        <img src={cat.image} alt={cat.name} />
-                      ) : (
-                        <div className="admin-no-image">No Image</div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="admin-col-name">
-                    <h4 className="admin-category-name">{cat.name}</h4>
-                  </td>
-                  <td className="admin-col-parent">
-                    <span className="admin-parent-badge">{getParentName(cat.parentId)}</span>
-                  </td>
-                  <td className="admin-col-description">
-                    <p className="admin-category-description">
-                      {cat.description ? cat.description.length > 100 ? cat.description.slice(0, 100) + '...' : cat.description : '—'}
-                    </p>
-                  </td>
-                  <td className="admin-col-actions">
-                    <div className="admin-action-buttons">
-                      <button
-                        className="admin-btn-action btn-edit"
-                        title="Edit"
-                        onClick={() => setModal({ mode: 'edit', category: cat })}
-                      >
-                        <i className="fa-solid fa-pen-to-square"></i>
-                      </button>
-                      <button
-                        className="admin-btn-action admin-btn-delete"
-                        title="Delete"
-                        onClick={() => setDeleteTarget(cat)}
-                      >
-                        <i className="fa-solid fa-trash-can"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+              {loading && categories.length === 0 && [...Array(5)].map((_, i) => (
+                <tr key={i} className="admin-ui-skeleton-row"><td colSpan={5}><span></span></td></tr>
               ))}
+              {rows.map(({ category: cat, depth, childCount }) => {
+                const parentName = getParentName(cat.parentId);
+                return (
+                  <tr key={cat.id} onClick={() => setModal({ mode: 'edit', category: cat })}>
+                    <td>
+                      <div
+                        className="admin-categories-identity"
+                        style={{ paddingLeft: searchQuery ? 0 : `${Math.min(depth, 6) * 1.6}rem` }}
+                      >
+                        {depth > 0 && !searchQuery && <i className="bi bi-arrow-return-right admin-categories-branch"></i>}
+                        <span className="admin-categories-thumb">
+                          {cat.image
+                            ? <img src={cat.image} alt={cat.name} />
+                            : <i className="bi bi-image"></i>}
+                        </span>
+                        <strong>{cat.name}</strong>
+                      </div>
+                    </td>
+                    <td>
+                      {parentName
+                        ? <span className="admin-categories-parent"><i className="bi bi-diagram-2"></i> {parentName}</span>
+                        : <span className="admin-ui-tag">Top level</span>}
+                    </td>
+                    <td className="admin-ui-muted admin-categories-description">
+                      {cat.description ? truncate(cat.description) : '—'}
+                    </td>
+                    <td>
+                      <span className="admin-ui-tag admin-categories-children">
+                        <i className="bi bi-folder2"></i> {childCount}
+                      </span>
+                    </td>
+                    <td className="admin-ui-col-actions" onClick={(e) => e.stopPropagation()}>
+                      <button type="button" className="admin-ui-icon-btn" title="Edit" onClick={() => setModal({ mode: 'edit', category: cat })}>
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                      <button type="button" className="admin-ui-icon-btn admin-ui-icon-btn--danger" title="Delete" onClick={() => setDeleteTarget(cat)}>
+                        <i className="bi bi-trash3"></i>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          {!loading && rows.length === 0 && (
+            <EmptyState
+              icon="bi-diagram-3"
+              title={searchQuery ? 'No matching categories found' : 'No categories yet'}
+              text={searchQuery ? 'Try another search.' : 'Use "New category" to add the first one.'}
+            />
+          )}
         </div>
       </div>
 
-      {modal === 'create' && (
-        <div className="admin-modal-overlay" onClick={() => setModal(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <CategoryForm categories={categories} onSubmit={handleCreate} onCancel={() => setModal(null)} loading={submitting} />
+      {(modal === 'create' || editing) && (
+        <Modal
+          title={editing ? 'Edit category' : 'New category'}
+          subtitle={editing ? editing.name : 'Add a category and optionally place it under a parent.'}
+          onClose={closeModal}
+          width={720}
+        >
+          <div className="admin-categories-form-scope">
+            {editing
+              ? <CategoryForm category={editing} categories={categories.filter(c => c.id !== editing.id)} onSubmit={handleUpdate} onCancel={closeModal} loading={submitting} />
+              : <CategoryForm categories={categories} onSubmit={handleCreate} onCancel={closeModal} loading={submitting} />}
           </div>
-        </div>
-      )}
-
-      {modal?.mode === 'edit' && (
-        <div className="admin-modal-overlay" onClick={() => setModal(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <CategoryForm category={modal.category} categories={categories.filter(c => c.id !== modal.category.id)} onSubmit={handleUpdate} onCancel={() => setModal(null)} loading={submitting} />
-          </div>
-        </div>
+        </Modal>
       )}
 
       {deleteTarget && (
-        <div className="admin-modal-overlay" onClick={() => setDeleteTarget(null)}>
-          <div className="admin-modal admin-confirm-modal" onClick={e => e.stopPropagation()}>
-            <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete category <strong>{deleteTarget.name}</strong>?</p>
-            <div className="admin-confirm-actions">
-              <button className="admin-btn-secondary" onClick={() => setDeleteTarget(null)}>Cancel</button>
-              <button className="admin-btn-danger"    onClick={handleDelete}>Delete</button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="Delete category"
+          message={<>Are you sure you want to delete category <strong>{deleteTarget.name}</strong>?</>}
+          busy={deleting}
+          onConfirm={handleDelete}
+          onClose={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   );

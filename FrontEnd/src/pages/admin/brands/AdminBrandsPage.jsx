@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { brandService } from '../../../services/brandService';
 import BrandForm from '../../../components/brand/form/BrandForm';
-import '../shared/AdminPage.css';
+import { PageHeader, SearchBox, EmptyState, Modal, ConfirmDialog } from '../shared/AdminUi';
 import './AdminBrandsPage.css';
+
+const truncate = (text, max = 100) => (text.length > max ? text.slice(0, max) + '...' : text);
 
 export default function AdminBrandsPage() {
   useEffect(() => { document.title = 'Admin - Brands'; }, []);
@@ -11,6 +13,7 @@ export default function AdminBrandsPage() {
   const [brands, setBrands]             = useState([]);
   const [loading, setLoading]           = useState(true);
   const [submitting, setSubmitting]     = useState(false);
+  const [deleting, setDeleting]         = useState(false);
   const [error, setError]               = useState(null);
   const [modal, setModal]               = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -64,184 +67,125 @@ export default function AdminBrandsPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    setDeleting(true);
     try {
       const res = await brandService.delete(deleteTarget.id);
       if (res.ok) { window.showSuccess('Brand deleted successfully'); fetchBrands(); }
       else window.showError(res.data?.message || 'Failed to delete brand');
     } catch { window.showError('Server connection error'); }
-    finally  { setDeleteTarget(null); }
+    finally  { setDeleting(false); setDeleteTarget(null); }
   };
 
-  if (loading) {
-    return (
-      <div className="admin-brands-page">
-        <div className="admin-loading">
-          <div className="admin-spinner"></div>
-          <span>Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  const closeModal = () => setModal(null);
+  const editing = modal?.mode === 'edit' ? modal.brand : null;
 
   return (
-    <div className="admin-brands-page">
-      {/* Header */}
-      <div className="admin-brands-header admin-light-card">
-        <div className="admin-header-left">
-          <div className="admin-header-icon">
-            <i className="fa-solid fa-tags"></i>
-          </div>
-          <div>
-            <h1 className="admin-header-title">Brand Management</h1>
-            <p className="admin-header-subtitle">Manage brand portfolio, descriptions & visual identity</p>
-          </div>
-        </div>
+    <div className="admin-ui-page admin-brands-page">
+      <PageHeader
+        eyebrow="Catalog"
+        eyebrowIcon="bi-box-seam"
+        title="Brands"
+        description="Manage the brand portfolio: names, descriptions and logos shown across the store."
+        actions={
+          <button type="button" className="admin-ui-btn admin-ui-btn--primary" onClick={() => setModal('create')}>
+            <i className="bi bi-plus-lg"></i> New brand
+          </button>
+        }
+      />
 
-        {/* Stats Badges */}
-        <div className="admin-header-stats">
-          <div className="admin-stat-badge">
-            <span className="admin-stat-dot admin-total"></span>
-            <span className="admin-stat-label">Total:</span>
-            <span className="admin-stat-value">{brands.length}</span>
-          </div>
+      {error && (
+        <div className="admin-brands-alert" role="alert">
+          <i className="bi bi-exclamation-circle"></i> {error}
         </div>
+      )}
+
+      <div className="admin-ui-toolbar">
+        <SearchBox value={searchQuery} onChange={setSearchQuery} placeholder="Search by name or description…" />
+        <span className="admin-ui-muted admin-brands-count">
+          {searchQuery ? `${filteredBrands.length} of ${brands.length}` : brands.length} brand{brands.length === 1 ? '' : 's'}
+        </span>
       </div>
 
-      {error && <div className="admin-alert admin-alert-error">{error}</div>}
-
-      {/* Toolbar */}
-      <div className="admin-brands-toolbar admin-light-card">
-        <div className="admin-toolbar-filters">
-          {/* Search */}
-          <div className="admin-search-input-wrapper">
-            <i className="fa-solid fa-magnifying-glass"></i>
-            <input
-              type="text"
-              placeholder="Search by name, description..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="admin-search-input"
-            />
-          </div>
-
-          {/* Reset Button */}
-          {searchQuery && (
-            <button
-              className="admin-reset-button"
-              onClick={() => setSearchQuery('')}
-            >
-              <i className="fa-solid fa-rotate-left"></i> Reset search
-            </button>
-          )}
-        </div>
-
-        {/* Add New Button */}
-        <button
-          className="admin-btn-add-new"
-          onClick={() => setModal('create')}
-        >
-          <i className="fa-solid fa-plus"></i>
-          <span>Add New Brand</span>
-        </button>
-      </div>
-
-      {/* Table Container */}
-      <div className="admin-brands-table-container admin-light-card">
-        <div className="admin-table-wrapper">
-          <table className="admin-brands-table">
+      <div className="admin-ui-card">
+        <div className="admin-ui-table-wrap">
+          <table className="admin-ui-table admin-brands-table">
             <thead>
               <tr>
-                <th className="admin-col-checkbox">#</th>
-                <th className="admin-col-image">Brand Image</th>
-                <th className="admin-col-name">Brand Name</th>
-                <th className="admin-col-description">Description</th>
-                <th className="admin-col-actions">Actions</th>
+                <th>Brand</th>
+                <th>Description</th>
+                <th>Products</th>
+                <th className="admin-ui-col-actions"><span className="visually-hidden">Actions</span></th>
               </tr>
             </thead>
             <tbody>
-              {filteredBrands.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="admin-empty-state">
-                    <i className="fa-solid fa-box-open"></i>
-                    <p>No matching brands found</p>
-                    <span>Please try searching again</span>
-                  </td>
-                </tr>
-              ) : filteredBrands.map((brand, idx) => (
-                <tr key={brand.id}>
-                  <td className="admin-col-checkbox">{idx + 1}</td>
-                  <td className="admin-col-image">
-                    <div className="admin-brand-image-cell">
-                      {brand.image ? (
-                        <img src={brand.image} alt={brand.name} />
-                      ) : (
-                        <div className="admin-no-image">No Image</div>
-                      )}
+              {loading && brands.length === 0 && [...Array(5)].map((_, i) => (
+                <tr key={i} className="admin-ui-skeleton-row"><td colSpan={4}><span></span></td></tr>
+              ))}
+              {filteredBrands.map(brand => (
+                <tr key={brand.id} onClick={() => setModal({ mode: 'edit', brand })}>
+                  <td>
+                    <div className="admin-brands-identity">
+                      <span className="admin-brands-thumb">
+                        {brand.image
+                          ? <img src={brand.image} alt={brand.name} />
+                          : <i className="bi bi-image"></i>}
+                      </span>
+                      <strong>{brand.name}</strong>
                     </div>
                   </td>
-                  <td className="admin-col-name">
-                    <h4 className="admin-brand-name">{brand.name}</h4>
+                  <td className="admin-ui-muted admin-brands-description">
+                    {brand.description ? truncate(brand.description) : '—'}
                   </td>
-                  <td className="admin-col-description">
-                    <p className="admin-brand-description">
-                      {brand.description ? brand.description.length > 100 ? brand.description.slice(0, 100) + '...' : brand.description : '—'}
-                    </p>
+                  <td>
+                    <span className="admin-ui-tag admin-brands-products">
+                      <i className="bi bi-box"></i> {brand.productsCount ?? 0}
+                    </span>
                   </td>
-                  <td className="admin-col-actions">
-                    <div className="admin-action-buttons">
-                      <button
-                        className="admin-btn-action btn-edit"
-                        title="Edit"
-                        onClick={() => setModal({ mode: 'edit', brand })}
-                      >
-                        <i className="fa-solid fa-pen-to-square"></i>
-                      </button>
-                      <button
-                        className="admin-btn-action admin-btn-delete"
-                        title="Delete"
-                        onClick={() => setDeleteTarget(brand)}
-                      >
-                        <i className="fa-solid fa-trash-can"></i>
-                      </button>
-                    </div>
+                  <td className="admin-ui-col-actions" onClick={(e) => e.stopPropagation()}>
+                    <button type="button" className="admin-ui-icon-btn" title="Edit" onClick={() => setModal({ mode: 'edit', brand })}>
+                      <i className="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" className="admin-ui-icon-btn admin-ui-icon-btn--danger" title="Delete" onClick={() => setDeleteTarget(brand)}>
+                      <i className="bi bi-trash3"></i>
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {!loading && filteredBrands.length === 0 && (
+            <EmptyState
+              icon="bi-tags"
+              title={searchQuery ? 'No matching brands found' : 'No brands yet'}
+              text={searchQuery ? 'Try another search.' : 'Use "New brand" to add the first one.'}
+            />
+          )}
         </div>
       </div>
 
-      {/* Create modal */}
-      {modal === 'create' && (
-        <div className="admin-modal-overlay" onClick={() => setModal(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <BrandForm onSubmit={handleCreate} onCancel={() => setModal(null)} loading={submitting} />
+      {(modal === 'create' || editing) && (
+        <Modal
+          title={editing ? 'Edit brand' : 'New brand'}
+          subtitle={editing ? editing.name : 'Create a brand profile with a description and logo.'}
+          onClose={closeModal}
+          width={640}
+        >
+          <div className="admin-brands-form-scope">
+            {editing
+              ? <BrandForm brand={editing} onSubmit={handleUpdate} onCancel={closeModal} loading={submitting} />
+              : <BrandForm onSubmit={handleCreate} onCancel={closeModal} loading={submitting} />}
           </div>
-        </div>
+        </Modal>
       )}
 
-      {/* Edit modal */}
-      {modal?.mode === 'edit' && (
-        <div className="admin-modal-overlay" onClick={() => setModal(null)}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <BrandForm brand={modal.brand} onSubmit={handleUpdate} onCancel={() => setModal(null)} loading={submitting} />
-          </div>
-        </div>
-      )}
-
-      {/* Delete confirm */}
       {deleteTarget && (
-        <div className="admin-modal-overlay" onClick={() => setDeleteTarget(null)}>
-          <div className="admin-modal admin-confirm-modal" onClick={e => e.stopPropagation()}>
-            <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete brand <strong>{deleteTarget.name}</strong>?</p>
-            <div className="admin-confirm-actions">
-              <button className="admin-btn-secondary" onClick={() => setDeleteTarget(null)}>Cancel</button>
-              <button className="admin-btn-danger"    onClick={handleDelete}>Delete</button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="Delete brand"
+          message={<>Are you sure you want to delete brand <strong>{deleteTarget.name}</strong>?</>}
+          busy={deleting}
+          onConfirm={handleDelete}
+          onClose={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   );

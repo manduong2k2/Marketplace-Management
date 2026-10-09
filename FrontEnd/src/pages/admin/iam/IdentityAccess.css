@@ -1,0 +1,347 @@
+/* ==========================================================
+   Identity & Access (Users, Roles): page-specific styles only.
+   Shared tokens/components live in ../shared/admin-index.css (admin-ui-*).
+   ========================================================== */
+
+/* Built-in role colors (also used by the role badges) */
+
+.admin-iam-chip--admin {
+  --chip: #e11d48;
+}
+
+.admin-iam-chip--vendor {
+  --chip: #d97706;
+}
+
+.admin-iam-chip--user {
+  --chip: #64748b;
+}
+
+html[data-theme="dark"] .admin-iam-chip--admin {
+  --chip: #fb7185;
+}
+
+html[data-theme="dark"] .admin-iam-chip--vendor {
+  --chip: #fbbf24;
+}
+
+html[data-theme="dark"] .admin-iam-chip--user {
+  --chip: #94a3b8;
+}
+
+.admin-iam-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--adm-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.admin-iam-role-card.is-skeleton,
+.admin-iam-member.is-skeleton {
+  display: block;
+  background: linear-gradient(90deg, var(--adm-surface-2) 0%, var(--adm-border) 50%, var(--adm-surface-2) 100%);
+  background-size: 800px 100%;
+  animation: admin-ui-shimmer 1.2s linear infinite;
+}
+
+/* Role toggles */
+
+.admin-iam-role-toggles {
+  display: grid; gap: 0.5rem;
+}
+
+.admin-iam-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--adm-border);
+  border-radius: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.admin-iam-toggle.is-on {
+  border-color: color-mix(in srgb, var(--adm-accent) 45%, var(--adm-border)); background: var(--adm-accent-soft);
+}
+
+.admin-iam-toggle.is-locked {
+  cursor: not-allowed;
+}
+
+.admin-iam-toggle > span:first-child {
+  display: grid;
+}
+
+.admin-iam-toggle strong {
+  font-size: 0.9rem; font-weight: 650;
+}
+
+.admin-iam-toggle code {
+  color: var(--adm-muted); font-size: 0.72rem;
+}
+
+.admin-iam-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-iam-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--adm-border);
+  transition: background 0.18s ease;
+}
+
+.admin-iam-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+  transition: transform 0.18s ease;
+}
+
+.admin-iam-toggle input:checked + .admin-iam-switch {
+  background: var(--adm-accent);
+}
+
+.admin-iam-toggle input:checked + .admin-iam-switch::after {
+  transform: translateX(16px);
+}
+
+.admin-iam-toggle input:disabled + .admin-iam-switch {
+  opacity: 0.55;
+}
+
+.admin-iam-toggle input:focus-visible + .admin-iam-switch {
+  box-shadow: 0 0 0 4px var(--adm-accent-ring);
+}
+
+.admin-iam-role-list {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+}
+
+.admin-iam-role-cards {
+  display: grid; gap: 0.4rem;
+}
+
+.admin-iam-role-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 60px;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--adm-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-iam-role-card:hover {
+  background: var(--adm-surface-2);
+}
+
+.admin-iam-role-card.is-active {
+  background: var(--adm-accent-soft); border-color: color-mix(in srgb, var(--adm-accent) 35%, transparent);
+}
+
+.admin-iam-role-card.is-skeleton {
+  height: 60px; cursor: default;
+}
+
+.admin-iam-role-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  /* --chip comes from admin-iam-chip--{code} (built-in roles); others use the accent */
+  background: color-mix(in srgb, var(--chip, var(--adm-accent)) 14%, transparent);
+  color: var(--chip, var(--adm-accent));
+}
+
+.admin-iam-role-badge--lg {
+  width: 52px; height: 52px; border-radius: 14px; font-size: 1.3rem;
+}
+
+.admin-iam-role-card-body {
+  display: grid; flex: 1; min-width: 0;
+}
+
+.admin-iam-role-card-body strong {
+  font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.admin-iam-role-card-body code {
+  color: var(--adm-muted); font-size: 0.72rem;
+}
+
+.admin-iam-role-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--adm-surface-2);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.admin-iam-role-detail {
+  min-height: 420px;
+}
+
+.admin-iam-members-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.4rem;
+}
+
+.admin-iam-member-list {
+  list-style: none; margin: 0; padding: 0 0.6rem 0.4rem;
+}
+
+.admin-iam-member {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  transition: background 0.12s ease;
+}
+
+.admin-iam-member:hover {
+  background: var(--adm-surface-2);
+}
+
+.admin-iam-member.is-skeleton {
+  height: 54px; margin-bottom: 0.4rem;
+}
+
+/* ── Add members picker ─────────────────────────────────── */
+
+.admin-iam-picked {
+  margin-top: 0.75rem;
+}
+
+.admin-iam-pick-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid var(--adm-border);
+  border-radius: 12px;
+}
+
+.admin-iam-pick-list li + li {
+  border-top: 1px solid var(--adm-border);
+}
+
+.admin-iam-pick-loading {
+  padding: 1rem; text-align: center; font-size: 0.85rem;
+}
+
+.admin-iam-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 0;
+  background: transparent;
+  color: var(--adm-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-iam-pick:hover:not(:disabled) {
+  background: var(--adm-surface-2);
+}
+
+.admin-iam-pick.is-picked {
+  background: var(--adm-accent-soft);
+}
+
+.admin-iam-pick:disabled {
+  cursor: default; opacity: 0.6;
+}
+
+.admin-iam-pick-text {
+  display: grid; flex: 1; min-width: 0;
+}
+
+.admin-iam-pick-text strong {
+  font-weight: 650; font-size: 0.88rem;
+}
+
+.admin-iam-pick-text span {
+  color: var(--adm-muted); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.admin-iam-checkbox {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--adm-border);
+  border-radius: 6px;
+  color: #ffffff;
+}
+
+.admin-iam-pick.is-picked .admin-iam-checkbox {
+  background: var(--adm-accent); border-color: var(--adm-accent);
+}
+
+@media (max-width: 991.98px) {
+  .admin-iam-role-list {
+    position: static;
+  }
+
+  .admin-iam-role-cards {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-iam-member {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .admin-iam-member-roles,
+  .admin-iam-member .admin-ui-status {
+    display: none;
+  }
+
+  .admin-iam-members-bar {
+    flex-wrap: wrap;
+  }
+}

@@ -205,6 +205,7 @@ html[data-theme="dark"] .admin-shell {
     max-width: 0;
     opacity: 0;
     overflow: hidden;
+    margin-left: 2%;
   }
 
   .admin-sidebar:hover .admin-brand-copy,
@@ -302,6 +303,116 @@ html[data-theme="dark"] .admin-shell {
   min-width: 0;
   transition: opacity 0.16s ease, width 0.16s ease;
   overflow: hidden;
+}
+
+/* ── Sidebar nav group (expandable, e.g. Identity & Access) ── */
+.admin-nav-group-toggle {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Parent row highlights while one of its pages is open */
+.admin-nav-group--active > .admin-nav-group-toggle {
+  color: var(--admin-sidebar-text-strong);
+}
+
+.admin-nav-caret {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--admin-sidebar-muted);
+  transition: transform 0.25s ease, opacity 0.28s ease;
+}
+
+.admin-nav-group--open .admin-nav-caret {
+  transform: rotate(180deg);
+}
+
+/* Height animation without a fixed height: rows 0fr -> 1fr */
+.admin-nav-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-nav-group--open .admin-nav-children {
+  grid-template-rows: 1fr;
+}
+
+.admin-nav-children-inner {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  gap: 0.2rem;
+  /* Tree line aligned under the parent icon */
+  margin-left: 1.85rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--admin-sidebar-border);
+}
+
+.admin-nav-group--open .admin-nav-children-inner {
+  padding-block: 0.3rem 0.15rem;
+}
+
+.admin-nav-sublink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 38px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  color: var(--admin-sidebar-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.admin-nav-sublink i {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.admin-nav-sublink:hover,
+.admin-nav-sublink:focus-visible {
+  background: var(--admin-sidebar-soft);
+  color: var(--admin-sidebar-text-strong);
+  outline: none;
+}
+
+.admin-nav-sublink.active {
+  background: var(--admin-sidebar-soft);
+  color: var(--admin-sidebar-text-strong);
+}
+
+/* Active marker on the tree line */
+.admin-nav-sublink.active::before {
+  content: '';
+  position: absolute;
+  left: calc(-0.85rem - 2px);
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--admin-sidebar-icon);
+}
+
+/* Desktop mini sidebar: only the parent icon; caret + children appear when the sidebar expands */
+@media (min-width: 992px) {
+  .admin-sidebar:not(:hover) .admin-nav-caret {
+    opacity: 0;
+    width: 0;
+    margin: 0;
+  }
+
+  .admin-sidebar:not(:hover) .admin-nav-children {
+    grid-template-rows: 0fr;
+  }
 }
 
 /* ── Sidebar footer ──────────────────────────────────────── */

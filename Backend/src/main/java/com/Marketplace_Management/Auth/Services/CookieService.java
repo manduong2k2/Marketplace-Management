@@ -1,5 +1,7 @@
 package com.Marketplace_Management.Auth.Services;
 
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -10,6 +12,12 @@ import com.Marketplace_Management.Auth.Contracts.ICookieService;
 
 @Service
 public class CookieService implements ICookieService {
+
+    @Value("${jwt.expiration}")
+    private long accessTokenDays;
+
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenDays;
 
     @Value("${spring.application.auth.domain}")
     private String authDomain;
@@ -30,7 +38,7 @@ public class CookieService implements ICookieService {
                 .httpOnly(true)
                 .secure(authSecure)
                 .path("/")
-                .maxAge(24 * 60 * 60)
+                .maxAge(Duration.ofDays(accessTokenDays))   // same lifetime as the access token
                 .domain(authDomain)
                 .sameSite(sameSite)
                 .build();
@@ -40,7 +48,7 @@ public class CookieService implements ICookieService {
                 .secure(authSecure)
                 .path("/")
                 .domain(authDomain)
-                .maxAge(7 * 24 * 60 * 60)
+                .maxAge(Duration.ofDays(refreshTokenDays))  // same lifetime as the refresh token
                 .sameSite(sameSite)
                 .build();
 

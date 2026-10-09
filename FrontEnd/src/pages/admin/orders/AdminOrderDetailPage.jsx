@@ -1,54 +1,61 @@
-import React, { useEffect, useState } from 'react';
+// Sales → Orders → Order detail
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { orderService } from '../../../services/orderService';
-import { showSuccess, showError } from '../../../components/master/popup';
+import { PageHeader, Avatar, Pill, EmptyState } from '../shared/AdminUi';
+import { useApiQuery, formatDateTime, formatCurrency } from '../shared/adminUiUtils';
 import defaultProductImage from '../../../assets/product.png';
 import './AdminOrderDetailPage.css';
+
+// Order statuses (backend OrderStatusEnum) → label + Pill tone (same mapping as the orders list)
+const ORDER_STATUS = {
+  PENDING:    { label: 'Pending',    tone: 'warning' },
+  PAID:       { label: 'Paid',       tone: 'info' },
+  PROCESSING: { label: 'Processing', tone: 'info' },
+  SHIPPING:   { label: 'Shipping',   tone: 'info' },
+  COMPLETED:  { label: 'Completed',  tone: 'success' },
+  CANCELLED:  { label: 'Cancelled',  tone: 'danger' },
+  EXPIRED:    { label: 'Expired',    tone: 'neutral' },
+};
+const EXTRA_TONES = {
+  CONFIRMED: 'info', SHIPPED: 'success', DELIVERED: 'success', FAILED: 'danger', REFUNDED: 'neutral',
+};
+
+function OrderStatusPill({ status }) {
+  const key = (status || '').toUpperCase();
+  const cfg = ORDER_STATUS[key];
+  const tone = cfg?.tone || EXTRA_TONES[key] || 'neutral';
+  const label = cfg?.label || (key ? key.charAt(0) + key.slice(1).toLowerCase() : 'Unknown');
+  return <Pill tone={tone}>{label}</Pill>;
+}
+
+const shortOrderId = (id) => String(id || '').slice(0, 8).toUpperCase();
 
 function AdminOrderDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const { response, loading } = useApiQuery(() => orderService.getOrderById(id), id);
+  const order = response?.ok && response.data ? response.data : null;
+  const error = !loading && !order ? (response ? 'Order not found' : 'Failed to load order details') : null;
 
   useEffect(() => {
-    fetchOrderDetail();
-  }, [id]);
+    document.title = order ? `Order #${shortOrderId(order.id)} - Admin` : 'Order - Admin';
+  }, [order]);
 
-  const fetchOrderDetail = async () => {
-    try {
-      setLoading(true);
-      const response = await orderService.getOrderById(id);
-      if (response.ok && response.data) {
-        setOrder(response.data);
-      } else {
-        setError('Order not found');
-      }
-    } catch (err) {
-      setError('Failed to load order details');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const backButton = (
+    <button type="button" className="admin-ui-btn admin-ui-btn--ghost" onClick={() => navigate('/admin/orders')}>
+      <i className="bi bi-arrow-left"></i> Back to orders
+    </button>
+  );
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDING': return '#ffc107';
-      case 'CONFIRMED': return '#17a2b8';
-      case 'SHIPPED': return '#007bff';
-      case 'DELIVERED': return '#28a745';
-      case 'CANCELLED': return '#dc3545';
-      default: return '#6c757d';
-    }
-  };
-
-  if (loading) {
+  if (loading && !order) {
     return (
-      <div className="admin-order-detail-page">
-        <div className="admin-loading-container">
-          <div className="admin-spinner"></div>
-          <p>Loading order details...</p>
+      <div className="admin-ui-page">
+        <PageHeader eyebrow="Sales" eyebrowIcon="bi-receipt" title="Order" description="Loading order details…" actions={backButton} />
+        <div className="admin-order-detail-grid">
+          <div className="admin-ui-card admin-order-detail-skeleton"><span></span></div>
+          <div className="admin-ui-card admin-order-detail-skeleton"><span></span></div>
         </div>
       </div>
     );
@@ -56,129 +63,145 @@ function AdminOrderDetailPage() {
 
   if (error || !order) {
     return (
-      <div className="admin-order-detail-page">
-        <div className="admin-error-state">
-          <p>{error || 'Order not found'}</p>
-          <button className="admin-btn-back" onClick={() => navigate('/admin/orders')}>
-            Back to Orders
-          </button>
+      <div className="admin-ui-page">
+        <PageHeader eyebrow="Sales" eyebrowIcon="bi-receipt" title="Order" actions={backButton} />
+        <div className="admin-ui-card">
+          <EmptyState icon="bi-exclamation-octagon" title={error || 'Order not found'} text="The order may have been removed or the link is wrong." />
         </div>
       </div>
     );
   }
 
+  const items = order.items || [];
+  const itemCount = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+
   return (
-    <div className="admin-order-detail-page">
-      <div className="admin-order-detail-container">
-        <div className="admin-order-detail-header">
-          <button className="admin-btn-back" onClick={() => navigate('/admin/orders')}>
-            ← Back to Orders
-          </button>
-          <h1>Order Details</h1>
-        </div>
+    <div className="admin-ui-page">
+      <PageHeader
+        eyebrow="Sales"
+        eyebrowIcon="bi-receipt"
+        title={`Order #${shortOrderId(order.id)}`}
+        description={`Placed ${formatDateTime(order.createdAt)}${order.name ? ` by ${order.name}` : ''}`}
+        actions={backButton}
+      />
 
-        <div className="admin-order-detail-content">
-          {/* Order Info */}
-          <div className="admin-order-info-section">
-            <div className="admin-info-header">
-              <h2>Order Information</h2>
-              <span
-                className="admin-order-status-badge"
-                style={{ backgroundColor: getStatusColor(order.status) }}
-              >
-                {order.status}
-              </span>
-            </div>
-
-            <div className="admin-info-grid">
-              <div className="admin-info-item">
-                <label>Order ID:</label>
-                <span>{order.id}</span>
-              </div>
-              <div className="admin-info-item">
-                <label>User ID:</label>
-                <span>{order.userId}</span>
-              </div>
-              <div className="admin-info-item">
-                <label>Order Date:</label>
-                <span>{new Date(order.createdAt).toLocaleString()}</span>
-              </div>
-              <div className="admin-info-item">
-                <label>Last Updated:</label>
-                <span>{new Date(order.updatedAt).toLocaleString()}</span>
-              </div>
-              <div className="admin-info-item">
-                <label>Total:</label>
-                <span className="admin-total-price">${order.total.toFixed(2)}</span>
-              </div>
-            </div>
+      <div className="admin-order-detail-grid">
+        {/* Items + summary */}
+        <section className="admin-ui-card">
+          <header className="admin-order-detail-card-head">
+            <h2>Items</h2>
+            <span className="admin-ui-muted">{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>
+          </header>
+          <div className="admin-ui-table-wrap">
+            <table className="admin-ui-table admin-order-detail-items">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th className="admin-order-detail-num">Price</th>
+                  <th className="admin-order-detail-num">Qty</th>
+                  <th className="admin-order-detail-num">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => {
+                  const snap = item.snapShot || item;
+                  const image = snap.productImages?.[0] || defaultProductImage;
+                  return (
+                    <tr key={item.id}>
+                      <td>
+                        <div className="admin-order-detail-product">
+                          <img src={image} alt={snap.productName || 'Product'} />
+                          <div>
+                            <strong>{snap.productName || 'Product'}</strong>
+                            {(snap.productCode || snap.productSku) && (
+                              <div className="admin-ui-chips">
+                                <span className="admin-ui-tag admin-ui-mono">{snap.productCode || snap.productSku}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="admin-order-detail-num">{formatCurrency(snap.price)}</td>
+                      <td className="admin-order-detail-num">× {item.quantity}</td>
+                      <td className="admin-order-detail-num admin-order-detail-strong">{formatCurrency(item.total)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {items.length === 0 && <EmptyState icon="bi-box-seam" title="No items" text="This order has no items." />}
           </div>
 
-          {/* Shipping Info */}
-          <div className="admin-shipping-info-section">
-            <h2>Shipping Information</h2>
-            <div className="admin-shipping-details">
-              <div className="admin-shipping-item">
-                <label>Name:</label>
-                <span>{order.name}</span>
+          <dl className="admin-order-detail-summary">
+            <div>
+              <dt>Subtotal</dt>
+              <dd>{formatCurrency(order.total)}</dd>
+            </div>
+            <div className="admin-order-detail-summary-total">
+              <dt>Total</dt>
+              <dd>{formatCurrency(order.total)}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <div className="admin-order-detail-side">
+          {/* Order info + status */}
+          <section className="admin-ui-card">
+            <header className="admin-order-detail-card-head">
+              <h2>Order</h2>
+              <OrderStatusPill status={order.status} />
+            </header>
+            <dl className="admin-order-detail-info">
+              <div>
+                <dt>Order ID</dt>
+                <dd className="admin-ui-mono">{order.id}</dd>
               </div>
-              <div className="admin-shipping-item">
-                <label>Phone:</label>
-                <span>{order.phone}</span>
+              <div>
+                <dt>User ID</dt>
+                <dd className="admin-ui-mono">{order.userId || '—'}</dd>
               </div>
-              <div className="admin-shipping-item">
-                <label>Address:</label>
-                <span>{order.address}</span>
+              <div>
+                <dt>Order date</dt>
+                <dd>{formatDateTime(order.createdAt)}</dd>
+              </div>
+              <div>
+                <dt>Last updated</dt>
+                <dd>{formatDateTime(order.updatedAt)}</dd>
+              </div>
+            </dl>
+          </section>
+
+          {/* Customer & shipping */}
+          <section className="admin-ui-card">
+            <header className="admin-order-detail-card-head">
+              <h2>Customer &amp; shipping</h2>
+            </header>
+            <div className="admin-order-detail-customer">
+              <div className="admin-ui-user">
+                <Avatar user={{ name: order.name, email: order.phone }} size={40} />
+                <div>
+                  <strong>{order.name || 'Unknown'}</strong>
+                  <span>{order.phone || '—'}</span>
+                </div>
+              </div>
+            </div>
+            <dl className="admin-order-detail-info">
+              <div>
+                <dt><i className="bi bi-telephone"></i> Phone</dt>
+                <dd>{order.phone || '—'}</dd>
+              </div>
+              <div>
+                <dt><i className="bi bi-geo-alt"></i> Address</dt>
+                <dd>{order.address || '—'}</dd>
               </div>
               {order.note && (
-                <div className="admin-shipping-item">
-                  <label>Note:</label>
-                  <span>{order.note}</span>
+                <div>
+                  <dt><i className="bi bi-chat-left-text"></i> Note</dt>
+                  <dd className="admin-order-detail-note">{order.note}</dd>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Order Items */}
-          <div className="admin-order-items-section">
-            <h2>Order Items</h2>
-            <div className="admin-items-list">
-              {order.items && order.items.map((item) => (
-                <div key={item.id} className="admin-order-item-card">
-                  <div className="admin-item-image">
-                    {item.snapShot?.productImages ? (
-                      <img src={item.snapShot.productImages[0]} alt={item.snapShot.productName} />
-                    ) : (
-                      <img src={defaultProductImage} alt="Product" />
-                    )}
-                  </div>
-
-                  <div className="admin-item-details">
-                    <h3 className="admin-item-name">{item.snapShot?.productName || 'Product'}</h3>
-                    <p className="admin-item-meta">
-                      ${item.snapShot?.price?.toFixed(2) || '0.00'} × {item.quantity}
-                    </p>
-                    <p className="admin-item-product-id">Code: {item.snapShot.productCode}</p>
-                  </div>
-
-                  <div className="admin-item-total">
-                    <span className="admin-item-total-price">${item.total.toFixed(2)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="admin-order-summary">
-              <div className="admin-summary-row">
-                <span>Subtotal:</span>
-                <span>${order.total.toFixed(2)}</span>
-              </div>
-              <div className="admin-summary-row admin-total">
-                <span>Total:</span>
-                <span>${order.total.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
+            </dl>
+          </section>
         </div>
       </div>
     </div>

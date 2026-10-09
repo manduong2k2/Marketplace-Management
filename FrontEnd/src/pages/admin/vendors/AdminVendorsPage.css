@@ -1,0 +1,287 @@
+/* ==========================================================
+   Marketplace → Vendors: page-specific styles only.
+   Shared tokens/components live in ../shared/admin-index.css (admin-ui-*).
+   ========================================================== */
+
+.admin-vendors-logo {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--adm-border);
+  background: var(--adm-surface-2);
+  object-fit: cover;
+}
+
+.admin-vendors-tax {
+  font-size: 0.8rem;
+}
+
+.admin-ui-icon-btn.admin-vendors-approve:hover:not(:disabled) {
+  background: var(--adm-success-soft); color: var(--adm-success);
+}
+
+.admin-ui-icon-btn.admin-vendors-suspend:hover:not(:disabled) {
+  background: var(--adm-warning-soft); color: var(--adm-warning);
+}
+
+/* Reason textarea (reject / suspend modal, portaled under .admin-ui-layer) */
+
+.admin-ui-layer .admin-vendors-reason textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--adm-border);
+  border-radius: 10px;
+  background: var(--adm-surface);
+  color: var(--adm-text);
+  font: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+}
+
+.admin-ui-layer .admin-vendors-reason textarea:focus {
+  outline: none;
+  border-color: var(--adm-accent);
+  box-shadow: 0 0 0 4px var(--adm-accent-ring);
+}
+
+/* ── VendorForm (shared component) restyled inside the admin modal ──
+   Class names come from components/vendor/form/VendorForm.jsx. */
+
+.admin-ui-layer .admin-vendors-form-scope .vendor-form-container {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .vendor-form {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* The modal header already carries the title */
+.admin-ui-layer .admin-vendors-form-scope .vendor-form h2 {
+  display: none;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-columns {
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-column-left,
+.admin-ui-layer .admin-vendors-form-scope .form-column-right {
+  gap: 0.9rem;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group {
+  gap: 0.35rem;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group label {
+  color: var(--adm-text);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group input,
+.admin-ui-layer .admin-vendors-form-scope .form-group select,
+.admin-ui-layer .admin-vendors-form-scope .form-group textarea {
+  width: 100%;
+  padding: 0 0.85rem;
+  border: 1px solid var(--adm-border);
+  border-radius: 10px;
+  background: var(--adm-surface);
+  color: var(--adm-text);
+  font: inherit;
+  font-size: 0.88rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group input,
+.admin-ui-layer .admin-vendors-form-scope .form-group select {
+  height: 40px;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group textarea {
+  min-height: 110px;
+  padding: 0.6rem 0.85rem;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group input::placeholder,
+.admin-ui-layer .admin-vendors-form-scope .form-group textarea::placeholder {
+  color: var(--adm-muted);
+  opacity: 0.8;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group input:focus,
+.admin-ui-layer .admin-vendors-form-scope .form-group select:focus,
+.admin-ui-layer .admin-vendors-form-scope .form-group textarea:focus {
+  outline: none;
+  border-color: var(--adm-accent);
+  box-shadow: 0 0 0 4px var(--adm-accent-ring);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .form-group input.error,
+.admin-ui-layer .admin-vendors-form-scope .form-group select.error,
+.admin-ui-layer .admin-vendors-form-scope .form-group textarea.error {
+  border-color: var(--adm-danger);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .error-message {
+  margin-top: 0;
+  color: var(--adm-danger);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+/* Image pickers */
+
+.admin-ui-layer .admin-vendors-form-scope .upload-placeholder {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 1.75rem 1rem;
+  border: 1.5px dashed var(--adm-border);
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-surface-2);
+  color: var(--adm-muted);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .upload-placeholder:hover,
+.admin-ui-layer .admin-vendors-form-scope .upload-placeholder:focus-visible {
+  outline: none;
+  border-color: var(--adm-accent);
+  background: var(--adm-accent-soft);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .upload-icon {
+  margin-bottom: 0.25rem;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .upload-placeholder p {
+  margin: 0;
+  color: var(--adm-text);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .upload-placeholder small {
+  color: var(--adm-muted);
+  font-size: 0.76rem;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .preview-image {
+  max-height: 180px;
+  border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius-sm);
+  background: var(--adm-surface-2);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .remove-image-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--adm-border);
+  border-radius: 9px;
+  background: var(--adm-surface);
+  color: var(--adm-danger);
+  font-size: 1.1rem;
+  box-shadow: var(--adm-shadow);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .remove-image-btn:hover {
+  border-color: var(--adm-danger);
+  background: var(--adm-danger-soft);
+  color: var(--adm-danger);
+}
+
+/* Actions: mirror admin-ui-btn */
+
+/* Sticks to the bottom of the scrolling modal body, like a modal footer */
+.admin-ui-layer .admin-vendors-form-scope .form-actions {
+  position: sticky;
+  bottom: -1rem;
+  z-index: 1;
+  gap: 0.6rem;
+  margin: 0 -1.4rem -1rem;
+  padding: 0.9rem 1.4rem;
+  border-top: 1px solid var(--adm-border);
+  border-radius: 0 0 17px 17px;
+  background: var(--adm-surface-2);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 1.05rem;
+  border: 1px solid var(--adm-border);
+  border-radius: 10px;
+  background: var(--adm-surface);
+  color: var(--adm-text);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  box-shadow: none;
+  transform: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .btn:hover:not(:disabled) {
+  background: var(--adm-surface-2);
+  color: var(--adm-text);
+  transform: none;
+  box-shadow: none;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--adm-accent-ring);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .btn:disabled {
+  opacity: 0.5;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .btn-secondary {
+  margin-right: auto;
+  border-color: transparent;
+  background: transparent;
+  color: var(--adm-muted);
+}
+
+.admin-ui-layer .admin-vendors-form-scope .btn-primary {
+  border-color: transparent;
+  background: var(--adm-accent);
+  color: #ffffff;
+  box-shadow: 0 6px 16px -6px var(--adm-accent);
+}
+
+html[data-theme="dark"] .admin-ui-layer .admin-vendors-form-scope .btn-primary {
+  color: #0b1020;
+}
+
+.admin-ui-layer .admin-vendors-form-scope .btn-primary:hover:not(:disabled) {
+  background: var(--adm-accent-strong);
+  color: #ffffff;
+  box-shadow: 0 6px 16px -6px var(--adm-accent);
+}
+
+html[data-theme="dark"] .admin-ui-layer .admin-vendors-form-scope .btn-primary:hover:not(:disabled) {
+  color: #0b1020;
+}
+
+@media (max-width: 768px) {
+  .admin-ui-layer .admin-vendors-form-scope .form-actions .btn-secondary {
+    margin-right: 0;
+  }
+}

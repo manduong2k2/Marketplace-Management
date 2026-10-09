@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -31,6 +32,7 @@ import com.Marketplace_Management.Auth.DTOs.Commands.ResetPasswordCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.UpdateProfileCommand;
 import com.Marketplace_Management.Auth.DTOs.Response.AuthResponse;
 import com.Marketplace_Management.Auth.DTOs.Response.RegisterResponse;
+import com.Marketplace_Management.Auth.Events.UserAccessChangedEvent;
 import com.Marketplace_Management.Auth.Models.Role;
 import com.Marketplace_Management.Auth.Models.User;
 import com.Marketplace_Management.Auth.Services.GoogleIdTokenService.GoogleUserInfo;
@@ -50,10 +52,13 @@ public class AuthService implements IAuthService {
     private final PasswordEncoder encoder;
     private final EmailVerificationTokenService emailVerificationTokenService;
     private final GoogleIdTokenService googleIdTokenService;
+    private final UserSessionService sessionService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AuthService(IUserRepository repo, IRoleRepository roleRepo, JwtService tokenService,
                       PasswordEncoder encoder, EmailVerificationTokenService emailVerificationTokenService, IFileService fileService,
-                      GoogleIdTokenService googleIdTokenService) {
+                      GoogleIdTokenService googleIdTokenService, UserSessionService sessionService,
+                      ApplicationEventPublisher eventPublisher) {
         this.repo = repo;
         this.roleRepo = roleRepo;
         this.tokenService = tokenService;
@@ -61,6 +66,8 @@ public class AuthService implements IAuthService {
         this.emailVerificationTokenService = emailVerificationTokenService;
         this.fileService = fileService;
         this.googleIdTokenService = googleIdTokenService;
+        this.sessionService = sessionService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -92,10 +99,7 @@ public class AuthService implements IAuthService {
                         .map(existing -> linkGoogleAccount(existing, google))
                         .orElseGet(() -> createGoogleUser(google)));
 
-        return new AuthResponse(
-                tokenService.generateAccessToken(user),
-                tokenService.generateRefreshToken(user),
-                Message.LOGIN_SUCCESS);
+        return sessionService.issue(user, Message.LOGIN_SUCCESS);
     }
 
     private User linkGoogleAccount(User user, GoogleUserInfo google) {
@@ -144,9 +148,7 @@ public class AuthService implements IAuthService {
 
         user.setStatus(UserStatus.ACTIVE);
         repo.save(user);
-        return new AuthResponse(tokenService.generateAccessToken(user),
-                tokenService.generateRefreshToken(user),
-                Message.ACTIVATED);
+        return sessionService.issue(user, Message.ACTIVATED);
     }
 
     public AuthResponse login(LoginCommand command) {
@@ -161,10 +163,7 @@ public class AuthService implements IAuthService {
             throw new AuthenticationException(Message.CREDENTIALS) {};
         }
 
-        return new AuthResponse(
-                tokenService.generateAccessToken(user),
-                tokenService.generateRefreshToken(user),
-                Message.LOGIN_SUCCESS);
+        return sessionService.issue(user, Message.LOGIN_SUCCESS);
     }
     
     public AuthResponse loginAdmin(LoginCommand command) {
@@ -183,23 +182,24 @@ public class AuthService implements IAuthService {
             throw new AccessDeniedException(Message.FORBIDDEN) {};
         }
 
-        return new AuthResponse(
-                tokenService.generateAccessToken(user),
-                tokenService.generateRefreshToken(user),
-                Message.LOGIN_SUCCESS);
+        return sessionService.issue(user, Message.LOGIN_SUCCESS);
     }
 
     public AuthResponse refreshToken(RefreshTokenCommand command) {
-        var claims = tokenService.verifyToken(command.getRefreshToken());
-        if (claims == null)
-            throw new BadRequestException(Message.TOKEN_INVALID);
+        // Only refresh tokens (typ=refresh), not revoked (a rotated one is accepted during its grace period)
+        var claims = tokenService.verifyRefreshToken(command.getRefreshToken());
+        if (claims == null) {
+            throw new AuthenticationException(Message.TOKEN_INVALID) {};
+        }
 
+        // Deleted or deactivated users cannot refresh: their access ends here
         var user = repo.findById(UUID.fromString(claims.getSubject()))
-                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
+                .filter(u -> UserStatus.ACTIVE.equals(u.getStatus()))
+                .orElseThrow(() -> new AuthenticationException(Message.TOKEN_INVALID) {});
 
-        return new AuthResponse(tokenService.generateAccessToken(user),
-                tokenService.generateRefreshToken(user),
-                Message.TOKEN_REFRESHED);
+        sessionService.rotate(claims);
+
+        return sessionService.issue(user, Message.TOKEN_REFRESHED);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -221,11 +221,12 @@ public class AuthService implements IAuthService {
 
         user.setPassword(encoder.encode(command.getNewPassword()));
         repo.save(user);
+        eventPublisher.publishEvent(UserAccessChangedEvent.of(user.getId(), "password reset"));
         return true;
     }
 
-    public void logout(String key, String token) {
-        tokenService.invalidateToken(token);
+    public void logout(String accessToken, String refreshToken) {
+        sessionService.logout(accessToken, refreshToken);
     }
 
     @Cacheable(value = "users", key = "#userId")
@@ -258,6 +259,7 @@ public class AuthService implements IAuthService {
                 .orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
         user.getRoles().add(roleEntity);
         repo.save(user);
+        eventPublisher.publishEvent(UserAccessChangedEvent.of(userId, "role granted: " + role));
     }
     
     @Transactional
@@ -270,5 +272,6 @@ public class AuthService implements IAuthService {
                 .orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
         user.getRoles().remove(roleEntity);
         repo.save(user);
+        eventPublisher.publishEvent(UserAccessChangedEvent.of(userId, "role revoked: " + role));
     }
 }

@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,6 +43,17 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
 		Map<String, String> errors = new HashMap<>();
+
+		// Not signed in (no token / expired token) on a @PreAuthorize endpoint -> 401, so the client
+		// can refresh its token. 403 is kept for signed-in users that lack the required role.
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null || auth instanceof AnonymousAuthenticationToken || !auth.isAuthenticated()) {
+			errors.put("message", "Unauthenticated");
+			return ResponseEntity
+					.status(HttpStatus.UNAUTHORIZED)
+					.body(errors);
+		}
+
 		errors.put("message", ex.getMessage());
 
 		return ResponseEntity

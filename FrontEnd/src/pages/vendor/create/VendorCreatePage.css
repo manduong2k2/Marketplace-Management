@@ -235,7 +235,7 @@
   margin-top: 8px;
 }
 
-.btn-cancel {
+.vendor-create-page .btn-cancel {
   padding: 12px 28px;
   font-size: 14px;
   font-weight: 600;
@@ -247,12 +247,12 @@
   transition: all 0.2s;
 }
 
-.btn-cancel:hover {
+.vendor-create-page .btn-cancel:hover {
   border-color: #aaa;
   color: #333;
 }
 
-.btn-submit {
+.vendor-create-page .btn-submit {
   padding: 12px 36px;
   font-size: 14px;
   font-weight: 700;
@@ -265,12 +265,12 @@
   letter-spacing: 0.3px;
 }
 
-.btn-submit:hover:not(:disabled) {
+.vendor-create-page .btn-submit:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
 }
 
-.btn-submit:disabled {
+.vendor-create-page .btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

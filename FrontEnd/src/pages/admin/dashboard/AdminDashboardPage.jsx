@@ -1,14 +1,25 @@
 // src/pages/admin/dashboard/AdminDashboardPage.jsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { orderService } from '../../../services/orderService';
 import { productService } from '../../../services/productService';
 import { brandService } from '../../../services/brandService';
 import { categoryService } from '../../../services/categoryService';
 import { vendorService } from '../../../services/vendorService';
+import { PageHeader, Pill, EmptyState } from '../shared/AdminUi';
+import { formatCurrency, formatDate } from '../shared/adminUiUtils';
 import './AdminDashboardPage.css';
 
+const QUICK_LINKS = [
+  { label: 'Vendors', text: 'Manage marketplace vendors', icon: 'bi-shop', tone: 'warning', to: '/admin/vendors' },
+  { label: 'Brands', text: 'Manage product brands', icon: 'bi-tags', tone: 'danger', to: '/admin/brands' },
+  { label: 'Categories', text: 'Manage product categories', icon: 'bi-diagram-3', tone: 'info', to: '/admin/categories' },
+  { label: 'Products', text: 'Browse & manage products', icon: 'bi-box-seam', tone: 'success', to: '/admin/products' },
+  { label: 'Orders', text: 'Track customer orders', icon: 'bi-receipt', tone: 'accent', to: '/admin/orders' },
+];
+
 export default function AdminDashboardPage() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalProducts: 0,
@@ -34,7 +45,7 @@ export default function AdminDashboardPage() {
         if (ordersRes.status === 'fulfilled' && ordersRes.value.ok) {
           const total = ordersRes.value?.data?.totalElements ?? 0;
           const d = ordersRes.value?.data?.data;
-          setStats(s => ({ ...s, totalOrders: total}));
+          setStats(s => ({ ...s, totalOrders: total }));
           setRecentOrders(d?.slice(0, 5) ?? []);
         }
 
@@ -64,7 +75,7 @@ export default function AdminDashboardPage() {
           const count = Array.isArray(d) ? d.length : (d?.totalElements ?? d?.content?.length ?? 0);
           setStats(s => ({ ...s, totalVendors: count }));
         }
-      } catch (_) {
+      } catch {
         // silently fail
       } finally {
         setLoading(false);
@@ -75,233 +86,136 @@ export default function AdminDashboardPage() {
   }, []);
 
   const metrics = [
-    {
-      label: 'Total Orders',
-      value: loading ? '—' : stats.totalOrders.toLocaleString(),
-      icon: 'bi-receipt',
-      variant: 'admin-metric-primary',
-      link: '/admin/orders',
-      hint: 'View all orders',
-    },
-    {
-      label: 'Products',
-      value: loading ? '—' : stats.totalProducts.toLocaleString(),
-      icon: 'bi-box-seam',
-      variant: 'admin-metric-success',
-      link: '/admin/products',
-      hint: 'Manage products',
-    },
-    {
-      label: 'Vendors',
-      value: loading ? '—' : stats.totalVendors.toLocaleString(),
-      icon: 'bi-shop',
-      variant: 'admin-metric-warning',
-      link: '/admin/vendors',
-      hint: 'Manage vendors',
-    },
-    {
-      label: 'Brands',
-      value: loading ? '—' : stats.totalBrands.toLocaleString(),
-      icon: 'bi-tags',
-      variant: 'admin-metric-danger',
-      link: '/admin/brands',
-      hint: 'Manage brands',
-    },
-    {
-      label: 'Categories',
-      value: loading ? '—' : stats.totalCategories.toLocaleString(),
-      icon: 'bi-diagram-3',
-      variant: 'admin-metric-primary',
-      link: '/admin/categories',
-      hint: 'Manage categories',
-    },
+    { label: 'Total Orders', value: stats.totalOrders, icon: 'bi-receipt', tone: 'accent', link: '/admin/orders', hint: 'View all orders' },
+    { label: 'Products', value: stats.totalProducts, icon: 'bi-box-seam', tone: 'success', link: '/admin/products', hint: 'Manage products' },
+    { label: 'Vendors', value: stats.totalVendors, icon: 'bi-shop', tone: 'warning', link: '/admin/vendors', hint: 'Manage vendors' },
+    { label: 'Brands', value: stats.totalBrands, icon: 'bi-tags', tone: 'danger', link: '/admin/brands', hint: 'Manage brands' },
+    { label: 'Categories', value: stats.totalCategories, icon: 'bi-diagram-3', tone: 'info', link: '/admin/categories', hint: 'Manage categories' },
   ];
 
   return (
-    <div className="container-fluid px-0">
-      {/* Page heading */}
-      <div className="admin-page-heading">
-        <div className="admin-page-heading-copy">
-          <span className="admin-page-icon">
-            <i className="bi bi-speedometer2" aria-hidden="true"></i>
-          </span>
-          <div>
-            <p className="admin-eyebrow mb-1">Overview</p>
-            <h1 className="h3 mb-1">Dashboard</h1>
-            <p className="text-muted mb-0">
-              Monitor orders, products, brands and categories from one place.
-            </p>
-          </div>
-        </div>
-        <div className="admin-heading-actions">
-          <Link className="btn btn-outline-secondary btn-sm" to="/admin/orders">
-            <i className="bi bi-receipt" aria-hidden="true"></i> Orders
-          </Link>
-          <Link className="btn btn-primary btn-sm" to="/admin/products">
-            <i className="bi bi-plus-lg" aria-hidden="true"></i> Add Product
-          </Link>
-        </div>
-      </div>
+    <div className="admin-ui-page">
+      <PageHeader
+        eyebrow="Overview"
+        eyebrowIcon="bi-speedometer2"
+        title="Dashboard"
+        description="Monitor orders, products, brands and categories from one place."
+        actions={
+          <>
+            <Link className="admin-ui-btn admin-ui-btn--ghost" to="/admin/orders">
+              <i className="bi bi-receipt" aria-hidden="true"></i> Orders
+            </Link>
+            <Link className="admin-ui-btn admin-ui-btn--primary" to="/admin/products">
+              <i className="bi bi-plus-lg" aria-hidden="true"></i> Add Product
+            </Link>
+          </>
+        }
+      />
 
-      {/* Metric cards */}
-      <section className="row g-3 mt-1" aria-label="Dashboard metrics">
+      {/* KPI stat cards */}
+      <section className="admin-dashboard-stats" aria-label="Dashboard metrics">
         {metrics.map(m => (
-          <div key={m.label} className="col-12 col-sm-6 col-xl-3">
-            <article className={`admin-metric-card ${m.variant}`}>
-              <div className="admin-metric-top">
-                <span className="admin-metric-label">{m.label}</span>
-                <span className="admin-metric-icon">
-                  <i className={`bi ${m.icon}`} aria-hidden="true"></i>
-                </span>
-              </div>
-              <div className="admin-metric-value">{m.value}</div>
-              <div className="admin-metric-meta">
-                <Link to={m.link} className="text-muted small">{m.hint} →</Link>
-              </div>
-            </article>
-          </div>
+          <article key={m.label} className={`admin-ui-card admin-dashboard-stat admin-dashboard-tone--${m.tone}`}>
+            <div className="admin-dashboard-stat-top">
+              <span className="admin-dashboard-stat-label">{m.label}</span>
+              <span className="admin-dashboard-badge">
+                <i className={`bi ${m.icon}`} aria-hidden="true"></i>
+              </span>
+            </div>
+            <div className="admin-dashboard-stat-value">
+              {loading ? <span className="admin-dashboard-stat-skeleton" aria-label="Loading"></span> : m.value.toLocaleString()}
+            </div>
+            <Link to={m.link} className="admin-dashboard-stat-link">
+              {m.hint} <i className="bi bi-arrow-right" aria-hidden="true"></i>
+            </Link>
+          </article>
         ))}
       </section>
 
       {/* Recent orders */}
-      <section className="admin-panel mt-3">
-        <div className="admin-panel-header">
+      <section className="admin-ui-card admin-dashboard-section">
+        <div className="admin-dashboard-card-head">
           <div>
-            <h2 className="h5 mb-1 admin-section-title">
+            <h2>
               <i className="bi bi-receipt" aria-hidden="true"></i>
-              <span>Recent Orders</span>
+              Recent Orders
             </h2>
-            <p className="text-muted mb-0">Latest orders placed on the marketplace.</p>
+            <p>Latest orders placed on the marketplace.</p>
           </div>
-          <Link className="btn btn-outline-secondary btn-sm" to="/admin/orders">
+          <Link className="admin-ui-btn admin-ui-btn--ghost admin-ui-btn--sm" to="/admin/orders">
             View All
           </Link>
         </div>
 
-        {loading ? (
-          <div className="admin-dashboard-empty">
-            <span className="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
-            Loading orders…
-          </div>
-        ) : recentOrders.length === 0 ? (
-          <div className="admin-dashboard-empty text-muted">No orders found.</div>
-        ) : (
-          <div className="table-responsive">
-            <table className="table align-middle mb-0">
-              <thead>
-                <tr>
-                  <th scope="col">Order #</th>
-                  <th scope="col">Customer</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Total</th>
-                  <th scope="col">Date</th>
-                  <th scope="col" className="text-end">Action</th>
+        <div className="admin-ui-table-wrap">
+          <table className="admin-ui-table">
+            <thead>
+              <tr>
+                <th scope="col">Order #</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Status</th>
+                <th scope="col">Total</th>
+                <th scope="col">Date</th>
+                <th scope="col" className="admin-ui-col-actions"><span className="visually-hidden">Action</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && [...Array(5)].map((_, i) => (
+                <tr key={i} className="admin-ui-skeleton-row"><td colSpan={6}><span></span></td></tr>
+              ))}
+              {!loading && recentOrders.map(order => (
+                <tr key={order.id} onClick={() => navigate(`/admin/orders/${order.id}`)}>
+                  <td><strong className="admin-ui-mono">#{order.id}</strong></td>
+                  <td>{order.name || '—'}</td>
+                  <td>
+                    <Pill tone={getStatusTone(order.status)}>{order.status || '—'}</Pill>
+                  </td>
+                  <td className="admin-dashboard-amount">
+                    {formatCurrency(order.total)}
+                  </td>
+                  <td className="admin-ui-muted">
+                    {formatDate(order.createdAt)}
+                  </td>
+                  <td className="admin-ui-col-actions" onClick={(e) => e.stopPropagation()}>
+                    <Link className="admin-ui-btn admin-ui-btn--ghost admin-ui-btn--sm" to={`/admin/orders/${order.id}`}>
+                      View
+                    </Link>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map(order => (
-                  <tr key={order.id}>
-                    <td className="fw-semibold">#{order.id}</td>
-                    <td>{order.name}</td>
-                    <td>
-                      <span className={`badge ${getStatusBadge(order.status)}`}>
-                        {order.status || '—'}
-                      </span>
-                    </td>
-                    <td>
-                      {order.total != null
-                        ? `$${Number(order.total).toLocaleString('vi-VN')}`
-                        : '—'}
-                    </td>
-                    <td className="text-muted small">
-                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString('vi-VN') : '—'}
-                    </td>
-                    <td className="text-end">
-                      <Link className="btn btn-light btn-sm" to={`/admin/orders/${order.id}`}>
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              ))}
+            </tbody>
+          </table>
+          {!loading && recentOrders.length === 0 && (
+            <EmptyState icon="bi-receipt" title="No orders found" text="New orders will show up here." />
+          )}
+        </div>
       </section>
 
       {/* Quick navigation */}
-      <section className="row g-3 mt-1">
-        <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/vendors" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="admin-page-icon flex-shrink-0">
-              <i className="bi bi-shop" aria-hidden="true"></i>
+      <section className="admin-dashboard-quick" aria-label="Quick navigation">
+        {QUICK_LINKS.map(q => (
+          <Link key={q.to} to={q.to} className={`admin-ui-card admin-dashboard-quick-card admin-dashboard-tone--${q.tone}`}>
+            <span className="admin-dashboard-badge">
+              <i className={`bi ${q.icon}`} aria-hidden="true"></i>
             </span>
-            <div>
-              <div className="fw-bold" style={{ color: 'var(--admin-text)' }}>Vendors</div>
-              <div className="text-muted small">Manage marketplace vendors</div>
-            </div>
-            <i className="bi bi-arrow-right ms-auto text-muted"></i>
-          </Link>
-        </div>
-        <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/brands" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="admin-page-icon flex-shrink-0">
-              <i className="bi bi-tags" aria-hidden="true"></i>
+            <span className="admin-dashboard-quick-copy">
+              <strong>{q.label}</strong>
+              <span>{q.text}</span>
             </span>
-            <div>
-              <div className="fw-bold" style={{ color: 'var(--admin-text)' }}>Brands</div>
-              <div className="text-muted small">Manage product brands</div>
-            </div>
-            <i className="bi bi-arrow-right ms-auto text-muted"></i>
+            <i className="bi bi-arrow-right admin-dashboard-quick-arrow" aria-hidden="true"></i>
           </Link>
-        </div>
-        <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/categories" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="admin-page-icon flex-shrink-0">
-              <i className="bi bi-diagram-3" aria-hidden="true"></i>
-            </span>
-            <div>
-              <div className="fw-bold" style={{ color: 'var(--admin-text)' }}>Categories</div>
-              <div className="text-muted small">Manage product categories</div>
-            </div>
-            <i className="bi bi-arrow-right ms-auto text-muted"></i>
-          </Link>
-        </div>
-        <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/products" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="admin-page-icon flex-shrink-0">
-              <i className="bi bi-box-seam" aria-hidden="true"></i>
-            </span>
-            <div>
-              <div className="fw-bold" style={{ color: 'var(--admin-text)' }}>Products</div>
-              <div className="text-muted small">Browse & manage products</div>
-            </div>
-            <i className="bi bi-arrow-right ms-auto text-muted"></i>
-          </Link>
-        </div>
-        <div className="col-12 col-md-6 col-xl-2">
-          <Link to="/admin/orders" className="admin-quick-nav-card admin-panel d-flex align-items-center gap-3 text-decoration-none">
-            <span className="admin-page-icon flex-shrink-0">
-              <i className="bi bi-receipt" aria-hidden="true"></i>
-            </span>
-            <div>
-              <div className="fw-bold" style={{ color: 'var(--admin-text)' }}>Orders</div>
-              <div className="text-muted small">Track customer orders</div>
-            </div>
-            <i className="bi bi-arrow-right ms-auto text-muted"></i>
-          </Link>
-        </div>
+        ))}
       </section>
     </div>
   );
 }
 
-function getStatusBadge(status) {
-  if (!status) return 'text-bg-secondary';
+function getStatusTone(status) {
+  if (!status) return 'neutral';
   const s = status.toLowerCase();
-  if (s === 'completed' || s === 'delivered') return 'text-bg-success';
-  if (s === 'pending') return 'text-bg-warning';
-  if (s === 'cancelled' || s === 'canceled') return 'text-bg-danger';
-  if (s === 'processing' || s === 'shipped') return 'text-bg-info';
-  return 'text-bg-secondary';
+  if (s === 'completed' || s === 'delivered') return 'success';
+  if (s === 'pending') return 'warning';
+  if (s === 'cancelled' || s === 'canceled') return 'danger';
+  if (s === 'processing' || s === 'shipped') return 'info';
+  return 'neutral';
 }

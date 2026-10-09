@@ -25,7 +25,7 @@ public interface IAuthService {
     AuthResponse refreshToken(RefreshTokenCommand command);
     void sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException;
     boolean resetPassword(ResetPasswordCommand command);
-    void logout(String key, String token);
+    void logout(String accessToken, String refreshToken);
     User getUserById(UUID userId);
     void updateProfile(UUID userId, UpdateProfileCommand command) throws IOException;
     void grantRole(UUID userId, String role);

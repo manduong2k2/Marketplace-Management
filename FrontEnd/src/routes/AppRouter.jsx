@@ -23,6 +23,8 @@ import AdminProductDetailPage from '../pages/admin/products/AdminProductDetailPa
 import AdminProductCreatePage from '../pages/admin/products/AdminProductCreatePage';
 import AdminProductEditPage from '../pages/admin/products/AdminProductEditPage';
 import AdminVendorsPage from '../pages/admin/vendors/AdminVendorsPage';
+import AdminUsersPage from '../pages/admin/iam/AdminUsersPage';
+import AdminRolesPage from '../pages/admin/iam/AdminRolesPage';
 
 import ProductDetailPage from '../pages/product/ProductDetailPage';
 import BrandDetailPage from '../pages/brand/BrandDetailPage';
@@ -91,6 +93,9 @@ export default function AppRouter() {
             <Route path="/admin/vendors" element={<AdminVendorsPage />} />
             <Route path="/admin/orders" element={<AdminOrderHistoryPage />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetailPage />} />
+            {/* Identity & Access */}
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/roles" element={<AdminRolesPage />} />
             {/* Default admin redirect */}
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           </Route>

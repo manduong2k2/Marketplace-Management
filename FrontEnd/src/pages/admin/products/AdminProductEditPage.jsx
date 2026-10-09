@@ -5,7 +5,8 @@ import { productService } from '../../../services/productService';
 import { brandService } from '../../../services/brandService';
 import { categoryService } from '../../../services/categoryService';
 import ProductForm from '../../../components/product/form/ProductForm';
-import '../shared/AdminPage.css';
+import { PageHeader, EmptyState } from '../shared/AdminUi';
+import './AdminProductFormPage.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -137,12 +138,26 @@ export default function AdminProductEditPage() {
     navigate('/admin/products');
   };
 
+  const header = (
+    <PageHeader
+      eyebrow="Catalog"
+      eyebrowIcon="bi-box-seam"
+      title="Edit product"
+      description={product?.name ? `Editing “${product.name}”. Changes are saved when you submit the form.` : 'Update product details, options and variants.'}
+      actions={
+        <button type="button" className="admin-ui-btn admin-ui-btn--ghost" onClick={handleCancel}>
+          <i className="bi bi-arrow-left"></i> Back to list
+        </button>
+      }
+    />
+  );
+
   if (loading) {
     return (
-      <div className="admin-page">
-        <div className="admin-loading">
-          <div className="admin-spinner" />
-          <span>Loading...</span>
+      <div className="admin-ui-page">
+        {header}
+        <div className="admin-ui-card">
+          <EmptyState icon="bi-hourglass-split" title="Loading…" />
         </div>
       </div>
     );
@@ -150,37 +165,42 @@ export default function AdminProductEditPage() {
 
   if (error) {
     return (
-      <div className="admin-page">
-        <div className="admin-alert admin-alert-error">{error}</div>
-        <button
-          className="admin-btn-secondary"
-          onClick={() => navigate('/admin/products')}
-        >
-          Back to Products
-        </button>
+      <div className="admin-ui-page">
+        {header}
+        <div className="admin-ui-card">
+          <EmptyState icon="bi-exclamation-octagon" title={error}>
+            <button
+              type="button"
+              className="admin-ui-btn admin-ui-btn--ghost admin-product-form-empty-action"
+              onClick={() => navigate('/admin/products')}
+            >
+              Back to Products
+            </button>
+          </EmptyState>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <h2 className="admin-page-title">✏️ Edit Product</h2>
-      </div>
+    <div className="admin-ui-page">
+      {header}
 
-      <div style={{margin: '0 auto' }}>
-        {product && (
-          <ProductForm
-            product={product}
-            brands={brands}
-            categories={categories}
-            statuses={statuses}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            loading={submitting}
-          />
-        )}
-      </div>
+      {product && (
+        <div className="admin-ui-card admin-product-form-card">
+          <div className="admin-product-form-scope">
+            <ProductForm
+              product={product}
+              brands={brands}
+              categories={categories}
+              statuses={statuses}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              loading={submitting}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

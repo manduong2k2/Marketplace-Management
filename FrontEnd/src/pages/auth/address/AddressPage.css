@@ -297,14 +297,14 @@
 }
 
 /* ── Form Actions ── */
-.form-actions {
+.address-page .form-actions {
   display: flex;
   gap: 12px;
   margin-top: 4px;
   flex-wrap: wrap;
 }
 
-.btn-submit {
+.address-page .btn-submit {
   flex: 1;
   min-width: 120px;
   padding: 13px;
@@ -320,25 +320,26 @@
   letter-spacing: 0.5px;
 }
 
-.btn-submit:hover:not(:disabled) {
+.address-page .btn-submit:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.btn-submit:disabled {
+.address-page .btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-submit--danger {
+.address-page .btn-submit--danger {
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
 }
 
-.btn-submit--danger:hover:not(:disabled) {
+.address-page .btn-submit--danger:hover:not(:disabled) {
   box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
 }
 
-.btn-cancel {
+/* Scoped to this page: a global .btn-cancel leaked into every form (Brand/Product/Vendor forms) */
+.address-page .btn-cancel {
   flex: 1;
   min-width: 120px;
   padding: 13px;
@@ -354,7 +355,7 @@
   letter-spacing: 0.5px;
 }
 
-.btn-cancel:hover {
+.address-page .btn-cancel:hover {
   background-color: var(--master-surface-alt);
   border-color: var(--master-primary);
   color: var(--master-hover);
@@ -395,12 +396,12 @@
     text-align: center;
   }
 
-  .form-actions {
+  .address-page .form-actions {
     flex-direction: column;
   }
 
-  .btn-submit,
-  .btn-cancel {
+  .address-page .btn-submit,
+  .address-page .btn-cancel {
     width: 100%;
   }
 }

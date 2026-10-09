@@ -4,7 +4,8 @@
   top: 60px;
   right: 20px;
 
-  z-index: 9999;
+  /* Top-most layer: above the chatbot widget (99999) and admin modals/drawers (100000) */
+  z-index: 100001;
   min-width: 300px;
   max-width: 400px;
 

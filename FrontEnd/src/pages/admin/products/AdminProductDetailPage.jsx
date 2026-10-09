@@ -6,20 +6,64 @@ import { brandService } from '../../../services/brandService';
 import { categoryService } from '../../../services/categoryService';
 import { productService as productApi } from '../../../services/productService';
 import defaultProductImage from '../../../assets/product.png';
-import '../shared/AdminPage.css';
+import { PageHeader, Pill, EmptyState, ConfirmDialog } from '../shared/AdminUi';
+import { formatCurrency, formatDateTime } from '../shared/adminUiUtils';
 import './AdminProductDetailPage.css';
+
+const STATUS_TONES = {
+  PUBLISHED: 'success',
+  ACTIVE: 'success',
+  DRAFT: 'neutral',
+  PENDING: 'warning',
+  PENDING_APPROVAL: 'warning',
+  OUT_OF_STOCK: 'warning',
+  ARCHIVED: 'danger',
+  HIDDEN: 'danger',
+  INACTIVE: 'danger',
+  REJECTED: 'danger',
+  BANNED: 'danger',
+};
+
+const humanize = (value) => String(value)
+  .split('_')
+  .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+  .join(' ');
+
+function StatusPill({ status }) {
+  if (!status) return <Pill tone="neutral">Unknown</Pill>;
+  return <Pill tone={STATUS_TONES[status] || 'neutral'}>{humanize(status)}</Pill>;
+}
+
+function StockPill({ stock }) {
+  const value = Number(stock);
+  if (stock === null || stock === undefined || Number.isNaN(value)) return <span className="admin-ui-muted">—</span>;
+  if (value <= 0) return <Pill tone="danger">Out of stock</Pill>;
+  if (value <= 5) return <Pill tone="warning">{value} left</Pill>;
+  return <Pill tone="success">{value} in stock</Pill>;
+}
+
+// "Color" -> ["Red", "Blue"], keeping first-seen order
+const groupOptionsByName = (options = []) => options.reduce((groups, opt) => {
+  if (!opt?.name) return groups;
+  if (!groups[opt.name]) groups[opt.name] = [];
+  if (!groups[opt.name].includes(opt.value)) groups[opt.name].push(opt.value);
+  return groups;
+}, {});
 
 export default function AdminProductDetailPage() {
   useEffect(() => { document.title = 'Admin - Product Detail'; }, []);
 
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [product, setProduct] = useState(null);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeImage, setActiveImage] = useState(0);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,13 +74,14 @@ export default function AdminProductDetailPage() {
           brandService.getAll(),
           categoryService.getAll(),
         ]);
-        
+
         if (prodRes.ok && prodRes.data) {
-          setProduct(prodRes.data);
+          // Handle both response formats: { success, data: {...} } or direct {...}
+          setProduct(prodRes.data.data || prodRes.data);
         } else {
           setError('Product not found');
         }
-        
+
         setBrands(brandRes.data?.data || []);
         setCategories(catRes.data?.data || []);
       } catch {
@@ -52,33 +97,19 @@ export default function AdminProductDetailPage() {
   const getBrandName = (product) => {
     if (product.brand?.name) return product.brand.name;
     const brand = brands.find((b) => b.id === product.brandId);
-    return brand ? brand.name : '—';
+    return brand ? brand.name : null;
   };
 
   const getCategoryNames = (product) => {
     if (product.categories && product.categories.length > 0) {
-      return product.categories.map(cat => cat.name).join(', ');
+      return product.categories.map(cat => cat.name);
     }
     if (product.categoryIds && product.categoryIds.length > 0) {
       return product.categoryIds
         .map(catId => categories.find(c => c.id === catId)?.name)
-        .filter(Boolean)
-        .join(', ');
+        .filter(Boolean);
     }
-    return '—';
-  };
-
-  const getStatusBadge = (status) => {
-    const isPublished = status === 'PUBLISHED';
-    const label = status
-      .split('_')
-      .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
-      .join(' ');
-    return (
-      <span className={`admin-badge ${isPublished ? 'admin-badge-active' : 'admin-badge-inactive'}`}>
-        {label}
-      </span>
-    );
+    return [];
   };
 
   const handleEdit = () => {
@@ -86,10 +117,7 @@ export default function AdminProductDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this product?')) {
-      return;
-    }
-
+    setDeleting(true);
     try {
       const res = await productApi.delete(id);
       if (res.ok) {
@@ -100,15 +128,24 @@ export default function AdminProductDetailPage() {
       }
     } catch {
       window.showError('Server connection error');
+    } finally {
+      setDeleting(false);
+      setConfirmingDelete(false);
     }
   };
 
+  const backButton = (
+    <button type="button" className="admin-ui-btn admin-ui-btn--ghost" onClick={() => navigate('/admin/products')}>
+      <i className="bi bi-arrow-left"></i> Back to list
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="admin-page">
-        <div className="admin-loading">
-          <div className="admin-spinner" />
-          <span>Loading...</span>
+      <div className="admin-ui-page">
+        <PageHeader eyebrow="Catalog" eyebrowIcon="bi-box-seam" title="Product detail" actions={backButton} />
+        <div className="admin-ui-card">
+          <EmptyState icon="bi-hourglass-split" title="Loading product…" />
         </div>
       </div>
     );
@@ -116,126 +153,301 @@ export default function AdminProductDetailPage() {
 
   if (error || !product) {
     return (
-      <div className="admin-page">
-        <div className="admin-alert admin-alert-error">
-          {error || 'Product not found'}
+      <div className="admin-ui-page">
+        <PageHeader eyebrow="Catalog" eyebrowIcon="bi-box-seam" title="Product detail" actions={backButton} />
+        <div className="admin-ui-card">
+          <EmptyState icon="bi-exclamation-octagon" title={error || 'Product not found'} text="The product may have been deleted or the server is unreachable.">
+            <button type="button" className="admin-ui-btn admin-ui-btn--ghost admin-product-detail-empty-action" onClick={() => navigate('/admin/products')}>
+              Back to Products
+            </button>
+          </EmptyState>
         </div>
-        <button className="admin-btn-secondary" onClick={() => navigate('/admin/products')}>
-          Back to Products
-        </button>
       </div>
     );
   }
 
-  const imageUrl = product.images && product.images.length > 0 ? product.images[0] : defaultProductImage;
+  const variants = product.variants || [];
+  const optionGroups = Object.entries(groupOptionsByName(product.options || []));
+  const brandName = getBrandName(product);
+  const categoryNames = getCategoryNames(product);
+
+  // Product-level images if present, otherwise all variant images (deduplicated)
+  const images = product.images && product.images.length > 0
+    ? product.images
+    : [...new Set(variants.flatMap(v => v.images || []))];
+  const heroImage = images[activeImage] || images[0] || defaultProductImage;
+
+  const totalStock = variants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+  const prices = variants.map(v => Number(v.price)).filter(p => !Number.isNaN(p));
+  const minPrice = prices.length ? Math.min(...prices) : null;
+  const maxPrice = prices.length ? Math.max(...prices) : null;
+
+  const hasLegacyPrice = product.price !== undefined && product.price !== null;
+  const hasLegacyStock = product.stock !== undefined && product.stock !== null;
+
+  const meta = [
+    brandName,
+    `${variants.length} variant${variants.length === 1 ? '' : 's'}`,
+    product.vendor?.name && `sold by ${product.vendor.name}`,
+  ].filter(Boolean).join(' · ');
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <h2 className="admin-page-title">📦 Product Detail</h2>
-        <div className="admin-header-actions">
-          <button className="admin-btn-secondary" onClick={() => navigate('/admin/products')}>
-            Back to List
-          </button>
-          <button className="admin-btn-primary" onClick={handleEdit}>
-            ✏️ Edit
-          </button>
-          <button className="admin-btn-danger" onClick={handleDelete}>
-            🗑️ Delete
-          </button>
-        </div>
-      </div>
+    <div className="admin-ui-page">
+      <PageHeader
+        eyebrow="Catalog"
+        eyebrowIcon="bi-box-seam"
+        title={product.name || 'Untitled product'}
+        description={meta}
+        actions={
+          <>
+            {backButton}
+            <button type="button" className="admin-ui-btn admin-ui-btn--ghost admin-ui-btn--danger-text" onClick={() => setConfirmingDelete(true)}>
+              <i className="bi bi-trash3"></i> Delete
+            </button>
+            <button type="button" className="admin-ui-btn admin-ui-btn--primary" onClick={handleEdit}>
+              <i className="bi bi-pencil"></i> Edit
+            </button>
+          </>
+        }
+      />
 
-      <div className="admin-product-detail-container">
-        <div className="admin-detail-section">
-          <h3 className="admin-detail-section-title">Product Information</h3>
-          
-          <div className="admin-detail-grid">
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">ID:</span>
-              <span className="admin-detail-value">{product.id}</span>
-            </div>
-            
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">Name:</span>
-              <span className="admin-detail-value">{product.name}</span>
-            </div>
-            
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">Code:</span>
-              <span className="admin-detail-value admin-code">{product.code}</span>
-            </div>
-            
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">Price:</span>
-              <span className="admin-detail-value admin-price">${Number(product.price).toLocaleString('en-US')}</span>
-            </div>
-            
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">Stock:</span>
-              <span className="admin-detail-value admin-stock">{product.stock}</span>
-            </div>
-            
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">Brand:</span>
-              <span className="admin-detail-value">{getBrandName(product)}</span>
-            </div>
-            
-            <div className="admin-detail-item admin-full-width">
-              <span className="admin-detail-label">Categories:</span>
-              <span className="admin-detail-value">{getCategoryNames(product)}</span>
-            </div>
-            
-            <div className="admin-detail-item admin-full-width">
-              <span className="admin-detail-label">Status:</span>
-              <span className="admin-detail-value">{getStatusBadge(product.status)}</span>
-            </div>
-            
-            <div className="admin-detail-item admin-full-width">
-              <span className="admin-detail-label">Description:</span>
-              <span className="admin-detail-value admin-description">{product.description || '—'}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="admin-detail-section">
-          <h3 className="admin-detail-section-title">Product Images</h3>
-          
-          <div className="admin-image-gallery">
-            {product.images && product.images.length > 0 ? (
-              product.images.map((img, idx) => (
-                <div key={idx} className="admin-image-item">
-                  <img src={img} alt={`${product.name} ${idx + 1}`} />
-                </div>
-              ))
-            ) : (
-              <div className="admin-no-images">
-                <span className="admin-no-image">No images</span>
-              </div>
+      {/* Hero */}
+      <section className="admin-ui-card admin-product-detail-hero">
+        <div className="admin-product-detail-media">
+          <div className="admin-product-detail-cover">
+            <img src={heroImage} alt={product.name} />
+            {images.length > 1 && (
+              <span className="admin-product-detail-cover-count">
+                <i className="bi bi-images"></i> {Math.min(activeImage, images.length - 1) + 1}/{images.length}
+              </span>
             )}
           </div>
+          {images.length > 1 && (
+            <div className="admin-product-detail-thumbs">
+              {images.map((img, idx) => (
+                <button
+                  key={img + idx}
+                  type="button"
+                  className={`admin-product-detail-thumb${idx === activeImage ? ' is-active' : ''}`}
+                  onClick={() => setActiveImage(idx)}
+                  aria-label={`Show image ${idx + 1}`}
+                >
+                  <img src={img} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="admin-detail-section">
-          <h3 className="admin-detail-section-title">Timestamps</h3>
-          
-          <div className="admin-detail-grid">
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">Created At:</span>
-              <span className="admin-detail-value">
-                {new Date(product.createdAt).toLocaleString()}
-              </span>
+        <div className="admin-product-detail-info">
+          <div className="admin-product-detail-title-row">
+            <h2>{product.name || 'Untitled product'}</h2>
+            <StatusPill status={product.status} />
+          </div>
+
+          <dl className="admin-product-detail-facts">
+            <div>
+              <dt>Brand</dt>
+              <dd className="admin-product-detail-brand">
+                {product.brand?.image && <img src={product.brand.image} alt="" />}
+                {brandName || <span className="admin-ui-muted">—</span>}
+              </dd>
             </div>
-            
-            <div className="admin-detail-item">
-              <span className="admin-detail-label">Updated At:</span>
-              <span className="admin-detail-value">
-                {new Date(product.updatedAt).toLocaleString()}
-              </span>
+            <div>
+              <dt>Price</dt>
+              <dd className="admin-product-detail-price">
+                {hasLegacyPrice
+                  ? formatCurrency(product.price)
+                  : minPrice === null
+                    ? <span className="admin-ui-muted">—</span>
+                    : minPrice === maxPrice
+                      ? formatCurrency(minPrice)
+                      : `${formatCurrency(minPrice)} – ${formatCurrency(maxPrice)}`}
+              </dd>
             </div>
+            <div>
+              <dt>Stock</dt>
+              <dd><StockPill stock={hasLegacyStock ? product.stock : (variants.length ? totalStock : null)} /></dd>
+            </div>
+            {product.code && (
+              <div>
+                <dt>Code</dt>
+                <dd><code className="admin-product-detail-code">{product.code}</code></dd>
+              </div>
+            )}
+          </dl>
+
+          <div className="admin-product-detail-block">
+            <span className="admin-product-detail-label">Categories</span>
+            {categoryNames.length > 0 ? (
+              <div className="admin-ui-chips">
+                {categoryNames.map(name => (
+                  <span key={name} className="admin-ui-chip"><i className="bi bi-tag"></i> {name}</span>
+                ))}
+              </div>
+            ) : (
+              <span className="admin-ui-muted">—</span>
+            )}
+          </div>
+
+          <div className="admin-product-detail-block">
+            <span className="admin-product-detail-label">Description</span>
+            <p className="admin-product-detail-description">
+              {product.description || <span className="admin-ui-muted">No description.</span>}
+            </p>
           </div>
         </div>
+      </section>
+
+      {/* Variants */}
+      <section className="admin-ui-card admin-product-detail-section">
+        <header className="admin-product-detail-section-head">
+          <h3><i className="bi bi-layers"></i> Variants</h3>
+          <span className="admin-ui-tag">{variants.length}</span>
+        </header>
+        {variants.length > 0 ? (
+          <div className="admin-ui-table-wrap">
+            <table className="admin-ui-table admin-product-detail-table">
+              <thead>
+                <tr>
+                  <th>Variant</th>
+                  <th>Options</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Images</th>
+                </tr>
+              </thead>
+              <tbody>
+                {variants.map((v, idx) => (
+                  <tr key={v.id || idx}>
+                    <td>
+                      <div className="admin-product-detail-variant">
+                        <strong>{v.name || `Variant ${idx + 1}`}</strong>
+                        <span className="admin-ui-mono">{v.sku || 'No SKU'}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {v.options && v.options.length > 0 ? (
+                        <div className="admin-ui-chips">
+                          {v.options.map((o, oIdx) => (
+                            <span key={o.id || oIdx} className="admin-ui-tag">{o.name}: {o.value}</span>
+                          ))}
+                        </div>
+                      ) : v.optionList ? (
+                        <span className="admin-ui-mono admin-product-detail-optionlist">{v.optionList}</span>
+                      ) : (
+                        <span className="admin-ui-muted">—</span>
+                      )}
+                    </td>
+                    <td className="admin-product-detail-money">{formatCurrency(v.price)}</td>
+                    <td><StockPill stock={v.stock} /></td>
+                    <td>
+                      {v.images && v.images.length > 0 ? (
+                        <div className="admin-product-detail-mini-thumbs">
+                          {[...v.images].slice(0, 3).map((img, iIdx) => (
+                            <img key={iIdx} src={img} alt={`${v.name || 'variant'}-${iIdx}`} />
+                          ))}
+                          {v.images.length > 3 && <span>+{v.images.length - 3}</span>}
+                        </div>
+                      ) : (
+                        <span className="admin-ui-muted">No images</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <EmptyState icon="bi-layers" title="No variants" text="This product has no variants yet." />
+        )}
+      </section>
+
+      <div className="admin-product-detail-grid">
+        {/* Options */}
+        <section className="admin-ui-card admin-product-detail-section">
+          <header className="admin-product-detail-section-head">
+            <h3><i className="bi bi-sliders"></i> Options</h3>
+            <span className="admin-ui-tag">{optionGroups.length}</span>
+          </header>
+          {optionGroups.length > 0 ? (
+            <ul className="admin-product-detail-options">
+              {optionGroups.map(([name, values]) => (
+                <li key={name}>
+                  <span className="admin-product-detail-label">{name}</span>
+                  <div className="admin-ui-chips">
+                    {values.map(val => <span key={val} className="admin-ui-chip">{val}</span>)}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState icon="bi-sliders" title="No options configured" />
+          )}
+        </section>
+
+        {/* Record details */}
+        <section className="admin-ui-card admin-product-detail-section">
+          <header className="admin-product-detail-section-head">
+            <h3><i className="bi bi-info-circle"></i> Details</h3>
+          </header>
+          <dl className="admin-product-detail-meta">
+            <div>
+              <dt>ID</dt>
+              <dd><code className="admin-product-detail-code">{product.id}</code></dd>
+            </div>
+            {product.vendor && (
+              <div>
+                <dt>Vendor</dt>
+                <dd>{product.vendor.name || 'No vendor assigned'}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Created</dt>
+              <dd>{formatDateTime(product.createdAt)}</dd>
+            </div>
+            <div>
+              <dt>Updated</dt>
+              <dd>{formatDateTime(product.updatedAt)}</dd>
+            </div>
+          </dl>
+        </section>
       </div>
+
+      {/* Images */}
+      <section className="admin-ui-card admin-product-detail-section">
+        <header className="admin-product-detail-section-head">
+          <h3><i className="bi bi-images"></i> Images</h3>
+          <span className="admin-ui-tag">{images.length}</span>
+        </header>
+        {images.length > 0 ? (
+          <div className="admin-product-detail-gallery">
+            {images.map((img, idx) => (
+              <button
+                key={img + idx}
+                type="button"
+                className={`admin-product-detail-gallery-item${idx === activeImage ? ' is-active' : ''}`}
+                onClick={() => setActiveImage(idx)}
+                aria-label={`Show image ${idx + 1} in the cover`}
+              >
+                <img src={img} alt={`${product.name} ${idx + 1}`} />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <EmptyState icon="bi-image" title="No images" text="Images are uploaded per variant from the edit page." />
+        )}
+      </section>
+
+      {confirmingDelete && (
+        <ConfirmDialog
+          title="Delete product"
+          message={<>Are you sure you want to delete <strong>{product.name}</strong>? This cannot be undone.</>}
+          busy={deleting}
+          onConfirm={handleDelete}
+          onClose={() => setConfirmingDelete(false)}
+        />
+      )}
     </div>
   );
 }

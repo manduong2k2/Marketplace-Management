@@ -39,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        Claims claims = jwtService.verifyToken(token);
+        // Only access tokens authenticate requests (a refresh token in this cookie is ignored)
+        Claims claims = jwtService.verifyAccessToken(token);
         if (claims == null || claims.getSubject() == null) {
             filterChain.doFilter(request, response);
             return;
@@ -47,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Object rolesObj = claims.get("roles");
 
-        List<SimpleGrantedAuthority> roles = ((List<?>) rolesObj)
+        List<SimpleGrantedAuthority> roles = (rolesObj instanceof List<?> list ? list : List.of())
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.toString()))
                 .toList();
