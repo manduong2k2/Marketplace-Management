@@ -97,13 +97,11 @@
 .sort-btn:hover {
   background: #667eea;
   color: white;
-  border-color: #667eea;
 }
 
 .sort-btn.active {
   background: #667eea;
   color: white;
-  border-color: #667eea;
 }
 
 /* ── Orders List ── */

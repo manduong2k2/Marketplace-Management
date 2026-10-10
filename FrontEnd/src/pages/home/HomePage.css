@@ -1,7 +1,7 @@
 .homepage {
   display: flex;
   flex-direction: column;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
   background-color: var(--master-background);
   color: var(--master-text);
   min-width: 0;
@@ -10,7 +10,7 @@
 .homepage-content {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1.25rem;
   max-width: 1550px;
   margin: 0 auto;
   box-sizing: border-box;
@@ -18,10 +18,11 @@
 }
 
 .homepage-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 5px;
-  padding: 5px;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 1.25rem 0 0;
+  padding: 0;
   align-self: flex-start;
   border-radius: 8px;
   background: var(--master-color);
@@ -34,30 +35,101 @@
 .catalog-section {
   display: flex;
   flex-direction: row;
-  gap: 5px;
-  margin-left: 5px;
-  margin-right: 5px;
+  gap: 1.25rem;
+  margin: 0;
   align-items: stretch;
 }
 
 .category-section {
   flex: 0 0 260px;
   min-width: 0;
-  padding: 20px;
+  padding: 1.25rem;
   box-sizing: border-box;
   background-color: var(--master-surface);
   border: 1px solid var(--master-border);
-  border-radius: 8px;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
 }
 
 .product-section {
   flex: 1;
   min-width: 0;
-  padding: 20px;
+  padding: 1.25rem;
   background-color: var(--master-surface);
   border: 1px solid var(--master-border);
-  border-radius: 8px;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
   box-sizing: border-box;
+}
+
+/* Catalog components use the same semantic colors as the admin UI. */
+.homepage .list-header h2,
+.homepage .header-title-wrap h2,
+.homepage .product-title,
+.homepage .price-value,
+.homepage .sort-label,
+.homepage .sort-btn,
+.homepage .pagination-btn,
+.homepage .pagination-number,
+.homepage .empty-state h3 {
+  color: var(--master-text);
+}
+
+.homepage .pagination-info,
+.homepage .header-title-wrap p,
+.homepage .variant-count,
+.homepage .price-label,
+.homepage .loading-container p,
+.homepage .product-list-loading-container p,
+.homepage .empty-state {
+  color: var(--master-text-muted);
+}
+
+.homepage .sort-bar,
+.homepage .option-value,
+.homepage .img-container,
+.homepage .pagination-number:hover {
+  background: var(--master-surface-alt);
+}
+
+.homepage .sort-bar,
+.homepage .sort-btn,
+.homepage .pagination-btn,
+.homepage .pagination-number,
+.homepage .product-options,
+.homepage .option-value {
+  border-color: var(--master-border);
+}
+
+.homepage .sort-btn,
+.homepage .pagination-btn,
+.homepage .pagination-number,
+.homepage .nav-btn,
+.homepage .product-card {
+  background: var(--master-surface);
+}
+
+.homepage .product-card {
+  border-color: var(--master-border);
+}
+
+.homepage .product-card .option-value,
+.homepage .product-card .color-text {
+  color: var(--master-text-muted);
+}
+
+.homepage .sort-btn:hover,
+.homepage .sort-btn.active,
+.homepage .pagination-btn:hover:not(:disabled),
+.homepage .pagination-number.active,
+.homepage .nav-btn:hover:not(:disabled) {
+  background: var(--master-color);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .homepage .category-section,
+html[data-theme="dark"] .homepage .product-section {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 /* ── Tablet: 769px – 1024px ── */

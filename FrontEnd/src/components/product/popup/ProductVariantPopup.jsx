@@ -163,33 +163,33 @@ function ProductVariantPopup({ product, onClose }) {
   };
 
   return (
-    <div className="modal-overlay active" onClick={onClose}>
-      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-        <button className="btn-close" onClick={onClose} title="Close modal">
+    <div className="popup-modal-overlay active" onClick={onClose}>
+      <div className="popup-modal-container" onClick={(e) => e.stopPropagation()}>
+        <button className="popup-btn-close" onClick={onClose} title="Close modal">
           <i className="fa-solid fa-xmark"></i>
         </button>
 
-        <div className="product-modal-grid">
+        <div className="popup-product-modal-grid">
           {/* Gallery Column */}
-          <div className="product-gallery">
-            <div className="main-image-wrap">
-              <img 
-                id="modalMainImg" 
-                src={currentImage} 
-                alt="Product Preview" 
+          <div className="popup-product-gallery">
+            <div className="popup-main-image-wrap">
+              <img
+                id="popupModalMainImg"
+                src={currentImage}
+                alt="Product Preview"
                 onError={handleImageError}
               />
             </div>
             {images.length > 1 && (
-              <div className="gallery-thumbnails">
+              <div className="popup-gallery-thumbnails">
                 {images.map((imgUrl, idx) => (
                   <div
                     key={idx}
-                    className={`thumb-item ${idx === currentImageIndex ? 'active' : ''}`}
+                    className={`popup-thumb-item ${idx === currentImageIndex ? 'active' : ''}`}
                     onClick={() => setCurrentImageIndex(idx)}
                   >
-                    <img 
-                      src={imgUrl} 
+                    <img
+                      src={imgUrl}
                       alt={`Thumbnail ${idx + 1}`}
                       onError={handleImageError}
                     />
@@ -200,47 +200,47 @@ function ProductVariantPopup({ product, onClose }) {
           </div>
 
           {/* Product Info Column */}
-          <div className="product-details">
-            <div className="header-meta">
-              <span className="brand-badge">{product.brand?.name || 'Brand'}</span>
-              <span className={`status-badge ${product.status?.toLowerCase() === 'published' ? 'published' : 'draft'}`}>
-                <span className="dot"></span>
+          <div className="popup-product-details">
+            <div className="popup-header-meta">
+              <span className="popup-brand-badge">{product.brand?.name || 'Brand'}</span>
+              <span className={`popup-status-badge ${product.status?.toLowerCase() === 'published' ? 'published' : 'draft'}`}>
+                <span className="popup-dot"></span>
                 <span>{product.status || 'DRAFT'}</span>
               </span>
             </div>
 
-            <h2 className="product-title">{product.name}</h2>
+            <h2 className="popup-product-title">{product.name}</h2>
 
-            <div className="price-stock-row">
-              <div className="product-price">${parseFloat(price).toFixed(2)}</div>
-              <div className={`stock-tag ${stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+            <div className="popup-price-stock-row">
+              <div className="popup-product-price">${parseFloat(price).toFixed(2)}</div>
+              <div className={`popup-stock-tag ${stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
                 {stock > 0 ? `${stock} in stock` : 'Out of Stock'}
               </div>
             </div>
 
             {/* Options Section */}
             {Object.keys(groupedOptions).length > 0 && (
-              <div className="options-wrapper">
+              <div className="popup-options-wrapper">
                 {Object.entries(groupedOptions).map(([optionName, options]) => (
-                  <div key={optionName} className="option-group">
-                    <div className="option-title">
+                  <div key={optionName} className="popup-option-group">
+                    <div className="popup-option-title">
                       <span>{optionName}</span>
-                      <span className="option-selected-val">
-                        {selectedOptions[optionName] 
+                      <span className="popup-option-selected-val">
+                        {selectedOptions[optionName]
                           ? options.find(o => o.id === selectedOptions[optionName])?.value || 'Select'
                           : 'Select'}
                       </span>
                     </div>
-                    <div className="option-pills">
+                    <div className="popup-option-pills">
                       {options.map(option => (
                         <button
                           key={option.id}
-                          className={`option-pill ${selectedOptions[optionName] === option.id ? 'active' : ''}`}
+                          className={`popup-option-pill ${selectedOptions[optionName] === option.id ? 'active' : ''}`}
                           onClick={() => handleOptionChange(optionName, option.id)}
                         >
                           {optionName.toLowerCase() === 'color' && (
-                            <span 
-                              className="color-dot" 
+                            <span
+                              className="popup-color-dot"
                               style={{ backgroundColor: option.value.toLowerCase() }}
                             ></span>
                           )}
@@ -254,33 +254,33 @@ function ProductVariantPopup({ product, onClose }) {
             )}
 
             {/* Quantity & Action CTAs */}
-            <div className="actions-row">
-              <div className="quantity-control">
-                <button className="qty-btn" onClick={handleQuantityDecrease} disabled={quantity <= 1}>
+            <div className="popup-actions-row">
+              <div className="popup-quantity-control">
+                <button className="popup-qty-btn" onClick={handleQuantityDecrease} disabled={quantity <= 1}>
                   <i className="fa-solid fa-minus"></i>
                 </button>
-                <input 
-                  type="number" 
-                  className="qty-input" 
-                  value={quantity} 
-                  min="1" 
+                <input
+                  type="number"
+                  className="popup-qty-input"
+                  value={quantity}
+                  min="1"
                   max={stock}
                   readOnly
                 />
-                <button className="qty-btn" onClick={handleQuantityIncrease} disabled={quantity >= stock}>
+                <button className="popup-qty-btn" onClick={handleQuantityIncrease} disabled={quantity >= stock}>
                   <i className="fa-solid fa-plus"></i>
                 </button>
               </div>
-              <button 
-                className="btn-cta btn-add-cart" 
+              <button
+                className="popup-btn-cta popup-btn-add-cart"
                 onClick={handleAddToCart}
                 disabled={adding || !selectedVariant || stock === 0}
               >
                 <i className="fa-solid fa-bag-shopping"></i>
                 {adding ? 'Adding...' : 'Add to Cart'}
               </button>
-              <button 
-                className={`btn-cta btn-wishlist ${isWishlist ? 'active' : ''}`}
+              <button
+                className={`popup-btn-cta popup-btn-wishlist ${isWishlist ? 'active' : ''}`}
                 onClick={() => setIsWishlist(!isWishlist)}
                 title="Add to wishlist"
               >

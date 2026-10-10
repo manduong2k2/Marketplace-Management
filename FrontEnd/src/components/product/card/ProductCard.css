@@ -1,7 +1,7 @@
 /* ProductCard.css - Modern Glassmorphism Design */
 
 .product-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--master-primary);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
@@ -112,13 +112,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
 }
 
 .product-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
 }
@@ -435,7 +433,6 @@
 
   .img-container {
     height: 200px;
-    padding: 12px;
   }
 
   .product-title {
@@ -492,7 +489,6 @@
 @media (max-width: 576px) {
   .img-container {
     height: 180px;
-    padding: 10px;
   }
 
   .product-content {
@@ -560,7 +556,6 @@
 @media (max-width: 480px) {
   .img-container {
     height: 170px;
-    padding: 10px;
   }
 
   .product-title {
@@ -586,7 +581,6 @@
 @media (max-width: 430px) {
   .img-container {
     height: 160px;
-    padding: 8px;
   }
 
   .product-content {

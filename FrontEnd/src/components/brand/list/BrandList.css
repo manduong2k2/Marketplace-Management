@@ -77,7 +77,6 @@
 .nav-btn:hover:not(:disabled) {
   background: var(--primary);
   color: #ffffff;
-  border-color: var(--primary);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
