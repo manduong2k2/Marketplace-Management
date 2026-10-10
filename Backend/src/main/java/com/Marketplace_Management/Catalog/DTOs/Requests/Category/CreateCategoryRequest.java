@@ -22,7 +22,7 @@ public class CreateCategoryRequest {
     private String name;
     
     @Nullable
-    @Exist(table = "categories", column = "id")
+    @Exist(table = "categories", column = "id", type = UUID.class)
     private UUID parentId;
     
     @Nullable

@@ -59,7 +59,7 @@ export default function ChangePasswordCard() {
           <PasswordInput name="currentPassword" value={form.currentPassword} onChange={handleChange} autoComplete="current-password" />
         </Field>
         <div className="ui-form ui-form--grid">
-          <Field label="New password" required error={errors.newPassword} hint="At least 6 characters.">
+          <Field label="New password" required error={errors.newPassword}>
             <PasswordInput name="newPassword" value={form.newPassword} onChange={handleChange} autoComplete="new-password" />
           </Field>
           <Field label="Confirm new password" required error={errors.confirmPassword}>

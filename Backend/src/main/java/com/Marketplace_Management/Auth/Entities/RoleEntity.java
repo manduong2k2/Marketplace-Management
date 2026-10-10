@@ -27,5 +27,4 @@ public class RoleEntity extends UuidEntity {
         this.name = name;
         this.code = code;
     }
-
 }

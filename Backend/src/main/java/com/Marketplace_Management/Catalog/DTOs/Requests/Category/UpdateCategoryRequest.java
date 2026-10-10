@@ -4,6 +4,9 @@ import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.Marketplace_Management.Shared.Annotation.Rules.Exist;
+
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +23,9 @@ public class UpdateCategoryRequest {
     private String description;
     
     private MultipartFile image;
+
+    @Nullable
+    @Exist(table = "categories", column = "id", type = UUID.class)
     private UUID parentId;
 }
 
