@@ -15,6 +15,7 @@ import com.Marketplace_Management.Cart.DTOs.Commands.RemoveFromCartCommand;
 import com.Marketplace_Management.Cart.DTOs.Commands.UpdateCartItemCommand;
 import com.Marketplace_Management.Cart.Models.Cart.Cart;
 import com.Marketplace_Management.Cart.Models.Cart.CartItem;
+import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 
 @Service
 public class CartService implements ICartService {
@@ -32,19 +33,16 @@ public class CartService implements ICartService {
         Cart cart = repository.findByUserId(command.getUserId())
                 .orElseGet(() -> {
                     try {
-                        Cart newCart = new Cart(null, command.getUserId());
-                        Cart saved = repository.create(newCart);
-                        return saved;
+                        return repository.create(Cart.builder().userId(command.getUserId()).build());
                     } catch (DataIntegrityViolationException e) {
                         return repository.findByUserId(command.getUserId()).orElseThrow();
                     }
                 });
 
-        CartItem item = new CartItem(
-                null,
-                command.getProductVariantId(),
-                command.getQuantity());
-        cart.addItem(item);
+        cart.addItem(CartItem.builder()
+                .productVariantId(command.getProductVariantId())
+                .quantity(command.getQuantity())
+                .build());
         Cart updated = repository.update(cart);
 
         return updated;
@@ -52,7 +50,7 @@ public class CartService implements ICartService {
 
     @Override
     public Cart removeItem(RemoveFromCartCommand command) {
-        Cart cart = getByUserId(command.getUserId());
+        Cart cart = requireCart(command.getUserId());
         cart.removeItem(command.getProductVariantId());
         Cart updated = repository.update(cart);
         return updated;
@@ -60,70 +58,27 @@ public class CartService implements ICartService {
 
     @Override
     public Cart updateItem(UpdateCartItemCommand command) {
-        Cart cart = getByUserId(command.getUserId());
+        Cart cart = requireCart(command.getUserId());
         cart.updateItemQuantity(command.getProductVariantId(), command.getQuantity());
-        Cart updated = repository.update(cart);
-
-        // Load product details for each item in the cart
-        for (CartItem item : updated.getItems()) {
-            ProductVariantResponse productVariant = productService.getProductVariant(item.getProductVariantId());
-            item.setProductName(productVariant.getProduct().getName());
-            item.setProductPrice(productVariant.getPrice());
-            item.setProductImage(productVariant.getImages());
-            item.setProductSku(productVariant.getSku());
-            item.setProductOptions(productVariant.getOptions());
-        }
-
-        return updated;
+        return withProductDetails(repository.update(cart));
     }
 
     @Override
     public Cart checkout(CheckoutCartCommand command) {
-        Cart cart = getByUserId(command.getUserId());
+        Cart cart = requireCart(command.getUserId());
         cart.checkout();
-        Cart updated = repository.update(cart);
-
-        // Load product details for each item in the cart
-        for (CartItem item : updated.getItems()) {
-            ProductVariantResponse productVariant = productService.getProductVariant(item.getProductVariantId());
-            item.setProductName(productVariant.getProduct().getName());
-            item.setProductPrice(productVariant.getPrice());
-            item.setProductImage(productVariant.getImages());
-            item.setProductSku(productVariant.getSku());
-            item.setProductOptions(productVariant.getOptions());
-        }
-
-        return updated;
+        return withProductDetails(repository.update(cart));
     }
 
     @Override
     public Cart getByUserId(UUID userId) {
-        Cart cart = repository.findByUserId(userId)
-                .orElse(null);
-        
-        if (cart == null) {
-            return null;
-        }
-        
-        // Load product details for each item in the cart
-        for (CartItem item : cart.getItems()) {
-            ProductVariantResponse productVariant = productService.getProductVariant(item.getProductVariantId());
-            if(productVariant != null) {
-                item.setProductName(productVariant.getProduct().getName());
-                item.setProductPrice(productVariant.getPrice());
-                item.setProductImage(productVariant.getImages());
-                item.setProductSku(productVariant.getSku());
-                item.setProductOptions(productVariant.getOptions());
-            }
-        }
-        
-        return cart;
+        return repository.findByUserId(userId).map(this::withProductDetails).orElse(null);
     }
 
     @Override
     public void clearCart(UUID userId) {
         Cart cart = getByUserId(userId);
-        
+
         if(cart == null) {
             return;
         }
@@ -135,7 +90,7 @@ public class CartService implements ICartService {
     @Override
     public Cart getById(UUID id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
     }
 
     @Override
@@ -146,5 +101,26 @@ public class CartService implements ICartService {
                 repository.update(cart);
             }
         });
+    }
+
+    private Cart requireCart(UUID userId) {
+        return repository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+    }
+
+    /** Fills each item with the current name / price / images / options of its product variant. */
+    private Cart withProductDetails(Cart cart) {
+        for (CartItem item : cart.getItems()) {
+            ProductVariantResponse variant = productService.getProductVariant(item.getProductVariantId());
+            if (variant == null) {
+                continue; // variant deleted since it was added: keep the line, without details
+            }
+            item.setProductName(variant.getProduct().getName());
+            item.setProductPrice(variant.getPrice());
+            item.setProductImage(variant.getImages());
+            item.setProductSku(variant.getSku());
+            item.setProductOptions(variant.getOptions());
+        }
+        return cart;
     }
 }

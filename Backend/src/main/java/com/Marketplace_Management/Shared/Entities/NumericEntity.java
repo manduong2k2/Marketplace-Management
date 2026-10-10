@@ -6,8 +6,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @MappedSuperclass
+@SuperBuilder
+@NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = false)
 public abstract class NumericEntity extends JpaEntity {

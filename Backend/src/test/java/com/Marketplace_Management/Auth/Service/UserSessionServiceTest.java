@@ -50,8 +50,8 @@ class UserSessionServiceTest {
         User user = User.builder().id(UUID.randomUUID()).email("a@b.c").roles(Set.of()).build();
         Instant accessExp = Instant.now().plusSeconds(3600);
         Instant refreshExp = Instant.now().plusSeconds(7200);
-        when(jwtService.generateAccessToken(user)).thenReturn(new IssuedToken("access-token", "access-jti", accessExp));
-        when(jwtService.generateRefreshToken(user)).thenReturn(new IssuedToken("refresh-token", "refresh-jti", refreshExp));
+        when(jwtService.generateAccessToken(any(), any(), any())).thenReturn(new IssuedToken("access-token", "access-jti", accessExp));
+        when(jwtService.generateRefreshToken(any())).thenReturn(new IssuedToken("refresh-token", "refresh-jti", refreshExp));
 
         AuthResponse response = sessionService.issue(user, "ok");
 

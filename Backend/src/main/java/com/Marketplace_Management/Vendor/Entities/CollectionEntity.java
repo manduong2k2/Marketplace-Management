@@ -1,7 +1,5 @@
 package com.Marketplace_Management.Vendor.Entities;
 
-import java.util.UUID;
-
 import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 import jakarta.persistence.Column;
@@ -11,11 +9,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "collections")
+@SuperBuilder
+@NoArgsConstructor
 public class CollectionEntity extends UuidEntity {
     @Column(nullable = false)
     private String name;
@@ -26,14 +28,6 @@ public class CollectionEntity extends UuidEntity {
     @ManyToOne
     @JoinColumn(name = "vendor_id", nullable = false)
     private VendorEntity vendor;
-    
-    public CollectionEntity() {
-    }
-    
-    public CollectionEntity(UUID id, String name, Integer displayOrder, VendorEntity vendor) {
-        this.setId(id);
-        this.name = name;
-        this.displayOrder = displayOrder;
-        this.vendor = vendor;
-    }
+
+
 }

@@ -6,6 +6,7 @@ import { PageHeader, Avatar, Pill, EmptyState } from '../shared/AdminUi';
 import { useApiQuery, formatDateTime, formatCurrency } from '../shared/adminUiUtils';
 import defaultProductImage from '../../../assets/product.png';
 import './AdminOrderDetailPage.css';
+import { shortId } from '../../../utils/ids';
 
 // Order statuses (backend OrderStatusEnum) → label + Pill tone (same mapping as the orders list)
 const ORDER_STATUS = {
@@ -29,7 +30,6 @@ function OrderStatusPill({ status }) {
   return <Pill tone={tone}>{label}</Pill>;
 }
 
-const shortOrderId = (id) => String(id || '').slice(0, 8).toUpperCase();
 
 function AdminOrderDetailPage() {
   const { id } = useParams();
@@ -40,7 +40,7 @@ function AdminOrderDetailPage() {
   const error = !loading && !order ? (response ? 'Order not found' : 'Failed to load order details') : null;
 
   useEffect(() => {
-    document.title = order ? `Order #${shortOrderId(order.id)} - Admin` : 'Order - Admin';
+    document.title = order ? `Order #${shortId(order.id)} - Admin` : 'Order - Admin';
   }, [order]);
 
   const backButton = (
@@ -80,7 +80,7 @@ function AdminOrderDetailPage() {
       <PageHeader
         eyebrow="Sales"
         eyebrowIcon="bi-receipt"
-        title={`Order #${shortOrderId(order.id)}`}
+        title={`Order #${shortId(order.id)}`}
         description={`Placed ${formatDateTime(order.createdAt)}${order.name ? ` by ${order.name}` : ''}`}
         actions={backButton}
       />

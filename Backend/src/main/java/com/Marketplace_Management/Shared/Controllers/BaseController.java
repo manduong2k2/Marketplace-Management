@@ -1,6 +1,5 @@
 package com.Marketplace_Management.Shared.Controllers;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ public abstract class BaseController {
 
     protected ResponseEntity<Map<String, Object>> successResponse(String message) {
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("success", false);
+        response.put("success", true);
         response.put("message", message);
         return ResponseEntity.ok().body(response);
     }
@@ -38,18 +37,20 @@ public abstract class BaseController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    protected ResponseEntity<Map<String, Object>> paginatedResponse(PaginatedResponse<?> response){
-        HashMap<String, Object> responseData = new HashMap<>();
-        responseData.put("success", true);
-        responseData.put("data", response.getData());
-        responseData.put("pagination", new HashMap<String, Object>() {{
-            put("currentPage", response.getCurrentPage());
-            put("pageSize", response.getPageSize());
-            put("totalElements", response.getTotalElements());
-            put("totalPages", response.getTotalPages());
-            put("hasNext", response.isHasNext());
-            put("hasPrevious", response.isHasPrevious());
-        }});
-        return ResponseEntity.ok().body(responseData);
+    /** { success, data, pagination: { currentPage, pageSize, totalElements, totalPages, hasNext, hasPrevious } } */
+    protected ResponseEntity<Map<String, Object>> paginatedResponse(PaginatedResponse<?> page) {
+        Map<String, Object> pagination = new LinkedHashMap<>();
+        pagination.put("currentPage", page.getCurrentPage());
+        pagination.put("pageSize", page.getPageSize());
+        pagination.put("totalElements", page.getTotalElements());
+        pagination.put("totalPages", page.getTotalPages());
+        pagination.put("hasNext", page.isHasNext());
+        pagination.put("hasPrevious", page.isHasPrevious());
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("data", page.getData());
+        response.put("pagination", pagination);
+        return ResponseEntity.ok().body(response);
     }
 }

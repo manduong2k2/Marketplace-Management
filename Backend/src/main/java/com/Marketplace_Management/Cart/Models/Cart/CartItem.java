@@ -8,9 +8,13 @@ import com.Marketplace_Management.Shared.Models.Entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-@Data 
+@Data
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder
+@NoArgsConstructor
 public class CartItem extends Entity<UUID> {
     private UUID productVariantId;
     private int quantity;
@@ -21,11 +25,6 @@ public class CartItem extends Entity<UUID> {
     private List<ProductOptionResponse> productOptions;
     private List<String> productImage;
 
-    public CartItem(UUID id, UUID productVariantId, int quantity) {
-        super(id);
-        this.productVariantId = productVariantId;
-        this.quantity = quantity;
-    }
 
     // Business methods
 

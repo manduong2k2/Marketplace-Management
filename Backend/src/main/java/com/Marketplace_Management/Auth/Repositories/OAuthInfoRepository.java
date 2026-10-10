@@ -44,10 +44,22 @@ public class OAuthInfoRepository implements IOAuthInfoRepository {
     }
 
     private OAuthInfo toDomain(OAuthInfoEntity e) {
-        return new OAuthInfo(e.getId(), e.getUserId(), e.getOauthProvider(), e.getOauthProviderSubject(), e.getCreatedAt());
+        return OAuthInfo.builder()
+                .id(e.getId())
+                .userId(e.getUserId())
+                .oauthProvider(e.getOauthProvider())
+                .oauthProviderSubject(e.getOauthProviderSubject())
+                .createdAt(e.getCreatedAt())
+                .build();
     }
 
     private OAuthInfoEntity toEntity(OAuthInfo d) {
-        return new OAuthInfoEntity(d.getId(), d.getUserId(), d.getOauthProvider(), d.getOauthProviderSubject(), d.getCreatedAt());
+        return OAuthInfoEntity.builder()
+                .id(d.getId())
+                .userId(d.getUserId())
+                .oauthProvider(d.getOauthProvider())
+                .oauthProviderSubject(d.getOauthProviderSubject())
+                .createdAt(d.getCreatedAt())
+                .build();
     }
 }

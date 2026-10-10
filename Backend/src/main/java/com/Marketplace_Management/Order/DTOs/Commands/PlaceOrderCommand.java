@@ -4,10 +4,12 @@ import java.util.UUID;
 
 import com.Marketplace_Management.Order.DTOs.Requests.PlaceOrderRequest;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class PlaceOrderCommand{
+@Builder
+public class PlaceOrderCommand {
     private UUID cartId;
     private UUID userId;
     private String name;
@@ -16,11 +18,11 @@ public class PlaceOrderCommand{
     private String note;
 
     public static PlaceOrderCommand fromRequest(PlaceOrderRequest request) {
-        PlaceOrderCommand command = new PlaceOrderCommand();
-        command.setName(request.getName());
-        command.setPhone(request.getPhone());
-        command.setAddress(request.getAddress());
-        command.setNote(request.getNote());
-        return command;
+        return PlaceOrderCommand.builder()
+                .name(request.getName().trim())
+                .phone(request.getPhone().trim())
+                .address(request.getAddress().trim())
+                .note(request.getNote() != null && !request.getNote().isBlank() ? request.getNote().trim() : null)
+                .build();
     }
 }

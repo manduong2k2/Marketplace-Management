@@ -1,29 +1,19 @@
 package com.Marketplace_Management.Auth.DTOs.Commands;
 
 import com.Marketplace_Management.Auth.DTOs.Request.GetListRoleRequest;
+import com.Marketplace_Management.Shared.DTOs.Commands.PageCommand;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-public class GetListRoleCommand {
-    private int page;
-    private int size;
-    private String sortBy;
-    private String sortOrder;
-    private String search;
-
+@EqualsAndHashCode(callSuper = true)
+public class GetListRoleCommand extends PageCommand {
     public static GetListRoleCommand fromRequest(GetListRoleRequest request) {
-        String search = request.getSearch();
-        return new GetListRoleCommand(
-            request.getPage(),
-            request.getSize(),
-            request.getSortBy(),
-            request.getSortOrder(),
-            search == null || search.isBlank() ? null : search.trim()
-        );
+        return GetListRoleCommand.builder().paging(request).build();
     }
 }

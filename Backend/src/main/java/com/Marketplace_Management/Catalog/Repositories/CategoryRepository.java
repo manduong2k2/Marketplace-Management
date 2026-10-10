@@ -99,7 +99,7 @@ public class CategoryRepository implements ICategoryRepository {
                 .map(mapper::toDomain)
                 .toList();
 
-        return new PaginatedResponse<>(categories, command.getPage(), command.getSize(), totalElements);
+        return PaginatedResponse.of(categories, command.getPage(), command.getSize(), totalElements);
     }
 
     @Override

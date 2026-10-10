@@ -24,7 +24,6 @@ public class ProductEventsConsumer {
 
     @RabbitListener(queues = ProductQueueConfig.PRODUCT_DELETED_QUEUE)
     public void handleProductDeletedEvent(ProductDeletedMessage message) {
-        System.out.println("ProductDeletedMessage received: " + message);
         try {
             UUID productVariantId = message.getProductVariantId();
             logger.info("Received ProductDeletedMessage for productVariantId: {}", productVariantId);
@@ -38,7 +37,6 @@ public class ProductEventsConsumer {
 
     @RabbitListener(queues = ProductQueueConfig.PRODUCT_OUT_OF_STOCK_QUEUE)
     public void handleProductOutOfStockEvent(ProductOutStockMessage message) {
-        System.out.println("ProductOutStockMessage received: " + message);
         try {
             UUID productVariantId = message.getProductVariantId();
             logger.info("Received ProductOutStockMessage for productVariantId: {}", productVariantId);

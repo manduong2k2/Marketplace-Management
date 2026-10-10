@@ -2,25 +2,15 @@ package com.Marketplace_Management.Order.DTOs.Requests;
 
 import java.time.LocalDateTime;
 
+import com.Marketplace_Management.Shared.DTOs.Requests.PageRequest;
+
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ListOrderRequest {
-    private int page = 0;
-    private int size = 10;
-    private String sortBy = "createdAt";
-    private String sortOrder = "desc";
-
-    @Nullable
-    @Size(max = 100, message = "Search query must not exceed 100 characters")
-    private String search;
-
+@EqualsAndHashCode(callSuper = true)
+public class ListOrderRequest extends PageRequest {
     @Nullable
     private String status;
 
@@ -35,4 +25,8 @@ public class ListOrderRequest {
 
     @Nullable
     private LocalDateTime dateTo;
+
+    public ListOrderRequest() {
+        super("createdAt", "desc", 10);
+    }
 }

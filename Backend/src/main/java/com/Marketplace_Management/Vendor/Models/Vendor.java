@@ -6,13 +6,19 @@ import com.Marketplace_Management.Shared.Models.AggregateRoot;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder
+@NoArgsConstructor
 public class Vendor extends AggregateRoot<UUID> {
     private UUID userId;
     private String name;
-    private VendorStatus status;
+    @Builder.Default
+    private VendorStatus status = VendorStatus.PENDING;
     private String description;
     private String logo;
     private String banner;
@@ -21,35 +27,8 @@ public class Vendor extends AggregateRoot<UUID> {
     private UUID addressId;
     private String phone;
 
-    public Vendor(UUID id, UUID userId, String name) {
-        super(id);
-        this.userId = userId;
-        this.name = name;
-        this.status = VendorStatus.PENDING;
-    }
 
-    public Vendor(UUID id, UUID userId, String name, VendorStatus status) {
-        super(id);
-        this.userId = userId;
-        this.name = name;
-        this.status = status;
-    }
 
-    public Vendor(UUID id, UUID userId, String name, VendorStatus status,
-                  String description, String logo, String banner,
-                  String taxCode, String email, UUID addressId, String phone) {
-        super(id);
-        this.userId = userId;
-        this.name = name;
-        this.status = status;
-        this.description = description;
-        this.logo = logo;
-        this.banner = banner;
-        this.taxCode = taxCode;
-        this.email = email;
-        this.addressId = addressId;
-        this.phone = phone;
-    }
 
     public void activate() {
         if (this.status != VendorStatus.PENDING) {

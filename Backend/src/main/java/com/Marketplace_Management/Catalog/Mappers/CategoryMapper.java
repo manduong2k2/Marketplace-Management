@@ -18,23 +18,22 @@ public class CategoryMapper implements EntityDomainMapper<Category, CategoryEnti
     public Category toDomain(CategoryEntity entity) {
         Category parent = null;
         if (entity.getParent() != null) {
-            parent = new Category(
-                entity.getParent().getId(),
-                entity.getParent().getName(),
-                entity.getParent().getImage(),
-                entity.getParent().getDescription(),
-                null,
-                null);
+            parent = Category.builder()
+                .id(entity.getParent().getId())
+                .name(entity.getParent().getName())
+                .image(entity.getParent().getImage())
+                .description(entity.getParent().getDescription())
+                .build();
         }
-        
-        Category category = new Category(
-            entity.getId(), 
-            entity.getName(), 
-            entity.getImage(), 
-            entity.getDescription(), 
-            parent, 
-            entity.getChildren().isEmpty() ? java.util.List.of() : entity.getChildren().stream().map(this::toDomain).toList());
-        return category;
+
+        return Category.builder()
+            .id(entity.getId())
+            .name(entity.getName())
+            .image(entity.getImage())
+            .description(entity.getDescription())
+            .parent(parent)
+            .children(entity.getChildren().isEmpty() ? java.util.List.of() : entity.getChildren().stream().map(this::toDomain).toList())
+            .build();
     }
 
     @Override
@@ -43,14 +42,13 @@ public class CategoryMapper implements EntityDomainMapper<Category, CategoryEnti
         if (domain.getParent() != null && domain.getParent().getId() != null) {
             parentEntity = entityManager.getReference(CategoryEntity.class, domain.getParent().getId());
         }
-        
-        CategoryEntity entity = new CategoryEntity(
-            domain.getId(), 
-            domain.getName(), 
-            domain.getImage(), 
-            domain.getDescription(),
-            parentEntity);
-        return entity;
+
+        return CategoryEntity.builder()
+            .id(domain.getId())
+            .name(domain.getName())
+            .image(domain.getImage())
+            .description(domain.getDescription())
+            .parent(parentEntity)
+            .build();
     }
-    
 }

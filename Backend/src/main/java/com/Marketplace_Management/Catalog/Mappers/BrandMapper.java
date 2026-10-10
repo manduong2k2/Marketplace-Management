@@ -11,14 +11,22 @@ public class BrandMapper implements EntityDomainMapper<Brand, BrandEntity>{
     
     @Override
     public Brand toDomain(BrandEntity entity) {
-        Brand brand = new Brand(entity.getId(), entity.getName(), entity.getImage(), entity.getDescription());
-        return brand;
+        return Brand.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .image(entity.getImage())
+                .description(entity.getDescription())
+                .build();
     }
 
     @Override
     public BrandEntity toEntity(Brand domain) {
-        BrandEntity entity = new BrandEntity(domain.getId(), domain.getName(), domain.getImage(), domain.getDescription());
-        return entity;
+        return BrandEntity.builder()
+                .id(domain.getId())
+                .name(domain.getName())
+                .image(domain.getImage())
+                .description(domain.getDescription())
+                .build();
     }
     
 }

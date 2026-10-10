@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.Marketplace_Management.Shared.Utils.Helpers.UrlHelper;
 
 @Data
 @AllArgsConstructor
@@ -63,7 +64,7 @@ public class ProductShortResponse {
             this.variants.forEach(variant -> {
                 if (variant.getImages() != null) {
                     variant.getImages().forEach(image -> {
-                        image.setUrl(url + '/' + image.getUrl());
+                        image.setUrl(UrlHelper.toPublicUrl(url, image.getUrl()));
                     });
                 }
             });

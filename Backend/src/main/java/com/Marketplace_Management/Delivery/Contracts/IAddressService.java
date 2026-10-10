@@ -3,19 +3,19 @@ package com.Marketplace_Management.Delivery.Contracts;
 import java.util.List;
 import java.util.UUID;
 
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.CreateAddressCommand;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.GetMyAddressesCommand;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.UpdateAddressCommand;
+import com.Marketplace_Management.Delivery.DTOs.Commands.Address.SaveAddressCommand;
 import com.Marketplace_Management.Delivery.DTOs.Response.Address.AddressResponse;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.DetailAdressResponse;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.ProvinceResponse;
+import com.Marketplace_Management.Delivery.DTOs.Response.Address.RegionResponse;
 
 public interface IAddressService {
-    List<ProvinceResponse> getMasterRegions();
-    List<AddressResponse> getMyAddresses(UUID userId, GetMyAddressesCommand command);
-    DetailAdressResponse getDefaultAddress(UUID userId);
-    DetailAdressResponse getAddressById(Long addressId);
-    DetailAdressResponse createAddress(UUID userId, CreateAddressCommand command);
-    DetailAdressResponse updateAddress(Long addressId, UpdateAddressCommand command);
-    void deleteAddress(Long addressId);
+    List<RegionResponse> getProvinces();
+    List<RegionResponse> getWards(String provinceId);
+
+    List<AddressResponse> getMyAddresses(UUID userId);
+    AddressResponse getDefaultAddress(UUID userId);
+    AddressResponse getAddress(UUID userId, Long addressId);
+    AddressResponse createAddress(UUID userId, SaveAddressCommand command);
+    AddressResponse updateAddress(UUID userId, Long addressId, SaveAddressCommand command);
+    AddressResponse setDefaultAddress(UUID userId, Long addressId);
+    void deleteAddress(UUID userId, Long addressId);
 }

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.Marketplace_Management.Shared.Utils.Helpers.UrlHelper;
 
 @Data
 @AllArgsConstructor
@@ -95,7 +96,7 @@ public class ProductResponse {
 
         public Variant withUrl(String url) {
             if (this.images != null) {
-                this.images = this.images.stream().map(image -> url + '/' + image).collect(java.util.stream.Collectors.toSet());
+                this.images = this.images.stream().map(image -> UrlHelper.toPublicUrl(url, image)).collect(java.util.stream.Collectors.toSet());
             }
             return this;
         }

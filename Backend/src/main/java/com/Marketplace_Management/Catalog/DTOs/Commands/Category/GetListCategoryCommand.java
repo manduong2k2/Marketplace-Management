@@ -1,28 +1,19 @@
 package com.Marketplace_Management.Catalog.DTOs.Commands.Category;
 
 import com.Marketplace_Management.Catalog.DTOs.Requests.Category.GetListCategoryRequest;
+import com.Marketplace_Management.Shared.DTOs.Commands.PageCommand;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-public class GetListCategoryCommand {
-    private int page = 0;
-    private int size = 10;
-    private String sortBy = "name";
-    private String sortOrder = "asc";
-    private String search;
-
+@EqualsAndHashCode(callSuper = true)
+public class GetListCategoryCommand extends PageCommand {
     public static GetListCategoryCommand fromRequest(GetListCategoryRequest request) {
-        return new GetListCategoryCommand(
-            request.getPage(),
-            request.getSize(),
-            request.getSortBy(),
-            request.getSortOrder(),
-            request.getSearch()
-        );
+        return GetListCategoryCommand.builder().paging(request).build();
     }
 }

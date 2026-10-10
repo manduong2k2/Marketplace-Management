@@ -20,7 +20,6 @@ import com.Marketplace_Management.Catalog.DTOs.Commands.Product.UpdateProductCom
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductResponse;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductShortResponse;
 import com.Marketplace_Management.Catalog.DTOs.Response.ProductVariantResponse;
-import com.Marketplace_Management.Catalog.Entities.ProductEntity;
 import com.Marketplace_Management.Catalog.Events.ProductArchivedEvent;
 import com.Marketplace_Management.Catalog.Events.ProductDeletedEvent;
 import com.Marketplace_Management.Catalog.Models.Product;
@@ -28,13 +27,11 @@ import com.Marketplace_Management.Catalog.Models.ProductOption;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
 import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.ProductQueueConfig;
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
-import com.Marketplace_Management.Shared.Contracts.IFileRepository;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
-import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 import com.Marketplace_Management.Shared.Events.EventOptions;
-import com.Marketplace_Management.Shared.Models.File;
+import com.Marketplace_Management.Catalog.Models.File;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 import com.Marketplace_Management.Vendor.Contracts.IVendorService;
 import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
@@ -51,9 +48,8 @@ public class ProductService implements IProductService {
     @Value("${spring.application.base-url}")
     private String baseUrl;
 
-    public ProductService(IProductRepository productRepository, IFileRepository fileRepository,
-                        IEventPublisher eventPublisher, IFileService fileService,
-                        EntityDomainMapper<Product, ProductEntity> productMapper, IVendorService vendorService) {
+    public ProductService(IProductRepository productRepository, IEventPublisher eventPublisher,
+                          IFileService fileService, IVendorService vendorService) {
         this.productRepository = productRepository;
         this.eventPublisher = eventPublisher;
         this.fileService = fileService;
@@ -62,24 +58,14 @@ public class ProductService implements IProductService {
 
     //@Cacheable(value = "products", key = "#command.page + '_' + #command.size + '_' + #command.search + '_' + #command.categoryIds + '_' + #command.brandId")
     public PaginatedResponse<ProductShortResponse> getAllProducts(GetListProductCommand command) {
-        
-        PaginatedResponse<ProductShortResponse> products = productRepository.findAll(command);
 
-        products.getData().forEach(product -> {
-            product.withUrl(baseUrl);
-        });
-
-        return new PaginatedResponse<>(
-                products.getData(),
-                products.getCurrentPage(),
-                products.getPageSize(),
-                products.getTotalElements());
+        return productRepository.findAll(command).map(product -> product.withUrl(baseUrl));
     }
 
     @Cacheable(value = "product", key = "#ProductId")
     public ProductResponse getProduct(UUID ProductId) {
         Product product = productRepository.findById(ProductId);
-        
+
         if (product == null) {
             throw new ResourceNotFoundException("Product not found");
         }
@@ -89,7 +75,7 @@ public class ProductService implements IProductService {
 
     @Transactional
     public ProductResponse createProduct(CreateProductCommand command) throws IOException {
-        List<ProductOption> productOptions = command.getOptions().stream().map(option -> 
+        List<ProductOption> productOptions = command.getOptions().stream().map(option ->
             ProductOption.builder()
                     .id(option.getTempId())
                     .name(option.getName())
@@ -97,20 +83,14 @@ public class ProductService implements IProductService {
                     .build()
         ).collect(java.util.stream.Collectors.toList());
 
-        VendorResponse vendor;
-
-        if(command.getVendorId() == null) {
-            vendor = vendorService.getByUser(SecurityUtils.currentUserId());
-            if(vendor == null) {
-                throw new ResourceNotFoundException("Vendor not found");
-            }
-            command.setVendorId(vendor.getId());
-        } else {
-            vendor = vendorService.getById(command.getVendorId());
-            if(vendor == null) {
-                throw new ResourceNotFoundException("Vendor not found");
-            }
+        // No vendor given: the product belongs to the current user's vendor (getById throws 404 for an unknown id)
+        VendorResponse vendor = command.getVendorId() != null
+                ? vendorService.getById(command.getVendorId())
+                : vendorService.getByUser(SecurityUtils.currentUserId());
+        if (vendor == null) {
+            throw new ResourceNotFoundException("Vendor not found");
         }
+        command.setVendorId(vendor.getId());
 
         Product product = Product.builder()
                 .name(command.getName())
@@ -121,7 +101,7 @@ public class ProductService implements IProductService {
                 .options(new java.util.HashSet<>(productOptions))
                 .status(command.getStatus() != null ? command.getStatus() : ProductStatusEnum.PUBLISHED.name())
                 .vendorId(command.getVendorId())
-                .variants(command.getVariants().stream().map(variant -> 
+                .variants(command.getVariants().stream().map(variant ->
                     ProductVariant.builder()
                             .name(variant.getName())
                             .sku(variant.getSku())
@@ -155,6 +135,9 @@ public class ProductService implements IProductService {
     @CacheEvict(value = "product", key = "#productId")
     public ProductResponse updateProduct(UUID productId, UpdateProductCommand command) throws IOException {
         Product product = productRepository.findById(productId);
+        if (product == null) {
+            throw new ResourceNotFoundException("Product not found");
+        }
 
         if(command.getName() != null) product.setName(command.getName());
         if(command.getDescription() != null) product.setDescription(command.getDescription());
@@ -167,7 +150,7 @@ public class ProductService implements IProductService {
         if (product.isArchived()) {
             eventPublisher.publish(
                     new ProductArchivedEvent(product.getId()),
-                    new EventOptions("product.archived.queue", false));
+                    new EventOptions(ProductQueueConfig.PRODUCT_ARCHIVED_QUEUE, false));
         }
 
         return new ProductResponse(savedProduct).withUrl(baseUrl);
@@ -190,8 +173,4 @@ public class ProductService implements IProductService {
         return productVariant != null ? new ProductVariantResponse(productVariant).withUrl(baseUrl) : null;
     }
 
-    public ProductVariantResponse getProductVariant(List<UUID> optionIds) {
-        
-        return null;
-    }
 }

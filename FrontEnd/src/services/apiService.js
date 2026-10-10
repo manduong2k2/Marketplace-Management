@@ -66,4 +66,10 @@ export async function fetch(path, options = {}) {
   return { ok: res.ok, status: res.status, data };
 }
 
-export const apiService = { fetch };
+/**
+ * Same as fetch() but never shows the automatic error popup: the caller handles errors itself.
+ * Used by the domain services (authService, cartService, ...).
+ */
+export const request = (path, options = {}) => fetch(path, { ...options, silent: true });
+
+export const apiService = { fetch, request };

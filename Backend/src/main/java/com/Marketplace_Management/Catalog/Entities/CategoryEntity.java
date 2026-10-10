@@ -2,7 +2,6 @@ package com.Marketplace_Management.Catalog.Entities;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
 
@@ -13,12 +12,15 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
 @Entity
 @Table(name = "categories")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@SuperBuilder
 public class CategoryEntity extends UuidEntity {
     @Column(nullable = false)
     @Size(max = 100)
@@ -39,13 +41,7 @@ public class CategoryEntity extends UuidEntity {
     @OneToMany(mappedBy = "parent",
                cascade = CascadeType.ALL,
                orphanRemoval = true)
+    @Builder.Default
     private List<CategoryEntity> children = new ArrayList<>();
 
-    public CategoryEntity(UUID id, String name, String image, String description, CategoryEntity parent) {
-        this.setId(id);
-        this.name = name;
-        this.image = image;
-        this.description = description;
-        this.parent = parent;
-    }
 }

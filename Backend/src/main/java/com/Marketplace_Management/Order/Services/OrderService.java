@@ -20,6 +20,7 @@ import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.OrderQueue
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
+import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 import com.Marketplace_Management.Shared.Events.EventOptions;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
@@ -40,21 +41,22 @@ public class OrderService implements IOrderService{
     public PaginatedResponse<HistoryResponse> list(ListOrderCommand command) {
         return repository.findAll(command);
     }
-    
+
     public PaginatedResponse<HistoryResponse> listByUser(ListOrderCommand command) {
         return repository.findByUserIdWithFilters(SecurityUtils.currentUserId(), command);
     }
 
     public OrderResponse findById(UUID id) {
         Order order = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         return OrderResponse.from(order);
     }
 
     @Transactional
     public OrderResponse placeOrder(PlaceOrderCommand command) {
-        CartResponse cartResponse = CartResponse.from(cartService.getByUserId(SecurityUtils.currentUserId()));
-        
+        var cart = cartService.getByUserId(SecurityUtils.currentUserId());
+        CartResponse cartResponse = cart != null ? CartResponse.from(cart) : null;
+
         if(cartResponse == null || cartResponse.getItems() == null || cartResponse.getItems().isEmpty()) {
             throw new BadRequestException("Cart not found or empty");
         }
@@ -63,7 +65,7 @@ public class OrderService implements IOrderService{
             .userId(SecurityUtils.currentUserId())
             .status(OrderStatusEnum.PENDING.getValue())
             .items(cartResponse.getItems().stream().<OrderItem>map(item -> OrderItem.builder()
-                .productId(item.getProductVariantId()) 
+                .productId(item.getProductVariantId())
                 .quantity(item.getQuantity())
                 .total(item.getProductPrice() * item.getQuantity())
                 .productName(item.getProductName())
@@ -73,18 +75,19 @@ public class OrderService implements IOrderService{
                 .productDescription(item.getProductDescription())
                 .build()
             ).toList())
-            .name(SecurityUtils.currentUserName())
+            // Recipient entered at checkout (may differ from the account name)
+            .name(command.getName())
             .phone(command.getPhone())
             .address(command.getAddress())
             .note(command.getNote())
             .build();
-        
+
         order.setTotal(order.getItems().stream().mapToDouble(OrderItem::getTotal).sum());
 
         Order created = repository.create(order);
 
         eventPublisher.publish(
-            new OrderPlacedEvent(created.getUserId()), 
+            new OrderPlacedEvent(created.getUserId()),
             new EventOptions(OrderQueueConfig.ORDER_PLACED_QUEUE, false)
         );
 

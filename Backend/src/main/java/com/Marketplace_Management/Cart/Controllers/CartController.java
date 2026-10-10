@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.Marketplace_Management.Auth.Constants.Http;
+import com.Marketplace_Management.Shared.Constants.Http;
 import com.Marketplace_Management.Cart.Constants.Message;
 import com.Marketplace_Management.Cart.Contracts.ICartService;
 import com.Marketplace_Management.Cart.DTOs.Commands.AddToCartCommand;

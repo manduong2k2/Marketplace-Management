@@ -10,11 +10,15 @@ import com.Marketplace_Management.Vendor.Models.VendorStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "vendors")
 @Data
 @EqualsAndHashCode(callSuper = false)
+@SuperBuilder
+@NoArgsConstructor
 public class VendorEntity extends UuidEntity {
     @Column(nullable = false)
     private UUID userId;
@@ -48,21 +52,5 @@ public class VendorEntity extends UuidEntity {
     @Column(length = 15, unique = true)
     private String phone;
 
-    public VendorEntity() {}
 
-    public VendorEntity(UUID id, UUID userId, String name, VendorStatus status,
-                        String description, String logo, String banner,
-                        String taxCode, String email, UUID addressId, String phone) {
-        this.setId(id);
-        this.userId = userId;
-        this.name = name;
-        this.status = status;
-        this.description = description;
-        this.logo = logo;
-        this.banner = banner;
-        this.taxCode = taxCode;
-        this.email = email;
-        this.addressId = addressId;
-        this.phone = phone;
-    }
 }

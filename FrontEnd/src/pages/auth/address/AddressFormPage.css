@@ -1,0 +1,62 @@
+/* AddressFormPage.css — numbered steps. Generic components: components/ui/ui.css (ui-*) */
+
+.address-steps {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.address-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+/* Connector line between the step numbers */
+.address-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 34px;
+  bottom: -1.1rem;
+  width: 2px;
+  background: var(--ui-border);
+}
+
+.address-step-index {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-top: 1.45rem;
+  border-radius: 50%;
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.address-step-content {
+  padding-top: 0.6rem;
+}
+
+@media (max-width: 480px) {
+  .address-step {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .address-step-index,
+  .address-step::before {
+    display: none;
+  }
+
+  .address-step-content {
+    padding-top: 0;
+  }
+}

@@ -32,6 +32,15 @@ public abstract class Entity<T> {
         return this.updatedAt;
     }
 
+    // Setters let JSON (e.g. the Redis cache) restore the timestamps
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

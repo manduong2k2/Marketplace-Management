@@ -8,8 +8,8 @@ import com.Marketplace_Management.Catalog.Models.Product;
 import com.Marketplace_Management.Catalog.Models.ProductOption;
 import com.Marketplace_Management.Catalog.Models.ProductVariant;
 import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
-import com.Marketplace_Management.Shared.Entities.FileEntity;
-import com.Marketplace_Management.Shared.Models.File;
+import com.Marketplace_Management.Catalog.Entities.FileEntity;
+import com.Marketplace_Management.Catalog.Models.File;
 
 @Component
 public class ProductVariantMapper implements EntityDomainMapper<ProductVariant, ProductVariantEntity>{
@@ -27,7 +27,7 @@ public class ProductVariantMapper implements EntityDomainMapper<ProductVariant, 
         if (entity == null) {
             return null;
         }
-        
+
         return ProductVariant.builder()
             .id(entity.getId())
             .productId(entity.getProduct().getId())
@@ -49,22 +49,22 @@ public class ProductVariantMapper implements EntityDomainMapper<ProductVariant, 
             .options(entity.getOptions() != null ? entity.getOptions().stream().map(optionMapper::toDomain).collect(java.util.stream.Collectors.toSet()) : null)
             .build();
     }
-    
+
     public ProductVariantEntity toEntity(ProductVariant domain) {
 
         if (domain == null) {
             return null;
         }
-        
-        return new ProductVariantEntity(
-            domain.getId(),
-            domain.getName(),
-            domain.getSku(),
-            domain.getPrice().getValue(),
-            domain.getStock(),
-            domain.getImages() != null ? domain.getImages().stream().map(fileMapper::toEntity).toList() : null,
-            domain.getOptionList(),
-            domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity).collect(java.util.stream.Collectors.toSet()) : null
-        );
+
+        return ProductVariantEntity.builder()
+            .id(domain.getId())
+            .name(domain.getName())
+            .sku(domain.getSku())
+            .price(domain.getPrice().getValue())
+            .stock(domain.getStock())
+            .images(domain.getImages() != null ? domain.getImages().stream().map(fileMapper::toEntity).toList() : null)
+            .optionList(domain.getOptionList())
+            .options(domain.getOptions() != null ? domain.getOptions().stream().map(optionMapper::toEntity).collect(java.util.stream.Collectors.toSet()) : null)
+            .build();
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import com.Marketplace_Management.Shared.Utils.Database.SchemaInspector;
+
 /**
  * One-time data move: Google links used to live in users.google_id; they now live in oauth_infos.
  * Copies every users.google_id that has no oauth_infos row yet. Idempotent (safe on every start),
@@ -19,17 +21,16 @@ public class OAuthInfoMigration implements ApplicationRunner {
     private static final Logger logger = LoggerFactory.getLogger(OAuthInfoMigration.class);
 
     private final DSLContext dsl;
+    private final SchemaInspector schema;
 
-    public OAuthInfoMigration(DSLContext dsl) {
+    public OAuthInfoMigration(DSLContext dsl, SchemaInspector schema) {
         this.dsl = dsl;
+        this.schema = schema;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        Integer columnExists = dsl.fetchOne(
-                "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'google_id'")
-                .into(Integer.class);
-        if (columnExists == null || columnExists == 0) {
+        if (!schema.columnExists("users", "google_id")) {
             return;
         }
 

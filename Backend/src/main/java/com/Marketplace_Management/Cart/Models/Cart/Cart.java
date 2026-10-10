@@ -9,27 +9,32 @@ import java.util.UUID;
 import com.Marketplace_Management.Cart.Constants.CartStatusEnum;
 import com.Marketplace_Management.Shared.Models.AggregateRoot;
 
+import lombok.experimental.SuperBuilder;
+
+@SuperBuilder
 public class Cart extends AggregateRoot<UUID> {
     private UUID userId;
     private CartStatus status;
     private List<CartItem> items;
 
-    public Cart(UUID id, UUID userId) {
-        super(id);
-        this.userId = userId;
-        this.status = new CartStatus(CartStatusEnum.NEW);
-        this.items = new ArrayList<>();
+    // Builder constructor written by hand: a cart without status is NEW, and the item list must be mutable
+    protected Cart(CartBuilder<?, ?> builder) {
+        super(builder);
+        this.userId = builder.userId;
+        this.status = builder.status != null ? builder.status : new CartStatus(CartStatusEnum.NEW);
+        this.items = builder.items != null ? new ArrayList<>(builder.items) : new ArrayList<>();
     }
 
-    public Cart(UUID id, UUID userId, CartStatusEnum status, List<CartItem> items) {
-        super(id);
-        this.userId = userId;
-        this.status = new CartStatus(status);
-        this.items = new ArrayList<>(items);
+    public abstract static class CartBuilder<C extends Cart, B extends CartBuilder<C, B>>
+            extends AggregateRoot.AggregateRootBuilder<UUID, C, B> {
+        public B status(CartStatusEnum status) {
+            this.status = new CartStatus(status);
+            return self();
+        }
     }
 
     // Business methods
-    
+
     public void addItem(CartItem newItem) {
         if (!this.status.canAddItems()) {
             throw new IllegalStateException("Cannot add items to a cart with status: " + this.status.getValue());

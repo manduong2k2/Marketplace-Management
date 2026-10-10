@@ -47,8 +47,9 @@ public class UserSessionService {
 
     /** New token pair + a session row for it. */
     public AuthResponse issue(User user, String message) {
-        IssuedToken access = jwtService.generateAccessToken(user);
-        IssuedToken refresh = jwtService.generateRefreshToken(user);
+        List<String> roleCodes = user.getRoles().stream().map(role -> role.getCode()).toList();
+        IssuedToken access = jwtService.generateAccessToken(user.getId(), roleCodes, user.getName());
+        IssuedToken refresh = jwtService.generateRefreshToken(user.getId());
 
         sessionRepo.save(UserSession.builder()
                 .userId(user.getId())

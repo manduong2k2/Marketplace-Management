@@ -12,16 +12,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "orders")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class OrderEntity extends UuidEntity {
 
@@ -42,7 +43,7 @@ public class OrderEntity extends UuidEntity {
 
     @Column(name = "note", nullable = true)
     private String note;
-    
+
     @Column(name = "total", nullable = false)
     private double total;
 
@@ -52,17 +53,7 @@ public class OrderEntity extends UuidEntity {
         orphanRemoval = true,
         fetch = FetchType.EAGER
     )
+    @Builder.Default
     private List<OrderItemEntity> items = new ArrayList<>();
 
-    public OrderEntity(UUID id, UUID userId, String status, String name, String phone, String address, String note, List<OrderItemEntity> items, double total) {
-        this.setId(id);
-        this.userId = userId;
-        this.status = status;
-        this.name = name;
-        this.phone = phone;
-        this.address = address;
-        this.note = note;
-        this.items = items;
-        this.total = total;
-    }
 }

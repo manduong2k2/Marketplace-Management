@@ -9,7 +9,7 @@ import AdminLayout from '../layouts/admin/AdminLayout';
 import AuthPage from '../pages/auth/AuthPage';
 import ForgotPasswordPage from '../pages/auth/forgot/ForgotPasswordPage';
 import ProfilePage from '../pages/auth/profile/ProfilePage';
-import AddressPage from '../pages/auth/address/AddressPage';
+import AddressFormPage from '../pages/auth/address/AddressFormPage';
 import HomePage from '../pages/home/HomePage';
 import CartPage from '../pages/cart/CartPage';
 import CartCheckoutPage from '../pages/cart/CartCheckoutPage';
@@ -111,7 +111,10 @@ export default function AppRouter() {
           {/* Routes for logged in users */}
           <Route element={<PrivateRoute><MasterLayout /></PrivateRoute>}>
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/addresses" element={<AddressPage />} />
+            <Route path="/profile/addresses/new" element={<AddressFormPage />} />
+            <Route path="/profile/addresses/:id/edit" element={<AddressFormPage />} />
+            {/* Old address book URL: the list now lives on the profile page */}
+            <Route path="/addresses" element={<Navigate to="/profile#addresses" replace />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CartCheckoutPage />} />
             <Route path="/orders" element={<OrderHistoryPage />} />

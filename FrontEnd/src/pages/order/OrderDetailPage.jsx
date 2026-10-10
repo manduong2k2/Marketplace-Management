@@ -1,183 +1,116 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { orderService } from '../../services/orderService';
-import { showSuccess, showError } from '../../components/master/popup';
-import defaultProductImage from '../../assets/product.png';
+import { Page, PageHeader, Card, EmptyState, Pill, SkeletonRows, Thumb } from '../../components/ui/Ui';
+import { formatDate, formatMoney, orderNumber, orderStatus } from '../../components/ui/uiUtils';
+import './OrderHistoryPage.css';
 import './OrderDetailPage.css';
 
-function OrderDetailPage() {
+export default function OrderDetailPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchOrderDetail();
+    document.title = 'My Store - Order details';
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await orderService.getOrderById(id);
+        if (!cancelled) setOrder(res.ok ? res.data : null);
+      } catch {
+        if (!cancelled) setOrder(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [id]);
 
-  const fetchOrderDetail = async () => {
-    try {
-      setLoading(true);
-      const response = await orderService.getOrderById(id);
-      if (response.ok && response.data) {
-        setOrder(response.data);
-      } else {
-        setError('Order not found');
-      }
-    } catch (err) {
-      setError('Failed to load order details');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDING': return '#ffc107';
-      case 'CONFIRMED': return '#17a2b8';
-      case 'SHIPPED': return '#007bff';
-      case 'DELIVERED': return '#28a745';
-      case 'CANCELLED': return '#dc3545';
-      default: return '#6c757d';
-    }
-  };
+  const back = { to: '/orders', label: 'Back to orders' };
 
   if (loading) {
     return (
-      <div className="order-detail-page">
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Loading order details...</p>
-        </div>
-      </div>
+      <Page>
+        <PageHeader back={back} eyebrow="Order" eyebrowIcon="bi-receipt" title="Order details" />
+        <Card bodyless><SkeletonRows rows={3} thumb /></Card>
+      </Page>
     );
   }
 
-  if (error || !order) {
+  if (!order) {
     return (
-      <div className="order-detail-page">
-        <div className="error-state">
-          <p>{error || 'Order not found'}</p>
-          <button className="btn-back" onClick={() => navigate('/orders')}>
-            Back to Orders
-          </button>
-        </div>
-      </div>
+      <Page>
+        <PageHeader back={back} eyebrow="Order" eyebrowIcon="bi-receipt" title="Order details" />
+        <Card bodyless>
+          <EmptyState icon="bi-search" title="Order not found" text="This order does not exist or does not belong to your account.">
+            <Link to="/orders" className="ui-btn ui-btn--primary">See my orders</Link>
+          </EmptyState>
+        </Card>
+      </Page>
     );
   }
+
+  const status = orderStatus(order.status);
+  const items = order.items || [];
+  const unitCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="order-detail-page">
-      <div className="order-detail-container">
-        <div className="order-detail-header">
-          <button className="btn-back" onClick={() => navigate('/orders')}>
-            ← Back to Orders
-          </button>
-          <h1>Order Details</h1>
-        </div>
+    <Page>
+      <PageHeader
+        back={back}
+        eyebrow="Order"
+        eyebrowIcon="bi-receipt"
+        title={<>Order <span className="ui-mono">{orderNumber(order.id)}</span></>}
+        description={`Placed on ${formatDate(order.createdAt, true)}`}
+        actions={<Pill tone={status.tone} icon={status.icon}>{status.label}</Pill>}
+      />
 
-        <div className="order-detail-content">
-          {/* Order Info */}
-          <div className="order-info-section">
-            <div className="info-header">
-              <h2>Order Information</h2>
-              <span
-                className="order-status-badge"
-                style={{ backgroundColor: getStatusColor(order.status) }}
-              >
-                {order.status}
-              </span>
-            </div>
-
-            <div className="info-grid">
-              <div className="info-item">
-                <label>Order ID:</label>
-                <span>{order.id}</span>
-              </div>
-              <div className="info-item">
-                <label>Order Date:</label>
-                <span>{new Date(order.createdAt).toLocaleString()}</span>
-              </div>
-              <div className="info-item">
-                <label>Last Updated:</label>
-                <span>{new Date(order.updatedAt).toLocaleString()}</span>
-              </div>
-              <div className="info-item">
-                <label>Total:</label>
-                <span className="total-price">${order.total.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Shipping Info */}
-          <div className="shipping-info-section">
-            <h2>Shipping Information</h2>
-            <div className="shipping-details">
-              <div className="shipping-item">
-                <label>Name:</label>
-                <span>{order.name}</span>
-              </div>
-              <div className="shipping-item">
-                <label>Phone:</label>
-                <span>{order.phone}</span>
-              </div>
-              <div className="shipping-item">
-                <label>Address:</label>
-                <span>{order.address}</span>
-              </div>
-              {order.note && (
-                <div className="shipping-item">
-                  <label>Note:</label>
-                  <span>{order.note}</span>
+      <div className="ui-split">
+        <Card icon="bi-box-seam" title="Items" subtitle={`${unitCount} item${unitCount > 1 ? 's' : ''}`} bodyless>
+          <ul className="ui-list">
+            {items.map(item => (
+              <li key={item.id} className="ui-row">
+                <Thumb src={item.productImages?.[0]} />
+                <div className="ui-row-main">
+                  <p className="ui-row-title">{item.productName || 'Product'}</p>
+                  <p className="ui-row-sub">
+                    {formatMoney(item.price)} × {item.quantity}
+                    {item.productSku && <> · <span className="ui-mono">{item.productSku}</span></>}
+                  </p>
                 </div>
-              )}
-            </div>
-          </div>
+                <span className="ui-price">{formatMoney(item.total)}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
 
-          {/* Order Items */}
-          <div className="order-items-section">
-            <h2>Order Items</h2>
-            <div className="items-list">
-              {order.items && order.items.map((item) => (
-                <div key={item.id} className="order-item-card">
-                  <div className="item-image">
-                    {item.productImages && item.productImages.length > 0 ? (
-                      <img src={item.productImages[0]} alt={item.name} />
-                    ) : (
-                      <img src={defaultProductImage} alt="Product" />
-                    )}
-                  </div>
+        <aside className="ui-stack ui-sticky">
+          <Card icon="bi-receipt" title="Payment summary">
+            <dl className="ui-kv">
+              <div><dt>Subtotal</dt><dd>{formatMoney(order.total)}</dd></div>
+              <div><dt>Shipping</dt><dd className="ui-muted">Free</dd></div>
+              <div className="ui-kv-total"><dt>Total</dt><dd>{formatMoney(order.total)}</dd></div>
+            </dl>
+          </Card>
 
-                  <div className="item-details">
-                    <h3 className="item-name">{item.productName || 'Product'}</h3>
-                    <p className="item-meta">
-                      ${item.price?.toFixed(2) || '0.00'} × {item.quantity}
-                    </p>
-                  </div>
+          <Card icon="bi-truck" title="Delivery">
+            <dl className="ui-kv ui-kv--stacked">
+              <div><dt>Recipient</dt><dd>{order.name}</dd></div>
+              <div><dt>Phone</dt><dd>{order.phone}</dd></div>
+              <div><dt>Address</dt><dd>{order.address}</dd></div>
+              {order.note && <div><dt>Note</dt><dd className="order-note">{order.note}</dd></div>}
+            </dl>
+          </Card>
 
-                  <div className="item-total">
-                    <span className="item-total-price">${item.total.toFixed(2)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="order-summary">
-              <div className="summary-row">
-                <span>Subtotal:</span>
-                <span>${order.total.toFixed(2)}</span>
-              </div>
-              <div className="summary-row total">
-                <span>Total:</span>
-                <span>${order.total.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+          <Card icon="bi-clock-history" title="Timeline">
+            <dl className="ui-kv">
+              <div><dt>Placed</dt><dd>{formatDate(order.createdAt, true)}</dd></div>
+              <div><dt>Last update</dt><dd>{formatDate(order.updatedAt, true)}</dd></div>
+            </dl>
+          </Card>
+        </aside>
       </div>
-    </div>
+    </Page>
   );
 }
-
-export default OrderDetailPage;

@@ -2,6 +2,7 @@ package com.Marketplace_Management.Vendor.DTOs.Request;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.Marketplace_Management.Shared.Annotation.Rules.Uuid;
 import com.Marketplace_Management.Shared.Annotation.Rules.Unique;
 
 import jakarta.annotation.Nullable;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterVendorRequest {
+public class RegisterVendorRequest implements VendorProfileFields {
     @NotBlank(message = "Vendor name is required")
     @Size(min = 1, max = 100, message = "Vendor name must be between 1 and 100 characters")
     private String name;
@@ -44,7 +45,7 @@ public class RegisterVendorRequest {
     private String email;
 
     @Nullable
-    @Pattern(regexp = "^[0-9a-fA-F\\-]{36}$", message = "Address ID must be a valid UUID")
+    @Uuid(message = "Address ID must be a valid id")
     private String addressId;
 
     @Nullable

@@ -34,6 +34,8 @@ public final class Message {
     public static final String PROFILE_UPDATED = "Profile updated successfully";
     public static final String LOGOUT_SUCCESS = "Logout successful";
     public static final String PASSWORD_UPDATED = "Your password has been updated successfully.";
+    public static final String CURRENT_PASSWORD_INCORRECT = "Your current password is incorrect";
+    public static final String PASSWORD_SAME_AS_CURRENT = "The new password must be different from the current one";
     public static final String PASSWORD_RESET_FAILED = "Invalid or expired password reset link.";
 
     private Message() {

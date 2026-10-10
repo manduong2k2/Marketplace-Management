@@ -16,16 +16,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
+import com.Marketplace_Management.Shared.Constants.UserRole;
 import com.Marketplace_Management.Shared.Controllers.BaseController;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 import com.Marketplace_Management.Vendor.Contracts.IVendorService;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateCollectionCommand;
-import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.GetListVendorCommand;
-import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateCollectionCommand;
-import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.VendorProfileCommand;
 import com.Marketplace_Management.Vendor.DTOs.Request.CreateCollectionRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.CreateVendorRequest;
 import com.Marketplace_Management.Vendor.DTOs.Request.GetListVendorRequest;
@@ -70,6 +71,8 @@ public class VendorController extends BaseController{
         return objectResponse(collections);
     }
 
+    @Authenticated
+    @PreAuthorize("@vendorSecurity.canManage(#id)")
     @PostMapping("/{id}/collections")
     public ResponseEntity<Map<String, Object>> createCollection(@PathVariable UUID id, @RequestBody CreateCollectionRequest request) {
         CreateCollectionCommand command = CreateCollectionCommand.fromRequest(request);
@@ -77,12 +80,16 @@ public class VendorController extends BaseController{
         return createdResponse(collection);
     }
 
+    @Authenticated
+    @PreAuthorize("@vendorSecurity.canManage(#id)")
     @DeleteMapping("/{id}/collections/{collectionId}")
     public ResponseEntity<Map<String, Object>> removeCollection(@PathVariable UUID id, @PathVariable UUID collectionId) {
         vendorService.removeCollection(id, collectionId);
-        return objectResponse(Map.of("message", "Collection removed successfully"));
+        return successResponse("Collection removed successfully");
     }
 
+    @Authenticated
+    @PreAuthorize("@vendorSecurity.canManage(#id)")
     @PutMapping("/{id}/collections/{collectionId}")
     public ResponseEntity<Map<String, Object>> updateCollection(@PathVariable UUID id, @PathVariable UUID collectionId, @RequestBody UpdateCollectionRequest request) {
         UpdateCollectionCommand command = UpdateCollectionCommand.fromRequest(request);
@@ -90,15 +97,18 @@ public class VendorController extends BaseController{
         return objectResponse(collection);
     }
 
+    // Creates a vendor for any user (userId in the request): admin only. Users register their own via POST /me
     @Authenticated
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@Valid @ModelAttribute CreateVendorRequest request) throws IOException {
-        CreateVendorCommand command = CreateVendorCommand.fromRequest(request);
-        VendorResponse vendor = vendorService.create(command);
+        VendorResponse vendor = vendorService.create(request.getUserId(), VendorProfileCommand.fromRequest(request));
 
         return createdResponse(vendor);
     }
 
+    @Authenticated
+    @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping("/{id}/activate")
     public ResponseEntity<Map<String, Object>> activate(@PathVariable UUID id) {
         vendorService.active(id);
@@ -107,11 +117,11 @@ public class VendorController extends BaseController{
     }
 
     @Authenticated
+    @PreAuthorize("@vendorSecurity.canManage(#id)")
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable UUID id,
-            @Valid @RequestBody UpdateVendorRequest request) {
-        UpdateVendorCommand command = UpdateVendorCommand.fromRequest(request);
-        vendorService.update(id, command);
+            @Valid @ModelAttribute UpdateVendorRequest request) throws IOException {
+        vendorService.update(id, VendorProfileCommand.fromRequest(request));
 
         return successResponse("Vendor updated successfully");
     }
@@ -127,8 +137,7 @@ public class VendorController extends BaseController{
     @Authenticated
     @PostMapping("/me")
     public ResponseEntity<Map<String, Object>> register(@Valid @ModelAttribute RegisterVendorRequest request) throws IOException {
-        RegisterVendorCommand command = RegisterVendorCommand.fromRequest(request);
-        VendorResponse vendor = vendorService.register(command);
+        VendorResponse vendor = vendorService.register(VendorProfileCommand.fromRequest(request));
 
         return createdResponse(vendor);
     }

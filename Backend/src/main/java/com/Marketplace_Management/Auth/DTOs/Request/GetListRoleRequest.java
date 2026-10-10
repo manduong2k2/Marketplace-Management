@@ -1,34 +1,29 @@
 package com.Marketplace_Management.Auth.DTOs.Request;
 
-import jakarta.annotation.Nullable;
+import com.Marketplace_Management.Shared.DTOs.Requests.PageRequest;
+
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
+/** search matches the role name or code. */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class GetListRoleRequest {
-    @Min(value = 0, message = "page must be >= 0")
-    private int page = 0;
+@EqualsAndHashCode(callSuper = true)
+public class GetListRoleRequest extends PageRequest {
+    public GetListRoleRequest() {
+        super("name", "asc", 20);
+    }
 
-    @Min(value = 1, message = "size must be >= 1")
+    @Override
     @Max(value = 100, message = "size must not exceed 100")
-    private int size = 20;
+    public int getSize() {
+        return super.getSize();
+    }
 
+    @Override
     @Pattern(regexp = "name|code|createdAt", message = "sortBy must be one of: name, code, createdAt")
-    private String sortBy = "name";
-
-    @Pattern(regexp = "(?i)asc|desc", message = "sortOrder must be asc or desc")
-    private String sortOrder = "asc";
-
-    // Matches name or code
-    @Nullable
-    @Size(max = 100, message = "Search query must not exceed 100 characters")
-    private String search;
+    public String getSortBy() {
+        return super.getSortBy();
+    }
 }

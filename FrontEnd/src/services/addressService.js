@@ -1,62 +1,31 @@
 // src/services/addressService.js
 import { fetch } from './apiService';
 
+// An address = ward (belongs to a province) + detail (house number, street...) + isDefault.
+// Responses: { id, detail, isDefault, ward: {id, name, fullName}, province: {...}, fullAddress }
 export const addressService = {
-  /**
-   * GET /api/addresses/default
-   * Lấy địa chỉ mặc định của user hiện tại
-   */
-  getDefaultAddress: () => fetch('/api/addresses/default'),
+  /** GET /api/addresses/provinces — [{ id, name, fullName }] (public) */
+  getProvinces: () => fetch('/api/addresses/provinces'),
 
-  /**
-   * GET /api/addresses/mine
-   * Lấy danh sách địa chỉ của user hiện tại
-   * @param {Object} params - { search, province, ward, isDefault }
-   */
-  getMyAddresses: (params = {}) => {
-    const query = new URLSearchParams();
-    if (params.search)    query.append('search', params.search);
-    if (params.province)  query.append('province', params.province);
-    if (params.ward)      query.append('ward', params.ward);
-    if (params.isDefault !== undefined) query.append('isDefault', params.isDefault);
-    const qs = query.toString();
-    return fetch(`/api/addresses/mine${qs ? `?${qs}` : ''}`);
-  },
+  /** GET /api/addresses/provinces/:provinceId/wards — [{ id, name, fullName }] (public) */
+  getWards: (provinceId) => fetch(`/api/addresses/provinces/${encodeURIComponent(provinceId)}/wards`),
 
-  /**
-   * GET /api/addresses/:addressId
-   * Lấy chi tiết một địa chỉ
-   * @param {number} addressId
-   */
+  /** GET /api/addresses/mine — default first, then newest */
+  getMyAddresses: () => fetch('/api/addresses/mine'),
+
+  /** GET /api/addresses/default — 404 when the user has no address yet */
+  getDefaultAddress: () => fetch('/api/addresses/default', { silent: true }),
+
   getAddressById: (addressId) => fetch(`/api/addresses/${addressId}`),
 
-  /**
-   * POST /api/addresses
-   * Tạo địa chỉ mới
-   * @param {Object} data - { title, streetName, houseNumber, detail?, wardId, isDefault? }
-   */
+  /** data: { wardId, detail, isDefault? } — the first address always becomes the default */
   createAddress: (data) => fetch('/api/addresses', { method: 'POST', body: data }),
 
-  /**
-   * PUT /api/addresses/:addressId
-   * Cập nhật địa chỉ
-   * @param {number} addressId
-   * @param {Object} data - { streetName, houseNumber, title?, detail?, wardId, isDefault }
-   */
-  updateAddress: (addressId, data) =>
-    fetch(`/api/addresses/${addressId}`, { method: 'PUT', body: data }),
+  /** data: { wardId, detail, isDefault? } */
+  updateAddress: (addressId, data) => fetch(`/api/addresses/${addressId}`, { method: 'PUT', body: data }),
 
-  /**
-   * DELETE /api/addresses/:addressId
-   * Xóa địa chỉ
-   * @param {number} addressId
-   */
-  deleteAddress: (addressId) =>
-    fetch(`/api/addresses/${addressId}`, { method: 'DELETE' }),
+  setDefaultAddress: (addressId) => fetch(`/api/addresses/${addressId}/default`, { method: 'PATCH' }),
 
-  /**
-   * GET /api/addresses/master-regions
-   * Lấy danh sách tỉnh/thành phố (không cần auth)
-   */
-  getMasterRegions: () => fetch('/api/addresses/master-regions'),
+  /** Deleting the default promotes the most recent remaining address */
+  deleteAddress: (addressId) => fetch(`/api/addresses/${addressId}`, { method: 'DELETE' }),
 };

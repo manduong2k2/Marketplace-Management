@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.Constants.ProductStatusEnum;
+import com.Marketplace_Management.Shared.Annotation.Rules.Uuid;
 import com.Marketplace_Management.Shared.Annotation.Rules.Distinct;
 import com.Marketplace_Management.Shared.Annotation.Rules.Exist;
 import com.Marketplace_Management.Shared.Annotation.Rules.In;
@@ -27,7 +28,7 @@ public class UpdateProductRequest {
 
     @NotNull(message = "Brand ID is required")
     @Exist(table = "brands", column = "id", message = "Brand not found", type = UUID.class)
-    @org.hibernate.validator.constraints.UUID
+    @Uuid
     private String brandId;
     
     @Nullable
@@ -36,7 +37,7 @@ public class UpdateProductRequest {
     
     @Nullable
     @Distinct(message = "Each category ID must be unique")
-    private List<@Exist(table = "categories", column = "id", message = "Category not found", type = UUID.class) @org.hibernate.validator.constraints.UUID String> categoryIds;
+    private List<@Exist(table = "categories", column = "id", message = "Category not found", type = UUID.class) @Uuid String> categoryIds;
     
     @In(enumClass = ProductStatusEnum.class, message = "Invalid product status")
     private String status;

@@ -1,7 +1,7 @@
 package com.Marketplace_Management.Shared.Models;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+import com.Marketplace_Management.Shared.Utils.Helpers.UuidV7;
 
 public abstract class DomainEvent {
     private final String eventId;
@@ -9,7 +9,7 @@ public abstract class DomainEvent {
     private final String eventType;
 
     protected DomainEvent() {
-        this.eventId = UUID.randomUUID().toString();
+        this.eventId = UuidV7.generate().toString();
         this.occurredOn = LocalDateTime.now();
         this.eventType = this.getClass().getSimpleName();
     }

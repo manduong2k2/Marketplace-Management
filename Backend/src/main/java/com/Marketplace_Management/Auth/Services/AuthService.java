@@ -4,6 +4,8 @@ import jakarta.mail.MessagingException;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,8 +17,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Constants.UserStatus;
@@ -25,6 +25,7 @@ import com.Marketplace_Management.Auth.Contracts.IOAuthInfoRepository;
 import com.Marketplace_Management.Auth.Contracts.IRoleRepository;
 import com.Marketplace_Management.Auth.Contracts.IUserRepository;
 import com.Marketplace_Management.Auth.DTOs.Commands.ActivateUserCommand;
+import com.Marketplace_Management.Auth.DTOs.Commands.ChangePasswordCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.ForgotPasswordCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.OAuthLoginCommand;
 import com.Marketplace_Management.Auth.DTOs.Commands.LoginCommand;
@@ -77,7 +78,6 @@ public class AuthService implements IAuthService {
     }
 
     @Transactional
-    @CacheEvict(value = "users", key = "#command.email")
     public RegisterResponse register(RegisterCommand command) throws MessagingException {
         User user = User.builder()
             .email(command.getEmail())
@@ -103,16 +103,16 @@ public class AuthService implements IAuthService {
     public AuthResponse loginWithOAuth(OAuthLoginCommand command) {
         OAuthUserInfo info = oauthStrategies.resolve(command.getProvider()).verify(command.getCredential());
 
-        User user = oauthInfoRepo.findByProviderAndSubject(info.provider(), info.subject())
-                .flatMap(link -> repo.findById(link.getUserId()))
-                .map(linked -> {
-                    // Linked accounts were activated when linked: INACTIVE now means deactivated by an admin
-                    if (!UserStatus.ACTIVE.equals(linked.getStatus())) {
-                        throw new AuthenticationException(Message.ACTIVATION) {};
-                    }
-                    return linked;
-                })
-                .orElseGet(() -> linkOrCreateUser(info));
+        Optional<OAuthInfo> link = oauthInfoRepo.findByProviderAndSubject(info.provider(), info.subject());
+        if (link.isEmpty()) {
+            return sessionService.issue(linkOrCreateUser(info), Message.LOGIN_SUCCESS);
+        }
+
+        // Linked accounts were activated when linked: INACTIVE now means deactivated by an admin.
+        // A missing user was deleted (soft delete keeps the link and the email taken), so it is refused too.
+        User user = repo.findById(link.get().getUserId())
+                .filter(linked -> UserStatus.ACTIVE.equals(linked.getStatus()))
+                .orElseThrow(() -> new AuthenticationException(Message.ACTIVATION) {});
 
         return sessionService.issue(user, Message.LOGIN_SUCCESS);
     }
@@ -169,7 +169,8 @@ public class AuthService implements IAuthService {
     }
 
     @Transactional
-    @CacheEvict(value = "users", key = "#command.email")
+    // The users cache is keyed by user id (getUserById), which is only known after the email lookup
+    @CacheEvict(value = "users", allEntries = true)
     public AuthResponse activeUser(ActivateUserCommand command) {
         var user = repo.findByEmail(command.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
@@ -185,37 +186,26 @@ public class AuthService implements IAuthService {
     }
 
     public AuthResponse login(LoginCommand command) {
-        var user = repo.findByEmail(command.getEmail())
-                .orElseThrow(() -> new AuthenticationException(Message.CREDENTIALS) {});
-
-        if (!user.getStatus().equals(UserStatus.ACTIVE)) {
-            throw new AuthenticationException(Message.ACTIVATION) {};
-        }
-
-        if (!encoder.matches(command.getPassword(), user.getPassword())) {
-            throw new AuthenticationException(Message.CREDENTIALS) {};
-        }
-
-        return sessionService.issue(user, Message.LOGIN_SUCCESS);
+        return sessionService.issue(authenticate(command), Message.LOGIN_SUCCESS);
     }
-    
+
     public AuthResponse loginAdmin(LoginCommand command) {
-        var user = repo.findByEmail(command.getEmail())
-                .orElseThrow(() -> new AuthenticationException(Message.CREDENTIALS) {});
-
-        if (!user.getStatus().equals(UserStatus.ACTIVE)) {
-            throw new AuthenticationException(Message.ACTIVATION) {};
-        }
-
-        if (!encoder.matches(command.getPassword(), user.getPassword())) {
-            throw new AuthenticationException(Message.CREDENTIALS) {};
-        }
-        
-        if (!user.getRoles().stream().anyMatch(role -> role.getCode().equals(UserRole.ADMIN))) {
+        User user = authenticate(command);
+        if (user.getRoles().stream().noneMatch(role -> UserRole.ADMIN.equals(role.getCode()))) {
             throw new AccessDeniedException(Message.FORBIDDEN) {};
         }
-
         return sessionService.issue(user, Message.LOGIN_SUCCESS);
+    }
+
+    // Password first, then status: the activation message must not reveal anything to someone without the password
+    private User authenticate(LoginCommand command) {
+        User user = repo.findByEmail(command.getEmail())
+                .filter(found -> encoder.matches(command.getPassword(), found.getPassword()))
+                .orElseThrow(() -> new AuthenticationException(Message.CREDENTIALS) {});
+        if (!UserStatus.ACTIVE.equals(user.getStatus())) {
+            throw new AuthenticationException(Message.ACTIVATION) {};
+        }
+        return user;
     }
 
     public AuthResponse refreshToken(RefreshTokenCommand command) {
@@ -235,14 +225,14 @@ public class AuthService implements IAuthService {
         return sessionService.issue(user, Message.TOKEN_REFRESHED);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendResetPasswordEmail(ForgotPasswordCommand command) throws MessagingException {
         String token = Helper.randomString(16);
         emailVerificationTokenService.createToken(command.getEmail(), token);
         emailVerificationTokenService.sendResetPasswordEmail(command.getEmail(), token);
     }
 
-    @CacheEvict(value = "users", key = "#command.email")
+    // The users cache is keyed by user id (getUserById), which is only known after the email lookup
+    @CacheEvict(value = "users", allEntries = true)
     public boolean resetPassword(ResetPasswordCommand command) {
         var user = repo.findByEmail(command.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
@@ -258,35 +248,63 @@ public class AuthService implements IAuthService {
         return true;
     }
 
+    /**
+     * Self-service password change. Signs the user out everywhere else: every session (this one included)
+     * is revoked, then a fresh session is issued for the current browser.
+     */
+    @CacheEvict(value = "users", key = "#userId")
+    public AuthResponse changePassword(UUID userId, ChangePasswordCommand command) {
+        User user = requireUser(userId);
+
+        if (!encoder.matches(command.getCurrentPassword(), user.getPassword())) {
+            throw new BadRequestException(Message.CURRENT_PASSWORD_INCORRECT);
+        }
+        if (encoder.matches(command.getNewPassword(), user.getPassword())) {
+            throw new BadRequestException(Message.PASSWORD_SAME_AS_CURRENT);
+        }
+
+        user.setPassword(encoder.encode(command.getNewPassword()));
+        repo.save(user);
+
+        sessionService.revokeAll(List.of(userId));
+        return sessionService.issue(user, Message.PASSWORD_UPDATED);
+    }
+
     public void logout(String accessToken, String refreshToken) {
         sessionService.logout(accessToken, refreshToken);
     }
 
     @Cacheable(value = "users", key = "#userId")
     public User getUserById(UUID userId) {
-        return repo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
+        return requireUser(userId);
     }
 
     @Transactional
     @CacheEvict(value = "users", key = "#userId")
     public void updateProfile(UUID userId, UpdateProfileCommand command) throws IOException {
-        var user = repo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
-        user.setName(command.getName());
-        user.setPhone(command.getPhone().isBlank() ? user.getPhone() : command.getPhone());
+        User user = requireUser(userId);
+        if (command.getName() != null && !command.getName().isBlank()) {
+            user.setName(command.getName().trim());
+        }
+        String phone = command.getPhone() != null ? command.getPhone().trim() : "";
+        if (!phone.isEmpty() && !phone.equals(user.getPhone())) {
+            boolean taken = repo.findByPhone(phone).filter(other -> !other.getId().equals(userId)).isPresent();
+            if (taken) {
+                throw new BadRequestException(Message.PHONE_EXISTS);
+            }
+            user.setPhone(phone);
+        }
         if(command.getAvatar() != null) {
             String url = fileService.uploadFile(command.getAvatar(), "users/avatars");
             user.setAvatar(url);
         }
         repo.save(user);
     }
-    
+
     @Transactional
     @CacheEvict(value = "users", key = "#userId")
     public void grantRole(UUID userId, String role) {
-        var user = repo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
+        User user = requireUser(userId);
 
         var roleEntity = roleRepo.findByCode(role)
                 .orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
@@ -294,17 +312,10 @@ public class AuthService implements IAuthService {
         repo.save(user);
         eventPublisher.publishEvent(UserAccessChangedEvent.of(userId, "role granted: " + role));
     }
-    
-    @Transactional
-    @CacheEvict(value = "users", key = "#userId")
-    public void revokeRole(UUID userId, String role) {
-        var user = repo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
 
-        var roleEntity = roleRepo.findByCode(role)
-                .orElseThrow(() -> new ResourceNotFoundException(Message.ROLE_NOT_FOUND));
-        user.getRoles().remove(roleEntity);
-        repo.save(user);
-        eventPublisher.publishEvent(UserAccessChangedEvent.of(userId, "role revoked: " + role));
+
+    private User requireUser(UUID userId) {
+        return repo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
     }
 }

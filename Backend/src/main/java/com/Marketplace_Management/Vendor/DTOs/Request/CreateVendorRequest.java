@@ -4,11 +4,14 @@ import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.Marketplace_Management.Shared.Annotation.Rules.Uuid;
+import com.Marketplace_Management.Shared.Annotation.Rules.Exist;
 import com.Marketplace_Management.Shared.Annotation.Rules.Unique;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -18,8 +21,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateVendorRequest {
-    @Nullable
+public class CreateVendorRequest implements VendorProfileFields {
+    // Owner of the vendor (admins create vendors for any user); deleted users do not count
+    @NotNull(message = "Please choose the owner")
+    @Exist(table = "users", column = "id", type = UUID.class, deletedAtColumn = "deleted_at", message = "User not found")
     private UUID userId;
 
     @NotBlank(message = "Vendor name is required")
@@ -48,7 +53,7 @@ public class CreateVendorRequest {
     private String email;
 
     @Nullable
-    @Pattern(regexp = "^[0-9a-fA-F\\-]{36}$", message = "Address ID must be a valid UUID")
+    @Uuid(message = "Address ID must be a valid id")
     private String addressId;
 
     @Nullable

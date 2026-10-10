@@ -173,50 +173,35 @@
   border-color: #667eea;
 }
 
-/* Fluid grid — responsive width with minmax for smooth resizing on desktop */
+/* Fixed columns: at most 4 cards per row, each exactly 1/4 of the row (a short last row
+   keeps that width instead of stretching). minmax(0, 1fr) lets long titles wrap instead of widening a column. */
 .product-grid {
-  display: grid !important;
+  display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-}
-
-/* Responsive adjustments — specific breakpoints for control */
-@media (max-width: 1400px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
-  }
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 @media (max-width: 1200px) {
   .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 992px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
-  }
-}
-
-/* Mobile: Fixed 2 columns per row */
 @media (max-width: 768px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
 }
 
 @media (max-width: 576px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
     gap: 8px;
   }
 }
 
 @media (max-width: 430px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
     gap: 6px;
   }
 }

@@ -1,68 +1,50 @@
 package com.Marketplace_Management.Shared.Security;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.Marketplace_Management.Shared.Constants.UserRole;
 
-public class SecurityUtils {
+/** The authenticated user of the current request (set by JwtAuthenticationFilter). */
+public final class SecurityUtils {
+    private SecurityUtils() {
+    }
+
+    private static Optional<UserPrincipal> principal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal
+                ? Optional.of(principal)
+                : Optional.empty();
+    }
+
     public static UUID currentUserId() {
-
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (authentication == null
-                || !(authentication.getPrincipal() instanceof UserPrincipal)) {
-            return null;
-        }
-
-        return ((UserPrincipal) authentication.getPrincipal()).getId();
+        return principal().map(UserPrincipal::getId).orElse(null);
     }
 
     public static String currentUserName() {
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (authentication == null
-                || !(authentication.getPrincipal() instanceof UserPrincipal)) {
-            return null;
-        }
-
-        return ((UserPrincipal) authentication.getPrincipal()).getName();
+        return principal().map(UserPrincipal::getName).orElse(null);
     }
 
     public static List<String> currentUserRoles() {
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (authentication == null
-                || !(authentication.getPrincipal() instanceof UserPrincipal)) {
-            return null;
-        }
-
-        return ((UserPrincipal) authentication.getPrincipal()).getRoles().stream()
-                .map(role -> role.getAuthority())
-                .toList();
+        return principal()
+                .map(p -> p.getRoles().stream().map(GrantedAuthority::getAuthority).toList())
+                .orElse(null);
     }
 
     public static boolean isAdmin() {
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
+        return principal()
+                .map(p -> p.getRoles().stream().anyMatch(role -> UserRole.ADMIN.equals(role.getAuthority())))
+                .orElse(false);
+    }
 
-        if (authentication == null
-                || !(authentication.getPrincipal() instanceof UserPrincipal)) {
-            return false;
-        }
-
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        return principal.getRoles().stream()
-                .anyMatch(role -> role.getAuthority().equals(UserRole.ADMIN));
+    /** True when the current user owns the resource (ownerId) or is an admin. */
+    public static boolean isOwnerOrAdmin(UUID ownerId) {
+        UUID currentUserId = currentUserId();
+        return currentUserId != null && (isAdmin() || currentUserId.equals(ownerId));
     }
 }

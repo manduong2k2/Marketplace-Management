@@ -1,37 +1,5 @@
 // services/orderService.js
-import { API_URL } from '../configs/constants';
-
-async function request(path, options = {}) {
-  const { method = 'GET', body } = options;
-
-  const res = await fetch(
-    `${API_URL}${path}`,
-    {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: body ? JSON.stringify(body) : undefined,
-    }
-  );
-
-  const contentType = res.headers.get('Content-Type') || '';
-
-  let data;
-  if (contentType.includes('application/json')) {
-    data = await res.json();
-  } else {
-    data = await res.text();
-  }
-
-  return {
-    ok: res.ok,
-    status: res.status,
-    headers: res.headers,
-    data,
-  };
-}
+import { request } from './apiService';
 
 // ===== Order APIs =====
 export const orderService = {

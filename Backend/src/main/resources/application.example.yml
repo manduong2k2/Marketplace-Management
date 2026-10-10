@@ -94,5 +94,6 @@ jwt:
   private-key: classpath:keys/private.pem
   public-key: classpath:keys/public.pem
 
-
-  
+# true: 500 responses include the exception class, cause and stack trace (never in production)
+app:
+  debug: false

@@ -14,11 +14,15 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @SoftDelete(columnName = "deleted_at", strategy = SoftDeleteType.TIMESTAMP)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @MappedSuperclass
+@SuperBuilder
+@NoArgsConstructor
 @EntityListeners(EntityEventListener.class) // publishes EntityEvent<T> on create/update/delete for every entity
 public abstract class JpaEntity {
     @CreationTimestamp

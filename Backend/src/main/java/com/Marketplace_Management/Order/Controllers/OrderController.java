@@ -39,7 +39,7 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
-    public ResponseEntity<PaginatedResponse<HistoryResponse>> list(ListOrderRequest request) {
+    public ResponseEntity<PaginatedResponse<HistoryResponse>> list(@Valid ListOrderRequest request) {
         ListOrderCommand command = ListOrderCommand.fromRequest(request);
         
         PaginatedResponse<HistoryResponse> response = orderService.list(command);
@@ -48,7 +48,7 @@ public class OrderController {
 
     @GetMapping("/me")
     @Authenticated
-    public ResponseEntity<PaginatedResponse<HistoryResponse>> listByUser(ListOrderRequest request) {
+    public ResponseEntity<PaginatedResponse<HistoryResponse>> listByUser(@Valid ListOrderRequest request) {
         ListOrderCommand command = ListOrderCommand.fromRequest(request);
 
         PaginatedResponse<HistoryResponse> response = orderService.listByUser(command);

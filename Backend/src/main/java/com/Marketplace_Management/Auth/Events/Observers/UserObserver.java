@@ -36,7 +36,6 @@ public class UserObserver {
         String token = Helper.randomString(16);
         tokenService.createToken(event.getEntity().getEmail(), token);  
         tokenService.sendVerifyEmail(event.getEntity().getEmail(), token);
-        System.out.println("here");
     }
 
     /**

@@ -6,27 +6,28 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.Marketplace_Management.Shared.Configuration.RabbitMqQueues.VendorQueueConfig;
+import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 import com.Marketplace_Management.Shared.Contracts.IEventPublisher;
 import com.Marketplace_Management.Shared.Contracts.IFileService;
 import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
-import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
+import com.Marketplace_Management.Shared.Events.DomainEventDispatcher;
 import com.Marketplace_Management.Shared.Events.EventOptions;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 import com.Marketplace_Management.Vendor.Contracts.IVendorRepository;
 import com.Marketplace_Management.Vendor.Contracts.IVendorService;
 import com.Marketplace_Management.Vendor.DTOs.Command.CreateCollectionCommand;
-import com.Marketplace_Management.Vendor.DTOs.Command.CreateVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.GetListVendorCommand;
-import com.Marketplace_Management.Vendor.DTOs.Command.RegisterVendorCommand;
 import com.Marketplace_Management.Vendor.DTOs.Command.UpdateCollectionCommand;
-import com.Marketplace_Management.Vendor.DTOs.Command.UpdateVendorCommand;
+import com.Marketplace_Management.Vendor.DTOs.Command.VendorProfileCommand;
 import com.Marketplace_Management.Vendor.DTOs.Response.CollectionResponse;
 import com.Marketplace_Management.Vendor.DTOs.Response.VendorResponse;
 import com.Marketplace_Management.Vendor.Entities.CollectionEntity;
+import com.Marketplace_Management.Vendor.Events.VendorActivatedEvent;
 import com.Marketplace_Management.Vendor.Models.Collection;
 import com.Marketplace_Management.Vendor.Models.Vendor;
 import com.Marketplace_Management.Vendor.Models.VendorStatus;
@@ -36,9 +37,11 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class VendorService implements IVendorService {
+    private static final String VENDOR_NOT_FOUND = "Vendor not found";
 
     private final IVendorRepository vendorRepository;
     private final CollectionJpaRepository collectionJpaRepository;
+    private final DomainEventDispatcher domainEvents;
     private final IEventPublisher eventPublisher;
     private final IFileService fileService;
     private final EntityDomainMapper<Collection, CollectionEntity> collectionMapper;
@@ -46,9 +49,12 @@ public class VendorService implements IVendorService {
     @Value ("${spring.application.base-url}")
     private String baseUrl;
 
-    public VendorService(IVendorRepository vendorRepository, CollectionJpaRepository collectionJpaRepository, IEventPublisher eventPublisher, IFileService fileService, EntityDomainMapper<Collection, CollectionEntity> collectionMapper) {
+    public VendorService(IVendorRepository vendorRepository, CollectionJpaRepository collectionJpaRepository,
+            DomainEventDispatcher domainEvents, IEventPublisher eventPublisher, IFileService fileService,
+            EntityDomainMapper<Collection, CollectionEntity> collectionMapper) {
         this.vendorRepository = vendorRepository;
         this.collectionJpaRepository = collectionJpaRepository;
+        this.domainEvents = domainEvents;
         this.eventPublisher = eventPublisher;
         this.fileService = fileService;
         this.collectionMapper = collectionMapper;
@@ -59,11 +65,9 @@ public class VendorService implements IVendorService {
                 .map(vendor -> vendor.withUrl(baseUrl))
                 .toList();
     }
-    
+
     public VendorResponse getById(UUID vendorId) {
-        return vendorRepository.findById(vendorId)
-                .map(VendorResponse::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+        return new VendorResponse(requireVendor(vendorId)).withUrl(baseUrl);
     }
 
     public List<CollectionResponse> getCollections(UUID vendorId) {
@@ -80,138 +84,126 @@ public class VendorService implements IVendorService {
                 .name(command.getName())
                 .displayOrder(command.getDisplayOrder())
                 .build();
-        CollectionEntity entity = collectionMapper.toEntity(collection);
-        CollectionEntity saved = collectionJpaRepository.save(entity);
-        return new CollectionResponse(collectionMapper.toDomain(saved));
+        return saveCollection(collection);
     }
-    
+
     public CollectionResponse updateCollection(UUID vendorId, UUID collectionId, UpdateCollectionCommand command) {
+        requireCollectionOfVendor(vendorId, collectionId);
         Collection collection = Collection.builder()
                 .id(collectionId)
                 .vendorId(vendorId)
                 .name(command.getName())
                 .displayOrder(command.getDisplayOrder())
                 .build();
-        CollectionEntity entity = collectionMapper.toEntity(collection);
-        CollectionEntity saved = collectionJpaRepository.save(entity);
-        return new CollectionResponse(collectionMapper.toDomain(saved));
+        return saveCollection(collection);
     }
 
     @Transactional
     public void removeCollection(UUID vendorId, UUID collectionId) {
+        requireCollectionOfVendor(vendorId, collectionId);
         collectionJpaRepository.deleteById(collectionId);
     }
 
+    /** Admin: creates the vendor of any user. */
     @Transactional
-    public VendorResponse create(CreateVendorCommand command) throws IOException{
-        if (vendorRepository.existsByUserId(command.getUserId()))
+    public VendorResponse create(UUID userId, VendorProfileCommand command) throws IOException {
+        if (vendorRepository.existsByUserId(userId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Vendor of this user already exists");
+        }
 
-        
-        String logoUrl = command.getLogo() != null && !command.getLogo().isEmpty() ? fileService.uploadFile(command.getLogo(), "vendors/logo") : null;
-        String bannerUrl = command.getBanner() != null && !command.getBanner().isEmpty() ? fileService.uploadFile(command.getBanner(), "vendors/banner") : null;
-
-        Vendor vendor = new Vendor(
-                null,
-                command.getUserId(),
-                command.getName(),
-                VendorStatus.PENDING,
-                command.getDescription(),
-                logoUrl,
-                bannerUrl,
-                command.getTaxCode(),
-                command.getEmail(),
-                command.getAddressId(),
-                command.getPhone()
-        );
+        Vendor vendor = Vendor.builder()
+                .userId(userId)
+                .name(command.getName())
+                .status(VendorStatus.PENDING)
+                .description(command.getDescription())
+                .logo(uploadIfPresent(command.getLogo(), "vendors/logo"))
+                .banner(uploadIfPresent(command.getBanner(), "vendors/banner"))
+                .taxCode(command.getTaxCode())
+                .email(command.getEmail())
+                .addressId(command.getAddressId())
+                .phone(command.getPhone())
+                .build();
 
         vendor = vendorRepository.save(vendor);
-
-        publishDomainEvents(vendor, "vendor.created");
-
+        domainEvents.dispatch(vendor, "vendor.created");
         return new VendorResponse(vendor);
     }
 
+    /** The current user registers their own vendor (pending until an admin activates it). */
     @Transactional
-    public VendorResponse register(RegisterVendorCommand command) throws IOException {
-        UUID userId = SecurityUtils.currentUserId();
-
-        CreateVendorCommand commandWithUser = new CreateVendorCommand(
-                userId,
-                command.getName(),
-                command.getDescription(),
-                command.getLogo(),
-                command.getBanner(),
-                command.getTaxCode(),
-                command.getEmail(),
-                command.getAddressId(),
-                command.getPhone()
-        );
-
-        return this.create(commandWithUser);
+    public VendorResponse register(VendorProfileCommand command) throws IOException {
+        return create(SecurityUtils.currentUserId(), command);
     }
 
     @Transactional
     public void active(UUID vendorId) {
-        Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
-
+        Vendor vendor = requireVendor(vendorId);
         vendor.activate();
-
         vendor = vendorRepository.save(vendor);
-
-        publishDomainEvents(vendor, "vendor.activated");
+        domainEvents.dispatch(vendor, "vendor.activated");
+        // Auth grants the VENDOR role to the owner
+        eventPublisher.publish(new VendorActivatedEvent(vendor), new EventOptions(VendorQueueConfig.VENDOR_ACTIVATED_QUEUE, false));
     }
 
     @Transactional
     public void ban(UUID vendorId) {
-        Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
-
+        Vendor vendor = requireVendor(vendorId);
         vendor.ban();
-
         vendor = vendorRepository.save(vendor);
-
-        publishDomainEvents(vendor, "vendor.banned");
+        domainEvents.dispatch(vendor, "vendor.banned");
     }
 
+    /** Updates the profile; logo / banner are replaced only when a new file is uploaded. */
     @Transactional
-    public void update(UUID vendorId, UpdateVendorCommand command) {
-        Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+    public void update(UUID vendorId, VendorProfileCommand command) throws IOException {
+        Vendor vendor = requireVendor(vendorId);
 
-        Vendor updated = new Vendor(
-                vendor.getId(),
-                vendor.getUserId(),
-                command.getName(),
-                vendor.getStatus(),
-                command.getDescription(),
-                null,
-                null,
-                command.getTaxCode(),
-                command.getEmail(),
-                command.getAddressId(),
-                command.getPhone()
-        );
+        vendor.setName(command.getName());
+        vendor.setDescription(command.getDescription());
+        vendor.setTaxCode(command.getTaxCode());
+        vendor.setEmail(command.getEmail());
+        vendor.setAddressId(command.getAddressId());
+        vendor.setPhone(command.getPhone());
+        String logo = uploadIfPresent(command.getLogo(), "vendors/logo");
+        if (logo != null) {
+            vendor.setLogo(logo);
+        }
+        String banner = uploadIfPresent(command.getBanner(), "vendors/banner");
+        if (banner != null) {
+            vendor.setBanner(banner);
+        }
 
-        updated = vendorRepository.save(updated);
-
-        publishDomainEvents(updated, "vendor.updated");
+        vendor = vendorRepository.save(vendor);
+        domainEvents.dispatch(vendor, "vendor.updated");
     }
 
     public VendorResponse getByUser(UUID userId) {
-
-        Vendor vendor = vendorRepository.findByUserId(userId)
+        return vendorRepository.findByUserId(userId)
+                .map(vendor -> new VendorResponse(vendor).withUrl(baseUrl))
                 .orElse(null);
-
-        return vendor != null ? new VendorResponse(vendor).withUrl(baseUrl) : null;
     }
 
-    @Async
-    private void publishDomainEvents(Vendor vendor, String queue) {
-        vendor.getDomainEvents()
-                .forEach(event -> eventPublisher.publish(event, new EventOptions(queue, false)));
+    private Vendor requireVendor(UUID vendorId) {
+        return vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new ResourceNotFoundException(VENDOR_NOT_FOUND));
+    }
 
-        vendor.clearDomainEvents();
+    private String uploadIfPresent(MultipartFile file, String folder) throws IOException {
+        return file != null && !file.isEmpty() ? fileService.uploadFile(file, folder) : null;
+    }
+
+    private CollectionResponse saveCollection(Collection collection) {
+        CollectionEntity saved = collectionJpaRepository.save(collectionMapper.toEntity(collection));
+        return new CollectionResponse(collectionMapper.toDomain(saved));
+    }
+
+    // A collection id from the URL must belong to the vendor in the URL (which the caller is allowed to manage)
+    private void requireCollectionOfVendor(UUID vendorId, UUID collectionId) {
+        boolean owned = collectionJpaRepository.findById(collectionId)
+                .filter(c -> c.getVendor() != null && vendorId.equals(c.getVendor().getId()))
+                .isPresent();
+        if (!owned) {
+            throw new ResourceNotFoundException("Collection not found");
+        }
     }
 }

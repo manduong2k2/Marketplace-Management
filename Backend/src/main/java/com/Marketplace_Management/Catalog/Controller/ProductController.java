@@ -50,7 +50,7 @@ public class ProductController extends BaseController{
     }
 
     @GetMapping("/statuses")
-    public ResponseEntity<Map<String,Object>> getAllStatus() {        
+    public ResponseEntity<Map<String,Object>> getAllStatus() {
         List<String> statuses = productService.getAllStatus();
 
         return objectResponse(statuses);
@@ -69,32 +69,26 @@ public class ProductController extends BaseController{
     @GetMapping("/{productId}")
     public ResponseEntity<Map<String, Object>> details(@PathVariable UUID productId) {
         ProductResponse product = productService.getProduct(productId);
-        
+
         return objectResponse(product);
     }
-
-    @GetMapping("/{productId}/variants")
-    public ResponseEntity<Map<String, Object>> getProductVariants(@PathVariable UUID productId) {
-        return successResponse(null);
-    }
-    
 
     @GetMapping("/product-variants/{productVariantId}")
     public ResponseEntity<Map<String, Object>> getProductVariant(@PathVariable UUID productVariantId) {
         ProductVariantResponse productVariant = productService.getProductVariant(productVariantId);
-        
+
         return objectResponse(productVariant);
     }
-    
+
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PutMapping("/{productId}")
     public ResponseEntity<Map<String, Object>> update(
-        @PathVariable UUID productId, 
+        @PathVariable UUID productId,
         @Valid @ModelAttribute UpdateProductRequest request
     ) throws IOException {
         UpdateProductCommand command = UpdateProductCommand.fromRequest(request);
         ProductResponse updated = productService.updateProduct(productId, command);
-        
+
         return objectResponse(updated);
     }
 
@@ -102,7 +96,7 @@ public class ProductController extends BaseController{
     @DeleteMapping("/{productId}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable UUID productId) {
         productService.deleteProduct(productId);
-        
+
         return successResponse("Product deleted successfully");
     }
 }

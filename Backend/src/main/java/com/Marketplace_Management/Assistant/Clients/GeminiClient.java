@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
@@ -18,6 +17,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Assistant.Constants.Message;
+import com.Marketplace_Management.Shared.Utils.Http.RestClients;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -37,14 +37,8 @@ public class GeminiClient {
             @Value("${application.gemini.api-key}") String apiKey,
             @Value("${application.gemini.model:gemini-3.6-flash}") String model,
             @Value("${application.gemini.base-url:https://generativelanguage.googleapis.com/v1beta}") String baseUrl) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(Duration.ofSeconds(10));
-        requestFactory.setReadTimeout(Duration.ofSeconds(60));
-
         this.model = model;
-        this.restClient = builder
-                .baseUrl(baseUrl)
-                .requestFactory(requestFactory)
+        this.restClient = RestClients.withTimeouts(builder, baseUrl, Duration.ofSeconds(10), Duration.ofSeconds(60))
                 .defaultHeader("x-goog-api-key", apiKey)
                 .build();
     }

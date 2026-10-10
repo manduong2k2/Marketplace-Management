@@ -9,7 +9,7 @@
 
 /* ── Card row ── */
 .category-card {
-  background: white;
+  background: var(--master-background);
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
@@ -74,7 +74,6 @@
   height: 52px;
   flex-shrink: 0;
   overflow: hidden;
-  background: #f8f9fa;
   align-items: center;
   justify-content: center;
   display: flex;
@@ -84,6 +83,7 @@
   width: 80%;
   height: 80%;
   object-fit: cover;
+  border-radius: 8px;
   transition: transform 0.3s ease;
 }
 
@@ -101,7 +101,7 @@
 .category-name {
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: var(--master-text);
   margin: 0 0 2px 0;
   white-space: nowrap;
   overflow: hidden;

@@ -1,5 +1,7 @@
 package com.Marketplace_Management.Shared.Security;
 
+import com.Marketplace_Management.Shared.Constants.Http;
+import com.Marketplace_Management.Shared.Utils.Http.CookieUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +10,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -66,24 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response);
     }
 
-    private String resolveToken(
-            HttpServletRequest request) {
-
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies == null) {
-            return null;
-        }
-
-        for (Cookie cookie : cookies) {
-
-            if ("ACCESS_TOKEN".equals(
-                    cookie.getName())) {
-
-                return cookie.getValue();
-            }
-        }
-
-        return null;
+    private String resolveToken(HttpServletRequest request) {
+        return CookieUtils.read(request, Http.ACCESS_TOKEN_COOKIE);
     }
 }

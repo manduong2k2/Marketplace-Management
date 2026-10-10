@@ -1,11 +1,33 @@
 // src/pages/auth/profile/ProfilePage.jsx
-import { useState, useEffect, useContext, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { authService } from '../../../services/authService';
-import { addressService } from '../../../services/addressService';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../../contexts/AuthContext';
+import { authService } from '../../../services/authService';
 import { showSuccess, showError } from '../../../components/master/popup';
+import { Page, PageHeader, Card } from '../../../components/ui/Ui';
+import { formatDate } from '../../../components/ui/uiUtils';
+import PersonalInfoCard from './PersonalInfoCard';
+import AddressBookCard from './AddressBookCard';
+import ChangePasswordCard from './ChangePasswordCard';
 import './ProfilePage.css';
+
+const SECTIONS = [
+  { id: 'personal', icon: 'bi-person', label: 'Personal information' },
+  { id: 'addresses', icon: 'bi-geo-alt', label: 'Delivery addresses' },
+  { id: 'security', icon: 'bi-shield-lock', label: 'Password & security' },
+];
+
+function ProfileAvatar({ user, size = 96 }) {
+  if (user?.avatar) {
+    return <img className="profile-photo" src={user.avatar} alt="" style={{ width: size, height: size }} referrerPolicy="no-referrer" />;
+  }
+  const label = (user?.name || user?.email || '?').trim();
+  const initials = label.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  return (
+    <span className="profile-photo profile-photo--initials" style={{ width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">
+      {initials}
+    </span>
+  );
+}
 
 export default function ProfilePage() {
   useEffect(() => {
@@ -13,240 +35,93 @@ export default function ProfilePage() {
   }, []);
 
   const { user, setUser } = useContext(AuthContext);
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
-
-  // Avatar
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState('');
   const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
 
-  // Default address
-  const [defaultAddress, setDefaultAddress] = useState(null);
-  const [addressLoading, setAddressLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-      });
-    }
-  }, [user]);
-
-  useEffect(() => {
-    return () => { if (avatarPreview) URL.revokeObjectURL(avatarPreview); };
-  }, [avatarPreview]);
-
-  useEffect(() => {
-    const fetchDefaultAddress = async () => {
-      setAddressLoading(true);
-      try {
-        const res = await addressService.getDefaultAddress();
-        if (res.ok) setDefaultAddress(res.data.data);
-      } catch { /* no default address */ }
-      finally { setAddressLoading(false); }
-    };
-    fetchDefaultAddress();
-  }, []);
-
-  const formatDefaultAddress = (addr) => {
-    if (!addr) return null;
-    const ward = addr.ward?.fullName || addr.ward?.name || '';
-    const province = addr.ward?.province?.name || addr.ward?.province?.fullName || '';
-    const parts = [addr.houseNumber, addr.streetName, ward, province].filter(Boolean);
-    if (addr.detail) parts.push(addr.detail);
-    return parts.join(', ');
+  const reloadProfile = async () => {
+    const res = await authService.profile();
+    if (res.ok) setUser(res.data.data);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
-    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
-  };
+    if (!file.type.startsWith('image/')) {
+      showError('Please choose an image file', 'Avatar');
+      return;
+    }
 
-  const handleEdit = () => setIsEditing(true);
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setAvatarFile(null);
-    if (avatarPreview) { URL.revokeObjectURL(avatarPreview); setAvatarPreview(''); }
-    if (user) setFormData({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    setUploading(true);
     try {
       const fd = new FormData();
-      fd.append('name', formData.name);
-      fd.append('phone', formData.phone);
-      if (avatarFile) fd.append('avatar', avatarFile);
-
-      const response = await authService.updateProfile(fd);
-      if (response.ok) {
-        const updated = await authService.profile();
-        setUser(updated.data.data);
-        showSuccess('Profile updated successfully!', 'Success');
-        setIsEditing(false);
-        setAvatarFile(null);
-        if (avatarPreview) { URL.revokeObjectURL(avatarPreview); setAvatarPreview(''); }
+      fd.append('avatar', file);
+      const res = await authService.updateProfile(fd);
+      if (res.ok) {
+        await reloadProfile();
+        showSuccess('Your photo has been updated', 'Avatar');
       } else {
-        showError('Failed to update profile!' + (response.data?.message ? ' - ' + response.data.message : ''), 'Error');
+        showError(res.data?.message || 'Could not update your photo', 'Avatar');
       }
-    } catch (err) {
-      showError('Failed to update profile!', err.message || 'Please try again');
+    } catch {
+      showError('Could not update your photo. Please try again.', 'Connection Error');
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
-  const displayAvatar = avatarPreview || user?.avatar || null;
+  if (!user) return null;
 
   return (
-    <div className="profile-container">
-      <h2>My Profile</h2>
+    <Page>
+      <PageHeader
+        eyebrow="Account"
+        eyebrowIcon="bi-person-circle"
+        title="My profile"
+        description="Manage your personal information, delivery addresses and password."
+      />
 
-      {!isEditing ? (
-        /* ────── VIEW MODE ────── */
-        <div className="profile-layout">
-
-          {/* Left — avatar + name */}
-          <div className="profile-left">
-            <div className="profile-avatar-wrap">
-              {displayAvatar ? (
-                <img src={displayAvatar} alt="Avatar" className="profile-avatar" />
-              ) : (
-                <div className="profile-avatar profile-avatar--fallback">
-                  {user?.name?.charAt(0)?.toUpperCase() || '?'}
-                </div>
-              )}
-            </div>
-            <p className="profile-name">{formData.name || 'No name'}</p>
-            <p className="profile-email-sub">{formData.email}</p>
-          </div>
-
-          {/* Right — fields + actions */}
-          <div className="profile-right">
-            <div className="profile-field">
-              <label>Email:</label>
-              <span>{formData.email || 'Not provided'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Phone:</label>
-              <span>{formData.phone || 'Not provided'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Default Address:</label>
-              {addressLoading ? (
-                <span className="profile-address-loading">Loading...</span>
-              ) : defaultAddress ? (
-                <span>{formatDefaultAddress(defaultAddress)}</span>
-              ) : (
-                <span className="profile-address-empty">No default address set</span>
-              )}
-            </div>
-            <Link to="/addresses" className="profile-address-link">
-              Manage my addresses →
-            </Link>
-            <button onClick={handleEdit} className="edit-btn">
-              Edit Profile
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* ────── EDIT MODE ────── */
-        <form onSubmit={handleSubmit} className="profile-layout profile-layout--form">
-
-          {/* Left — avatar upload + name input */}
-          <div className="profile-left">
-            <div
-              className="avatar-upload-area"
-              onClick={() => fileInputRef.current?.click()}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-              aria-label="Upload avatar"
-            >
-              {displayAvatar ? (
-                <img src={displayAvatar} alt="Avatar preview" className="avatar-preview" />
-              ) : (
-                <div className="avatar-preview avatar-preview--placeholder">
-                  <span className="avatar-upload-icon">↑</span>
-                  <span>Upload photo</span>
-                </div>
-              )}
-              <div className="avatar-upload-overlay">
-                <span>Change photo</span>
+      <div className="ui-split ui-split--left">
+        <aside className="ui-stack ui-sticky">
+          <Card bodyless className="profile-hero">
+            <div className="profile-hero-body">
+              <div className="profile-avatar-wrap">
+                <ProfileAvatar user={user} />
+                <button
+                  type="button"
+                  className="profile-avatar-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  aria-label="Change photo"
+                  title="Change photo"
+                >
+                  <i className={`bi ${uploading ? 'bi-hourglass-split' : 'bi-camera'}`}></i>
+                </button>
+                <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
               </div>
+              <h2>{user.name || 'No name yet'}</h2>
+              <p className="ui-muted">{user.email}</p>
+              {user.createdAt && (
+                <span className="ui-chip"><i className="bi bi-calendar3 me-1"></i>Member since {formatDate(user.createdAt)}</span>
+              )}
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              style={{ display: 'none' }}
-            />
-            {avatarFile && (
-              <span className="avatar-filename">{avatarFile.name}</span>
-            )}
+            <nav className="profile-nav" aria-label="Profile sections">
+              {SECTIONS.map(section => (
+                <a key={section.id} href={`#${section.id}`}>
+                  <i className={`bi ${section.icon}`}></i> {section.label}
+                  <i className="bi bi-chevron-right profile-nav-arrow"></i>
+                </a>
+              ))}
+            </nav>
+          </Card>
+        </aside>
 
-            {/* Name field lives in the left column */}
-            <div className="form-group" style={{ width: '100%', marginTop: '16px' }}>
-              <label>Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Right — remaining fields + actions */}
-          <div className="profile-right">
-            <div className="form-group">
-              <label>Email:</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                disabled
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Phone:</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button type="button" onClick={handleCancel} className="cancel-btn">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </form>
-      )}
-    </div>
+        <div className="ui-stack">
+          <PersonalInfoCard user={user} onSaved={reloadProfile} />
+          <AddressBookCard />
+          <ChangePasswordCard />
+        </div>
+      </div>
+    </Page>
   );
 }

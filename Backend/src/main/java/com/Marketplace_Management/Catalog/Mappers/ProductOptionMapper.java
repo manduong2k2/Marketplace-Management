@@ -11,14 +11,13 @@ import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 public class ProductOptionMapper implements EntityDomainMapper<ProductOption, ProductOptionEntity> {
 
     public ProductOptionEntity toEntity(ProductOption domain) {
-        return new ProductOptionEntity(
-            domain.getId() != null ? domain.getId() : null,
-            domain.getName(),
-            domain.getValue(),
-            null
-        );
+        return ProductOptionEntity.builder()
+            .id(domain.getId())
+            .name(domain.getName())
+            .value(domain.getValue())
+            .build();
     }
-    
+
     public ProductOption toDomain(ProductOptionEntity entity) {
         return ProductOption.builder()
             .id(entity.getId())
@@ -32,5 +31,5 @@ public class ProductOptionMapper implements EntityDomainMapper<ProductOption, Pr
             .productId(entity.getProduct() != null ? entity.getProduct().getId() : null)
             .build();
     }
-    
+
 }

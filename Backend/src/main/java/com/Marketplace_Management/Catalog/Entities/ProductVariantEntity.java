@@ -2,7 +2,6 @@ package com.Marketplace_Management.Catalog.Entities;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.OnDelete;
@@ -22,10 +21,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import org.hibernate.annotations.SQLRestriction;
 
-import com.Marketplace_Management.Shared.Entities.FileEntity;
 import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 @Entity
@@ -33,6 +32,7 @@ import com.Marketplace_Management.Shared.Entities.UuidEntity;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @NoArgsConstructor
+@SuperBuilder
 public class ProductVariantEntity extends UuidEntity{
     @Column(nullable = false)
     @Size(max = 100)
@@ -70,14 +70,4 @@ public class ProductVariantEntity extends UuidEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<ProductOptionEntity> options;
 
-    public ProductVariantEntity(UUID id, String name, String sku, double price, int stock, List<FileEntity> files, String optionList, Set<ProductOptionEntity> options) {
-        this.setId(id);
-        this.setName(name);
-        this.setSku(sku);
-        this.setPrice(price);
-        this.setStock(stock);
-        this.setImages(files);
-        this.setOptions(options);
-        this.setOptionList(optionList);
-    }
 }

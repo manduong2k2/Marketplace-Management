@@ -2,7 +2,6 @@ package com.Marketplace_Management.Auth.Entities;
 
 import java.util.UUID;
 
-import com.Marketplace_Management.Auth.Models.Role;
 import com.Marketplace_Management.Shared.Entities.UuidEntity;
 
 import jakarta.persistence.*;
@@ -29,7 +28,4 @@ public class RoleEntity extends UuidEntity {
         this.code = code;
     }
 
-    public Role toDomain() {
-        return new Role(id, code, name);
-    }
 }

@@ -95,7 +95,7 @@ public class RoleRepository implements IRoleRepository {
                 .toList();
 
         withUsersCount(data);
-        return new PaginatedResponse<>(data, command.getPage(), command.getSize(), total);
+        return PaginatedResponse.of(data, command.getPage(), command.getSize(), total);
     }
 
     @Override

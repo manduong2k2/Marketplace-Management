@@ -58,12 +58,28 @@ public class UserSessionRepository implements IUserSessionRepository {
     }
 
     private UserSession toDomain(UserSessionEntity e) {
-        return new UserSession(e.getId(), e.getUserId(), e.getIpAddress(), e.getLoginAt(),
-                e.getAccessJti(), e.getAccessExpiresAt(), e.getRefreshJti(), e.getRefreshExpiresAt());
+        return UserSession.builder()
+                .id(e.getId())
+                .userId(e.getUserId())
+                .ipAddress(e.getIpAddress())
+                .loginAt(e.getLoginAt())
+                .accessJti(e.getAccessJti())
+                .accessExpiresAt(e.getAccessExpiresAt())
+                .refreshJti(e.getRefreshJti())
+                .refreshExpiresAt(e.getRefreshExpiresAt())
+                .build();
     }
 
     private UserSessionEntity toEntity(UserSession s) {
-        return new UserSessionEntity(s.getId(), s.getUserId(), s.getIpAddress(), s.getLoginAt(),
-                s.getAccessJti(), s.getAccessExpiresAt(), s.getRefreshJti(), s.getRefreshExpiresAt());
+        return UserSessionEntity.builder()
+                .id(s.getId())
+                .userId(s.getUserId())
+                .ipAddress(s.getIpAddress())
+                .loginAt(s.getLoginAt())
+                .accessJti(s.getAccessJti())
+                .accessExpiresAt(s.getAccessExpiresAt())
+                .refreshJti(s.getRefreshJti())
+                .refreshExpiresAt(s.getRefreshExpiresAt())
+                .build();
     }
 }

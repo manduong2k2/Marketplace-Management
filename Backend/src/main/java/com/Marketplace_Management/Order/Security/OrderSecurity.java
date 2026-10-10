@@ -8,6 +8,7 @@ import com.Marketplace_Management.Order.Contracts.IOrderRepository;
 import com.Marketplace_Management.Order.Models.Order;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
+/** Used in @PreAuthorize("@orderSecurity.canViewOrder(#id)"): the order's owner or an admin. */
 @Component
 public class OrderSecurity {
 
@@ -18,21 +19,12 @@ public class OrderSecurity {
     }
 
     public boolean canViewOrder(UUID orderId) {
-        UUID currentUserId = SecurityUtils.currentUserId();
-        
-        if (currentUserId == null) {
-            return false;
-        }
-
         if (SecurityUtils.isAdmin()) {
             return true;
         }
-
-        Order order = orderRepository.findById(orderId).orElse(null);
-        if (order == null) {
-            return false;
-        }
-
-        return order.getUserId().equals(currentUserId);
+        return orderRepository.findById(orderId)
+                .map(Order::getUserId)
+                .map(SecurityUtils::isOwnerOrAdmin)
+                .orElse(false);
     }
 }

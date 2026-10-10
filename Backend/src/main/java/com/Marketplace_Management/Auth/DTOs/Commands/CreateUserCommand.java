@@ -6,14 +6,15 @@ import java.util.UUID;
 import com.Marketplace_Management.Auth.Constants.UserStatus;
 import com.Marketplace_Management.Auth.DTOs.Request.CreateUserRequest;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import com.Marketplace_Management.Shared.DTOs.Commands.BaseCommand;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CreateUserCommand {
+@Builder
+@EqualsAndHashCode(callSuper = false)
+public class CreateUserCommand extends BaseCommand {
     private String email;
     private String password;
     private String name;
@@ -22,17 +23,14 @@ public class CreateUserCommand {
     private List<UUID> roleIds;
 
     public static CreateUserCommand fromRequest(CreateUserRequest request) {
-        return new CreateUserCommand(
-            request.getEmail().trim(),
-            request.getPassword(),
-            blankToNull(request.getName()),
-            blankToNull(request.getPhone()),
-            request.getStatus() == null ? UserStatus.ACTIVE : request.getStatus(),
-            request.getRoleIds() == null ? List.of() : request.getRoleIds()
-        );
+        return CreateUserCommand.builder()
+            .email(request.getEmail().trim())
+            .password(request.getPassword())
+            .name(blankToNull(request.getName()))
+            .phone(blankToNull(request.getPhone()))
+            .status(request.getStatus() == null ? UserStatus.ACTIVE : request.getStatus())
+            .roleIds(request.getRoleIds() == null ? List.of() : request.getRoleIds())
+            .build();
     }
 
-    private static String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
-    }
 }

@@ -5,6 +5,7 @@ import { orderService } from '../../../services/orderService';
 import { PageHeader, SearchBox, Avatar, Pill, Pagination, EmptyState } from '../shared/AdminUi';
 import { PAGE_SIZE, useDebounce, useApiQuery, formatDate, formatCurrency } from '../shared/adminUiUtils';
 import './AdminOrderHistoryPage.css';
+import { shortId } from '../../../utils/ids';
 
 const SORT_LABELS = { createdAt: 'Date', total: 'Total' };
 
@@ -31,7 +32,6 @@ function OrderStatusPill({ status }) {
   return <Pill tone={tone}>{label}</Pill>;
 }
 
-const shortOrderId = (id) => String(id || '').slice(0, 8).toUpperCase();
 const itemName = (item) => item.snapShot?.name || item.snapShot?.productName || item.productName || 'Product';
 
 function AdminOrderHistoryPage() {
@@ -148,8 +148,8 @@ function AdminOrderHistoryPage() {
                 return (
                   <tr key={order.id} onClick={() => openOrder(order)}>
                     <td>
-                      <span className="admin-ui-mono admin-orders-id">#{shortOrderId(order.id)}</span>
-                      {order.userId && <span className="admin-orders-sub admin-ui-mono">User {order.userId.slice(0, 8)}</span>}
+                      <span className="admin-ui-mono admin-orders-id">#{shortId(order.id)}</span>
+                      {order.userId && <span className="admin-orders-sub admin-ui-mono">User {shortId(order.userId)}</span>}
                     </td>
                     <td>
                       <div className="admin-ui-user">

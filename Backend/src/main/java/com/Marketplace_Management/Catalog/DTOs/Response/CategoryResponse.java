@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import com.Marketplace_Management.Catalog.Models.Category;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.Marketplace_Management.Shared.Utils.Helpers.UrlHelper;
 
 @Data
 @AllArgsConstructor
@@ -34,9 +35,7 @@ public class CategoryResponse {
     }
 
     public CategoryResponse withUrl(String url) {
-        if (this.image != null) {
-            this.image = url + "/" + this.image;
-        }
+        this.image = UrlHelper.toPublicUrl(url, this.image);
         if (this.children != null) {
             this.children.forEach(child -> child.withUrl(url));
         }

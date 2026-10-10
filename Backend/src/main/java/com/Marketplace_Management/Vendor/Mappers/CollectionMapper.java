@@ -11,7 +11,7 @@ import jakarta.persistence.EntityManager;
 
 @Component
 public class CollectionMapper implements EntityDomainMapper<Collection, CollectionEntity> {
-    
+
     private final EntityManager entityManager;
 
     public CollectionMapper(EntityManager entityManager) {
@@ -22,18 +22,19 @@ public class CollectionMapper implements EntityDomainMapper<Collection, Collecti
     public Collection toDomain(CollectionEntity entity) {
         return Collection.builder()
                 .id(entity.getId())
+                .vendorId(entity.getVendor() != null ? entity.getVendor().getId() : null)
                 .name(entity.getName())
                 .displayOrder(entity.getDisplayOrder())
                 .build();
     }
-    
+
     @Override
     public CollectionEntity toEntity(Collection domain) {
-        return new CollectionEntity(
-            domain.getId(),
-            domain.getName(),
-            domain.getDisplayOrder(),
-            entityManager.find(VendorEntity.class, domain.getVendorId())
-        );
+        return CollectionEntity.builder()
+            .id(domain.getId())
+            .name(domain.getName())
+            .displayOrder(domain.getDisplayOrder())
+            .vendor(entityManager.find(VendorEntity.class, domain.getVendorId()))
+            .build();
     }
 }

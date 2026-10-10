@@ -1,229 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { orderService } from '../../services/orderService';
-import { showSuccess, showError } from '../../components/master/popup';
+import { Page, PageHeader, Card, EmptyState, Pagination, Pill, SkeletonRows, Notice } from '../../components/ui/Ui';
+import { ORDER_STATUSES, formatDate, formatMoney, orderNumber, orderStatus } from '../../components/ui/uiUtils';
 import './OrderHistoryPage.css';
 
-function OrderHistoryPage() {
+const PAGE_SIZE = 10;
+
+const SORTS = {
+  newest: { sortBy: 'createdAt', sortOrder: 'desc', label: 'Newest first' },
+  oldest: { sortBy: 'createdAt', sortOrder: 'asc', label: 'Oldest first' },
+  highest: { sortBy: 'total', sortOrder: 'desc', label: 'Highest total' },
+  lowest: { sortBy: 'total', sortOrder: 'asc', label: 'Lowest total' },
+};
+
+export default function OrderHistoryPage() {
+  useEffect(() => {
+    document.title = 'My Store - Orders';
+  }, []);
+
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
+  const [status, setStatus] = useState('');
+  const [sort, setSort] = useState('newest');
+  const [page, setPage] = useState(0);
+  const [result, setResult] = useState({ orders: [], pagination: null });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({
-    currentPage: 0,
-    pageSize: 10,
-    totalElements: 0,
-    totalPages: 0,
-  });
-  const [filters, setFilters] = useState({
-    status: '',
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
-  });
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    fetchOrders();
-  }, [filters.status, filters.sortBy, filters.sortOrder, pagination.currentPage]);
-
-  const fetchOrders = async () => {
-    try {
+    let cancelled = false;
+    (async () => {
       setLoading(true);
-      const params = {
-        page: pagination.currentPage,
-        size: pagination.pageSize,
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder,
-      };
-      if (filters.status) {
-        params.status = filters.status;
+      setFailed(false);
+      try {
+        const { sortBy, sortOrder } = SORTS[sort];
+        const params = { page, size: PAGE_SIZE, sortBy, sortOrder, ...(status && { status }) };
+        const res = await orderService.getMyOrders(params);
+        if (cancelled) return;
+        if (res.ok) {
+          const { data = [], ...pagination } = res.data || {};
+          setResult({ orders: data, pagination });
+        } else {
+          setFailed(true);
+        }
+      } catch {
+        if (!cancelled) setFailed(true);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      const response = await orderService.getMyOrders(params);
-      if (response.ok && response.data) {
-        const ordersData = Array.isArray(response.data.data) ? response.data.data : [];
-        setOrders(ordersData);
-        setPagination({
-          currentPage: response.data.currentPage || 0,
-          pageSize: response.data.pageSize || 10,
-          totalElements: response.data.totalElements || 0,
-          totalPages: response.data.totalPages || 0,
-          hasNext: response.data.hasNext || false,
-          hasPrevious: response.data.hasPrevious || false,
-        });
-        console.log(response.data);
-      } else {
-        setError('Failed to load orders');
-      }
-    } catch (err) {
-      setError('Failed to load orders');
-    } finally {
-      setLoading(false);
-    }
-  };
+    })();
+    return () => { cancelled = true; };
+  }, [status, sort, page]);
 
-  const handlePageChange = (newPage) => {
-    setPagination(prev => ({ ...prev, currentPage: newPage }));
-  };
+  const changeStatus = (value) => { setStatus(value); setPage(0); };
+  const changeSort = (value) => { setSort(value); setPage(0); };
 
-  const handleSort = (field) => {
-    setFilters(prev => ({
-      ...prev,
-      sortBy: field,
-      sortOrder: prev.sortBy === field && prev.sortOrder === 'desc' ? 'asc' : 'desc',
-    }));
-    setPagination(prev => ({ ...prev, currentPage: 0 }));
-  };
-
-  const handleStatusFilter = (status) => {
-    setFilters(prev => ({ ...prev, status }));
-    setPagination(prev => ({ ...prev, currentPage: 0 }));
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDING': return '#ffc107';
-      case 'CONFIRMED': return '#17a2b8';
-      case 'SHIPPED': return '#007bff';
-      case 'DELIVERED': return '#28a745';
-      case 'CANCELLED': return '#dc3545';
-      default: return '#6c757d';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="order-history-page">
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Loading orders...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="order-history-page">
-        <div className="error-state">
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
+  const { orders, pagination } = result;
+  const filtered = Boolean(status);
 
   return (
-    <div className="order-history-page">
-      <div className="order-history-container">
-        <div className="order-history-header">
-          <h1>Order History</h1>
-          <button className="btn-back" onClick={() => navigate('/home')}>
-            Back to Home
-          </button>
-        </div>
+    <Page>
+      <PageHeader
+        eyebrow="Account"
+        eyebrowIcon="bi-receipt"
+        title="My orders"
+        description="Track your orders and see what you bought."
+        actions={<Link to="/home" className="ui-btn ui-btn--ghost"><i className="bi bi-shop"></i> Continue shopping</Link>}
+      />
 
-        <div className="order-filters">
-          <div className="filter-group">
-            <label>Status:</label>
-            <select
-              value={filters.status}
-              onChange={(e) => handleStatusFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="CONFIRMED">Confirmed</option>
-              <option value="SHIPPED">Shipped</option>
-              <option value="DELIVERED">Delivered</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div>
-
-          <div className="sort-buttons">
-            <button
-              className={`sort-btn ${filters.sortBy === 'createdAt' ? 'active' : ''}`}
-              onClick={() => handleSort('createdAt')}
-            >
-              Date {filters.sortBy === 'createdAt' ? (filters.sortOrder === 'asc' ? '↑' : '↓') : ''}
+      <div className="ui-toolbar">
+        <div className="ui-segmented" role="tablist" aria-label="Filter by status">
+          <button type="button" className={!status ? 'active' : ''} onClick={() => changeStatus('')}>All</button>
+          {Object.entries(ORDER_STATUSES).map(([value, { label }]) => (
+            <button key={value} type="button" className={status === value ? 'active' : ''} onClick={() => changeStatus(value)}>
+              {label}
             </button>
-            <button
-              className={`sort-btn ${filters.sortBy === 'total' ? 'active' : ''}`}
-              onClick={() => handleSort('total')}
-            >
-              Total {filters.sortBy === 'total' ? (filters.sortOrder === 'asc' ? '↑' : '↓') : ''}
-            </button>
-          </div>
+          ))}
         </div>
+        <select className="ui-select" value={sort} onChange={(e) => changeSort(e.target.value)} aria-label="Sort orders">
+          {Object.entries(SORTS).map(([value, { label }]) => <option key={value} value={value}>{label}</option>)}
+        </select>
+      </div>
 
-        {orders.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">📦</div>
-            <h3>No orders found</h3>
-            <p>You haven't placed any orders yet.</p>
+      <Card bodyless>
+        {loading ? (
+          <SkeletonRows rows={4} />
+        ) : failed ? (
+          <div className="ui-card-body">
+            <Notice tone="danger" icon="bi-exclamation-triangle"><p>We could not load your orders. Please try again later.</p></Notice>
           </div>
+        ) : orders.length === 0 ? (
+          <EmptyState
+            icon="bi-receipt"
+            title={filtered ? `No ${orderStatus(status).label.toLowerCase()} orders` : 'No orders yet'}
+            text={filtered ? 'Try another status filter.' : 'When you place an order, it will show up here.'}
+          >
+            {!filtered && <Link to="/home" className="ui-btn ui-btn--primary"><i className="bi bi-shop"></i> Start shopping</Link>}
+          </EmptyState>
         ) : (
           <>
-            <div className="orders-list">
-              {orders.map(order => (
-                <div key={order.id} className="order-card" onClick={() => navigate(`/orders/${order.id}`)}>
-                  <div className="order-header">
-                    <div className="order-info">
-                      <span className="order-id">Order #{order.id.slice(0, 8)}</span>
-                      <span className="order-date">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </span>
+            <ul className="ui-list">
+              {orders.map(order => {
+                const s = orderStatus(order.status);
+                return (
+                  <li
+                    key={order.id}
+                    className="ui-row ui-row--link"
+                    onClick={() => navigate(`/orders/${order.id}`)}
+                    onKeyDown={(e) => e.key === 'Enter' && navigate(`/orders/${order.id}`)}
+                    tabIndex={0}
+                    role="link"
+                  >
+                    <span className={`order-row-icon order-row-icon--${s.tone}`}><i className={`bi ${s.icon}`}></i></span>
+                    <div className="ui-row-main">
+                      <p className="ui-row-title">
+                        <span className="ui-mono">{orderNumber(order.id)}</span>
+                        <Pill tone={s.tone}>{s.label}</Pill>
+                      </p>
+                      <p className="ui-row-sub order-row-address">
+                        <i className="bi bi-calendar3"></i> {formatDate(order.createdAt, true)}
+                        <span aria-hidden="true">·</span>
+                        <i className="bi bi-geo-alt"></i> {order.address}
+                      </p>
                     </div>
-                    <span
-                      className="order-status"
-                      style={{ backgroundColor: getStatusColor(order.status) }}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-
-                  <div className="order-items-preview">
-                    {order.items && order.items.slice(0, 3).map((item, index) => (
-                      <div key={index} className="order-item-preview">
-                        <span>{item.quantity}x {item.snapShot?.name || 'Product'}</span>
-                      </div>
-                    ))}
-                    {order.items && order.items.length > 3 && (
-                      <span className="more-items">+{order.items.length - 3} more</span>
-                    )}
-                  </div>
-
-                  <div className="order-footer">
-                    <span className="order-total">${order.total.toFixed(2)}</span>
-                    <button className="btn-view-details">View Details →</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {pagination.totalPages > 1 && (
-              <div className="pagination-controls">
-                <button
-                  className="pagination-btn"
-                  disabled={pagination.currentPage === 0}
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                >
-                  Previous
-                </button>
-                <span className="pagination-info">
-                  Page {pagination.currentPage + 1} of {pagination.totalPages}
-                </span>
-                <button
-                  className="pagination-btn"
-                  disabled={pagination.currentPage >= pagination.totalPages - 1}
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                >
-                  Next
-                </button>
-              </div>
-            )}
+                    <div className="ui-row-end">
+                      <span className="ui-price">{formatMoney(order.total)}</span>
+                      <i className="bi bi-chevron-right ui-muted"></i>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <Pagination pagination={pagination} onChange={setPage} />
           </>
         )}
-      </div>
-    </div>
+      </Card>
+    </Page>
   );
 }
-
-export default OrderHistoryPage;

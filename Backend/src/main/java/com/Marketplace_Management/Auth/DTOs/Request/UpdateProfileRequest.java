@@ -2,7 +2,6 @@ package com.Marketplace_Management.Auth.DTOs.Request;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.Marketplace_Management.Shared.Annotation.Rules.Unique;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -16,7 +15,7 @@ public class UpdateProfileRequest {
     @Size(max = 255, message = "Name must not exceed 255 characters")
     private String name;
     
-    @Unique(table = "users", column = "phone", message = "Phone already exists")
+    // Uniqueness is checked in AuthService.updateProfile: only when the phone changes (the user's own number is not a clash)
     @Size(max = 20, message = "Phone must not exceed 20 characters")
     private String phone;
 

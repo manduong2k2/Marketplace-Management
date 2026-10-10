@@ -29,18 +29,18 @@ public class UserMapper implements EntityDomainMapper<User, UserEntity>{
             .roles(entity.getRoles().stream().map(roleMapper::toDomain).collect(java.util.stream.Collectors.toSet()))
             .build();
     }
-    
+
     @Override
     public UserEntity toEntity(User domain) {
-        return new UserEntity(
-            domain.getId(),
-            domain.getEmail(),
-            domain.getPassword(),
-            domain.getStatus(),
-            domain.getName(),
-            domain.getAvatar(),
-            domain.getPhone(),
-            domain.getRoles().stream().map(roleMapper::toEntity).collect(java.util.stream.Collectors.toSet())
-        );
+        return UserEntity.builder()
+            .id(domain.getId())
+            .email(domain.getEmail())
+            .password(domain.getPassword())
+            .status(domain.getStatus())
+            .name(domain.getName())
+            .avatar(domain.getAvatar())
+            .phone(domain.getPhone())
+            .roles(domain.getRoles().stream().map(roleMapper::toEntity).collect(java.util.stream.Collectors.toSet()))
+            .build();
     }
 }

@@ -1,5 +1,7 @@
 package com.Marketplace_Management.Auth.Entities;
 
+import org.hibernate.annotations.UuidGenerator;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -10,8 +12,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -21,6 +21,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 /**
  * One active login (token pair). Tracking only — never used to verify a token.
@@ -42,9 +44,12 @@ import lombok.ToString;
 )
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserSessionEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    // UUID v7: time-ordered, so new rows are appended to the primary-key index
+    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
@@ -53,7 +58,7 @@ public class UserSessionEntity {
     // Read-only mapping that only declares the FK (writes go through userId).
     // ON DELETE CASCADE: deleting a user removes their sessions — so tokens must be revoked BEFORE
     // the delete (see UserSessionService.revokeAllBeforeDelete).
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false,
             foreignKey = @ForeignKey(name = "fk_user_sessions_user"))
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -80,15 +85,4 @@ public class UserSessionEntity {
     @Column(name = "refresh_expires_at", nullable = false)
     private Instant refreshExpiresAt;
 
-    public UserSessionEntity(UUID id, UUID userId, String ipAddress, Instant loginAt, String accessJti,
-            Instant accessExpiresAt, String refreshJti, Instant refreshExpiresAt) {
-        this.id = id;
-        this.userId = userId;
-        this.ipAddress = ipAddress;
-        this.loginAt = loginAt;
-        this.accessJti = accessJti;
-        this.accessExpiresAt = accessExpiresAt;
-        this.refreshJti = refreshJti;
-        this.refreshExpiresAt = refreshExpiresAt;
-    }
 }

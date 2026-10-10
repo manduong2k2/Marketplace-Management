@@ -14,16 +14,16 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "order_items")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class OrderItemEntity extends UuidEntity {
 
@@ -56,14 +56,4 @@ public class OrderItemEntity extends UuidEntity {
     @Column(name = "product_description")
     private String productDescription;
 
-    public OrderItemEntity(UUID id, UUID productId, int quantity, String productName, String productSku, double productPrice, List<String> productImages, String productDescription) {
-        this.setId(id);
-        this.productId = productId;
-        this.quantity = quantity;
-        this.productName = productName;
-        this.productSku = productSku;
-        this.productPrice = productPrice;
-        this.productImages = productImages;
-        this.productDescription = productDescription;
-    }
 }

@@ -97,7 +97,7 @@ public class UserRepository implements IUserRepository{
                 .toList();
 
         withOAuthProviders(data);
-        return new PaginatedResponse<>(data, command.getPage(), command.getSize(), total);
+        return PaginatedResponse.of(data, command.getPage(), command.getSize(), total);
     }
 
     @Override

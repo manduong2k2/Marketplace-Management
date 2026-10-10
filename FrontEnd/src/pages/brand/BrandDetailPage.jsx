@@ -140,7 +140,7 @@ export default function BrandDetailPage() {
           </div>
         ) : (
           <>
-            <div className="product-grid">
+            <div className="brand-detail-product-grid">
               {products.map(product => (
                 <ProductCard 
                   key={product.id} 

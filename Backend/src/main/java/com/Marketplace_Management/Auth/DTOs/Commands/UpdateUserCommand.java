@@ -2,29 +2,27 @@ package com.Marketplace_Management.Auth.DTOs.Commands;
 
 import com.Marketplace_Management.Auth.DTOs.Request.UpdateUserRequest;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import com.Marketplace_Management.Shared.DTOs.Commands.BaseCommand;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdateUserCommand {
+@Builder
+@EqualsAndHashCode(callSuper = false)
+public class UpdateUserCommand extends BaseCommand {
     private String name;
     private String phone;
     private String status;
     private String password; // null = keep current password
 
     public static UpdateUserCommand fromRequest(UpdateUserRequest request) {
-        return new UpdateUserCommand(
-            blankToNull(request.getName()),
-            blankToNull(request.getPhone()),
-            request.getStatus(),
-            request.getPassword() == null || request.getPassword().isEmpty() ? null : request.getPassword()
-        );
+        return UpdateUserCommand.builder()
+            .name(blankToNull(request.getName()))
+            .phone(blankToNull(request.getPhone()))
+            .status(request.getStatus())
+            .password(request.getPassword() == null || request.getPassword().isEmpty() ? null : request.getPassword())
+            .build();
     }
 
-    private static String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
-    }
 }

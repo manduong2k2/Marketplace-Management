@@ -1,5 +1,7 @@
 package com.Marketplace_Management.Auth.Entities;
 
+import org.hibernate.annotations.UuidGenerator;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -14,8 +16,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -26,6 +26,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 /**
  * A third-party account linked to a user: (provider, provider subject) -> user.
@@ -44,9 +46,12 @@ import lombok.ToString;
 )
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OAuthInfoEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    // UUID v7: time-ordered, so new rows are appended to the primary-key index
+    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
@@ -54,7 +59,7 @@ public class OAuthInfoEntity {
 
     // Read-only mapping that only declares the FK (writes go through userId).
     // ON DELETE CASCADE: deleting a user removes their provider links.
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false,
             foreignKey = @ForeignKey(name = "fk_oauth_infos_user"))
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -72,11 +77,4 @@ public class OAuthInfoEntity {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    public OAuthInfoEntity(UUID id, UUID userId, OAuthProvider oauthProvider, String oauthProviderSubject, Instant createdAt) {
-        this.id = id;
-        this.userId = userId;
-        this.oauthProvider = oauthProvider;
-        this.oauthProviderSubject = oauthProviderSubject;
-        this.createdAt = createdAt;
-    }
 }

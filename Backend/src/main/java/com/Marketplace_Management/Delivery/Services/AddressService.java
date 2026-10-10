@@ -1,193 +1,169 @@
 package com.Marketplace_Management.Delivery.Services;
 
+import java.text.Collator;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Marketplace_Management.Delivery.Contracts.IAddressRepository;
 import com.Marketplace_Management.Delivery.Contracts.IAddressService;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.CreateAddressCommand;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.GetMyAddressesCommand;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.UpdateAddressCommand;
+import com.Marketplace_Management.Delivery.DTOs.Commands.Address.SaveAddressCommand;
 import com.Marketplace_Management.Delivery.DTOs.Response.Address.AddressResponse;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.DetailAdressResponse;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.ProvinceResponse;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.WardResponse;
+import com.Marketplace_Management.Delivery.DTOs.Response.Address.RegionResponse;
 import com.Marketplace_Management.Delivery.Models.Address;
 import com.Marketplace_Management.Delivery.Models.Province;
 import com.Marketplace_Management.Delivery.Models.Ward;
 import com.Marketplace_Management.Shared.Errors.Exceptions.BadRequestException;
 import com.Marketplace_Management.Shared.Errors.Exceptions.ResourceNotFoundException;
 
+/**
+ * A user's address book. Invariant: as soon as a user has an address, exactly one of them is the default
+ * (the first address becomes the default, the default cannot be unset, only replaced, and deleting it
+ * promotes the most recent remaining address). Every lookup is scoped to the current user.
+ */
 @Service
 public class AddressService implements IAddressService {
+    private static final String ADDRESS_NOT_FOUND = "Address not found";
+    private static final String DEFAULT_ADDRESS_NOT_FOUND = "Default address not found";
+    private static final String WARD_NOT_FOUND = "The selected ward does not exist";
+
+    // Vietnamese alphabetical order (accents are secondary differences)
+    private static final Comparator<RegionResponse> BY_NAME =
+            Comparator.comparing(RegionResponse::getName, Collator.getInstance(Locale.forLanguageTag("vi")));
+
     private final IAddressRepository addressRepository;
 
     public AddressService(IAddressRepository addressRepository) {
         this.addressRepository = addressRepository;
     }
 
-    public List<ProvinceResponse> getMasterRegions() {
-        List<Province> provinces = addressRepository.getMasterRegions();
-        return provinces.stream()
-                .map(this::mapToProvinceResponse)
-                .collect(Collectors.toList());
+    @Override
+    @Transactional(readOnly = true)
+    public List<RegionResponse> getProvinces() {
+        return addressRepository.findProvinces().stream().map(this::toRegion).sorted(BY_NAME).toList();
     }
 
-    public List<AddressResponse> getMyAddresses(UUID userId, GetMyAddressesCommand command) {
-        List<Address> addresses = addressRepository.getMyAddresses(userId);
-        return addresses.stream()
-                .map(this::mapToAddressResponse)
-                .collect(Collectors.toList());
+    @Override
+    @Transactional(readOnly = true)
+    public List<RegionResponse> getWards(String provinceId) {
+        return addressRepository.findWardsByProvince(provinceId).stream().map(this::toRegion).sorted(BY_NAME).toList();
     }
 
-    public DetailAdressResponse getDefaultAddress(UUID userId) {
-        Address address = addressRepository.getMyDefaultAddress(userId);
-        if(address == null) {
-            throw new ResourceNotFoundException("Default address not found");
-        }
-        return mapToDetailAddressResponse(address);
+    @Override
+    @Transactional(readOnly = true)
+    public List<AddressResponse> getMyAddresses(UUID userId) {
+        return addressRepository.findByUser(userId).stream().map(this::toResponse).toList();
     }
 
-    public DetailAdressResponse getAddressById(Long addressId) {
-        Address address = addressRepository.getAddressById(addressId);
-        if (address == null) {
-            return null;
-        }
-        return mapToDetailAddressResponse(address);
+    @Override
+    @Transactional(readOnly = true)
+    public AddressResponse getDefaultAddress(UUID userId) {
+        return addressRepository.findDefault(userId)
+                .map(this::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException(DEFAULT_ADDRESS_NOT_FOUND));
     }
 
-    public DetailAdressResponse createAddress(UUID userId, CreateAddressCommand command) {
-        Address defAddress = addressRepository.getMyDefaultAddress(userId);
-        boolean isDefault = command.getIsDefault() != null ? command.getIsDefault() : defAddress == null;
+    @Override
+    @Transactional(readOnly = true)
+    public AddressResponse getAddress(UUID userId, Long addressId) {
+        return toResponse(requireOwned(userId, addressId));
+    }
 
-        if (isDefault) {
-            Address defaultAddress = addressRepository.getMyDefaultAddress(userId);
-            if (defaultAddress != null) {
-                defaultAddress.setIsDefault(false);
-                addressRepository.upsirtAddress(defaultAddress);
-            }
+    @Override
+    @Transactional
+    public AddressResponse createAddress(UUID userId, SaveAddressCommand command) {
+        requireWard(command.getWardId());
+        boolean makeDefault = Boolean.TRUE.equals(command.getIsDefault()) || addressRepository.findDefault(userId).isEmpty();
+        if (makeDefault) {
+            addressRepository.clearDefault(userId);
         }
 
         Address address = Address.builder()
                 .userId(userId)
-                .title(command.getTitle())
-                .streetName(command.getStreetName())
-                .houseNumber(command.getHouseNumber())
-                .detail(command.getDetail())
                 .wardId(command.getWardId())
-                .isDefault(isDefault)
-                .build();
-
-        Address created = addressRepository.createAddress(address);
-        return mapToDetailAddressResponse(created);
-    }
-
-    public DetailAdressResponse updateAddress(Long addressId, UpdateAddressCommand command) {
-        Address address = addressRepository.getAddressById(addressId);
-
-        if (address == null) {
-            throw new ResourceNotFoundException("Address not found");
-        }
-
-        Address defaultAddress = addressRepository.getMyDefaultAddress(address.getUserId());
-
-        if (command.getIsDefault() && defaultAddress != null) {
-            defaultAddress.setIsDefault(false);
-            addressRepository.upsirtAddress(defaultAddress);
-        }
-
-        if (defaultAddress != null && defaultAddress.getId().equals(addressId)) {
-            command.setIsDefault(true);
-        }
-
-        var newAddress = Address.builder()
-                .id(address.getId())
-                .userId(address.getUserId())
-                .title(command.getTitle())
-                .streetName(command.getStreetName())
-                .houseNumber(command.getHouseNumber())
                 .detail(command.getDetail())
-                .wardId(command.getWardId())
-                .isDefault(command.getIsDefault())
+                .isDefault(makeDefault)
                 .build();
-        Address updatedAddress = addressRepository.upsirtAddress(newAddress);
-        return mapToDetailAddressResponse(updatedAddress);
+        return toResponse(addressRepository.save(address));
     }
 
-    public void deleteAddress(Long addressId) {
-        Address address = addressRepository.getAddressById(addressId);
-        if (address == null) {
-            throw new ResourceNotFoundException("Address not found");
+    @Override
+    @Transactional
+    public AddressResponse updateAddress(UUID userId, Long addressId, SaveAddressCommand command) {
+        Address address = requireOwned(userId, addressId);
+        requireWard(command.getWardId());
+
+        // The default can only be replaced (by making another address the default), never just unset
+        if (!address.isDefaultAddress() && Boolean.TRUE.equals(command.getIsDefault())) {
+            addressRepository.clearDefault(userId);
+            address.setIsDefault(true);
         }
-        if(address.getIsDefault()) {
-            throw new BadRequestException("Cannot delete default address");
-        }
-        addressRepository.deleteAddress(addressId);
+
+        address.setWardId(command.getWardId());
+        address.setDetail(command.getDetail());
+        return toResponse(addressRepository.save(address));
     }
 
-    private AddressResponse mapToAddressResponse(Address address) {
+    @Override
+    @Transactional
+    public AddressResponse setDefaultAddress(UUID userId, Long addressId) {
+        Address address = requireOwned(userId, addressId);
+        if (address.isDefaultAddress()) {
+            return toResponse(address);
+        }
+        addressRepository.clearDefault(userId);
+        address.setIsDefault(true);
+        return toResponse(addressRepository.save(address));
+    }
+
+    @Override
+    @Transactional
+    public void deleteAddress(UUID userId, Long addressId) {
+        Address address = requireOwned(userId, addressId);
+        addressRepository.delete(addressId);
+
+        if (address.isDefaultAddress()) {
+            addressRepository.findLatest(userId).ifPresent(next -> {
+                next.setIsDefault(true);
+                addressRepository.save(next);
+            });
+        }
+    }
+
+    // 404 (rather than 403) for another user's address, so address ids cannot be probed
+    private Address requireOwned(UUID userId, Long addressId) {
+        return addressRepository.findByIdAndUser(addressId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException(ADDRESS_NOT_FOUND));
+    }
+
+    private void requireWard(String wardId) {
+        if (!addressRepository.wardExists(wardId)) {
+            throw new BadRequestException(WARD_NOT_FOUND);
+        }
+    }
+
+    private RegionResponse toRegion(Province province) {
+        return RegionResponse.builder().id(province.getId()).name(province.getName()).fullName(province.getFullName()).build();
+    }
+
+    private RegionResponse toRegion(Ward ward) {
+        return RegionResponse.builder().id(ward.getId()).name(ward.getName()).fullName(ward.getFullName()).build();
+    }
+
+    private AddressResponse toResponse(Address address) {
         Ward ward = address.getWard();
-        String wardName = ward != null ? ward.getName() : null;
-        String provinceName = ward != null && ward.getProvince() != null ? ward.getProvince().getName() : null;
-
+        Province province = ward != null ? ward.getProvince() : null;
         return AddressResponse.builder()
                 .id(address.getId())
-                .userId(address.getUserId())
-                .title(address.getTitle())
-                .ward(wardName)
-                .province(provinceName)
-                .streetName(address.getStreetName())
-                .houseNumber(address.getHouseNumber())
                 .detail(address.getDetail())
-                .isDefault(address.getIsDefault())
-                .build();
-    }
-
-    private ProvinceResponse mapToProvinceResponse(Province province) {
-        List<WardResponse> wardResponses = province.getWards() != null
-                ? province.getWards().stream()
-                        .map(this::mapToWardResponse)
-                        .collect(Collectors.toList())
-                : null;
-
-        return ProvinceResponse.builder()
-                .id(province.getId())
-                .name(province.getName())
-                .fullName(province.getFullName())
-                .wards(wardResponses)
-                .build();
-    }
-
-    private WardResponse mapToWardResponse(Ward ward) {
-        WardResponse wardResponse = new WardResponse();
-        wardResponse.setId(ward.getId());
-        wardResponse.setName(ward.getName());
-        wardResponse.setFullName(ward.getFullName());
-        return wardResponse;
-    }
-
-    private DetailAdressResponse mapToDetailAddressResponse(Address address) {
-        return DetailAdressResponse.builder()
-                .id(address.getId())
-                .userId(address.getUserId())
-                .streetName(address.getStreetName())
-                .houseNumber(address.getHouseNumber())
-                .detail(address.getDetail())
-                .isDefault(address.getIsDefault())
-                .ward(DetailAdressResponse.WardResponse.builder()
-                        .id(address.getWard().getId())
-                        .name(address.getWard().getName())
-                        .fullName(address.getWard().getFullName())
-                        .province(DetailAdressResponse.WardResponse.ProvinceResponse.builder()
-                                .id(address.getWard().getProvince().getId())
-                                .name(address.getWard().getProvince().getName())
-                                .fullName(address.getWard().getProvince().getFullName())
-                                .build())
-                        .build())
-                .title(address.getTitle())
+                .isDefault(address.isDefaultAddress())
+                .ward(ward != null ? toRegion(ward) : null)
+                .province(province != null ? toRegion(province) : null)
+                .fullAddress(address.fullAddress())
                 .build();
     }
 }

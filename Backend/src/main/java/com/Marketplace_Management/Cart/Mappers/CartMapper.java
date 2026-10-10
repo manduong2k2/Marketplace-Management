@@ -22,12 +22,12 @@ public class CartMapper implements EntityDomainMapper<Cart, CartEntity> {
             .map(this::itemToDomain)
             .toList();
 
-        return new Cart(
-            entity.getId(),
-            entity.getUserId(),
-            CartStatusEnum.valueOf(entity.getStatus()),
-            items
-        );
+        return Cart.builder()
+            .id(entity.getId())
+            .userId(entity.getUserId())
+            .status(CartStatusEnum.valueOf(entity.getStatus()))
+            .items(items)
+            .build();
     }
 
     @Override
@@ -51,11 +51,11 @@ public class CartMapper implements EntityDomainMapper<Cart, CartEntity> {
     // --- CartItem helpers ---
 
     private CartItem itemToDomain(CartItemEntity entity) {
-        return new CartItem(
-            entity.getId(),
-            entity.getProductVariantId(),
-            entity.getQuantity()
-        );
+        return CartItem.builder()
+            .id(entity.getId())
+            .productVariantId(entity.getProductVariantId())
+            .quantity(entity.getQuantity())
+            .build();
     }
 
     private CartItemEntity itemToEntity(CartItem domain, CartEntity cartEntity) {

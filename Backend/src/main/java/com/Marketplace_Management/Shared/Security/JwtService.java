@@ -7,6 +7,7 @@ import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 import java.time.Duration;
@@ -18,14 +19,15 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
 
-import com.Marketplace_Management.Auth.Models.User;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import com.Marketplace_Management.Shared.Utils.Helpers.UuidV7;
 
 @Service
 public class JwtService {
@@ -62,31 +64,29 @@ public class JwtService {
     private long refreshTokenExpiration;
 
     private PrivateKey loadPrivateKey(Resource resource) {
-        try (InputStream is = resource.getInputStream()) {
-            String key = new String(is.readAllBytes())
-                    .replaceAll("-----BEGIN (.*)-----", "")
-                    .replaceAll("-----END (.*)-----", "")
-                    .replaceAll("\\s", "");
-
-            byte[] decoded = Base64.getDecoder().decode(key);
-            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
-            return KeyFactory.getInstance("RSA").generatePrivate(spec);
+        try {
+            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(readPem(resource)));
         } catch (Exception e) {
             throw new RuntimeException("Failed to load private key", e);
         }
     }
 
     private PublicKey loadPublicKey(Resource resource) {
+        try {
+            return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(readPem(resource)));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load public key", e);
+        }
+    }
+
+    /** DER bytes of a PEM file (BEGIN/END lines and whitespace removed). */
+    private static byte[] readPem(Resource resource) throws java.io.IOException {
         try (InputStream is = resource.getInputStream()) {
             String key = new String(is.readAllBytes())
                     .replaceAll("-----BEGIN (.*)-----", "")
                     .replaceAll("-----END (.*)-----", "")
                     .replaceAll("\\s", "");
-            byte[] decoded = Base64.getDecoder().decode(key);
-            return KeyFactory.getInstance("RSA")
-                    .generatePublic(new X509EncodedKeySpec(decoded));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load public key", e);
+            return Base64.getDecoder().decode(key);
         }
     }
 
@@ -94,30 +94,24 @@ public class JwtService {
     public record IssuedToken(String token, String jti, Instant expiresAt) {}
 
     /** Access token: 'jwt.expiration' days. Carries roles + name for the request filter. */
-    public IssuedToken generateAccessToken(User user) {
-        String jti = UUID.randomUUID().toString();
-        Instant expiresAt = Instant.now().plus(Duration.ofDays(expiration));
-        String token = Jwts.builder()
-                .setId(jti)
-                .setSubject(String.valueOf(user.getId()))
+    public IssuedToken generateAccessToken(UUID userId, Collection<String> roleCodes, String name) {
+        return sign(userId, Duration.ofDays(expiration), Jwts.builder()
                 .claim(CLAIM_TYPE, TYPE_ACCESS)
-                .claim("roles", user.getRoles().stream().map(role -> role.getCode()).toArray())
-                .claim("name", user.getName())
-                .setIssuedAt(new Date())
-                .setExpiration(Date.from(expiresAt))
-                .signWith(privateKey, SignatureAlgorithm.RS256)
-                .compact();
-        return new IssuedToken(token, jti, expiresAt);
+                .claim("roles", roleCodes.toArray())
+                .claim("name", name));
     }
 
     /** Refresh token: 'jwt.refresh-token-expiration' days. Only accepted by /api/auth/refresh-token. */
-    public IssuedToken generateRefreshToken(User user) {
-        String jti = UUID.randomUUID().toString();
-        Instant expiresAt = Instant.now().plus(Duration.ofDays(refreshTokenExpiration));
-        String token = Jwts.builder()
+    public IssuedToken generateRefreshToken(UUID userId) {
+        return sign(userId, Duration.ofDays(refreshTokenExpiration), Jwts.builder().claim(CLAIM_TYPE, TYPE_REFRESH));
+    }
+
+    private IssuedToken sign(UUID userId, Duration lifetime, JwtBuilder claims) {
+        String jti = UuidV7.generate().toString();
+        Instant expiresAt = Instant.now().plus(lifetime);
+        String token = claims
                 .setId(jti)
-                .setSubject(String.valueOf(user.getId()))
-                .claim(CLAIM_TYPE, TYPE_REFRESH)
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(expiresAt))
                 .signWith(privateKey, SignatureAlgorithm.RS256)

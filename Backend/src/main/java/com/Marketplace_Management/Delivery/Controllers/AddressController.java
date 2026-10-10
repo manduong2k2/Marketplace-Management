@@ -1,7 +1,5 @@
 package com.Marketplace_Management.Delivery.Controllers;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,21 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.Marketplace_Management.Delivery.Contracts.IAddressService;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.CreateAddressCommand;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.GetMyAddressesCommand;
-import com.Marketplace_Management.Delivery.DTOs.Commands.Address.UpdateAddressCommand;
-import com.Marketplace_Management.Delivery.DTOs.Requests.Address.CreateAddressRequest;
-import com.Marketplace_Management.Delivery.DTOs.Requests.Address.GetMyAddressesRequest;
-import com.Marketplace_Management.Delivery.DTOs.Requests.Address.UpdateAddressRequest;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.AddressResponse;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.DetailAdressResponse;
-import com.Marketplace_Management.Delivery.DTOs.Response.Address.ProvinceResponse;
+import com.Marketplace_Management.Delivery.DTOs.Commands.Address.SaveAddressCommand;
+import com.Marketplace_Management.Delivery.DTOs.Requests.Address.SaveAddressRequest;
 import com.Marketplace_Management.Shared.Annotation.Auth.Authenticated;
+import com.Marketplace_Management.Shared.Controllers.BaseController;
 import com.Marketplace_Management.Shared.Security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api/addresses")
-public class AddressController {
+public class AddressController extends BaseController {
 
     private final IAddressService addressService;
 
@@ -33,73 +25,59 @@ public class AddressController {
         this.addressService = addressService;
     }
 
-    @GetMapping("/master-regions")
-    public ResponseEntity<Map<String, Object>> getMasterRegions() {
-        List<ProvinceResponse> provinces = addressService.getMasterRegions();
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("data", provinces);
-        return ResponseEntity.ok(response);
+    @GetMapping("/provinces")
+    public ResponseEntity<Map<String, Object>> getProvinces() {
+        return objectResponse(addressService.getProvinces());
+    }
+
+    @GetMapping("/provinces/{provinceId}/wards")
+    public ResponseEntity<Map<String, Object>> getWards(@PathVariable String provinceId) {
+        return objectResponse(addressService.getWards(provinceId));
     }
 
     @Authenticated
     @GetMapping("/mine")
-    public ResponseEntity<Map<String, Object>> getMyAddresses(@Valid GetMyAddressesRequest request) {
-        UUID userId = SecurityUtils.currentUserId();
-        GetMyAddressesCommand command = GetMyAddressesCommand.fromRequest(request);
-        List<AddressResponse> addresses = addressService.getMyAddresses(userId, command);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("data", addresses);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Map<String, Object>> getMyAddresses() {
+        return objectResponse(addressService.getMyAddresses(SecurityUtils.currentUserId()));
     }
 
     @Authenticated
     @GetMapping("/default")
     public ResponseEntity<Map<String, Object>> getDefaultAddress() {
-        UUID userId = SecurityUtils.currentUserId();
-        DetailAdressResponse address = addressService.getDefaultAddress(userId);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("data", address);
-        return ResponseEntity.ok(response);
+        return objectResponse(addressService.getDefaultAddress(SecurityUtils.currentUserId()));
     }
 
     @Authenticated
     @GetMapping("/{addressId}")
-    public ResponseEntity<Map<String, Object>> getAddressById(@PathVariable Long addressId) {
-        DetailAdressResponse address = addressService.getAddressById(addressId);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("data", address);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Map<String, Object>> getAddress(@PathVariable Long addressId) {
+        return objectResponse(addressService.getAddress(SecurityUtils.currentUserId(), addressId));
     }
 
     @Authenticated
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createAddress(@Valid @RequestBody CreateAddressRequest request) {
+    public ResponseEntity<Map<String, Object>> createAddress(@Valid @RequestBody SaveAddressRequest request) {
         UUID userId = SecurityUtils.currentUserId();
-        CreateAddressCommand command = CreateAddressCommand.fromRequest(request);
-        DetailAdressResponse address = addressService.createAddress(userId, command);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("data", address);
-        return ResponseEntity.status(201).body(response);
+        return createdResponse(addressService.createAddress(userId, SaveAddressCommand.fromRequest(request)));
     }
 
     @Authenticated
     @PutMapping("/{addressId}")
     public ResponseEntity<Map<String, Object>> updateAddress(
-            @PathVariable Long addressId,
-            @Valid @RequestBody UpdateAddressRequest request) {
-        UpdateAddressCommand command = UpdateAddressCommand.fromRequest(request);
-        DetailAdressResponse address = addressService.updateAddress(addressId, command);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("data", address);
-        return ResponseEntity.ok(response);
+            @PathVariable Long addressId, @Valid @RequestBody SaveAddressRequest request) {
+        UUID userId = SecurityUtils.currentUserId();
+        return objectResponse(addressService.updateAddress(userId, addressId, SaveAddressCommand.fromRequest(request)));
+    }
+
+    @Authenticated
+    @PatchMapping("/{addressId}/default")
+    public ResponseEntity<Map<String, Object>> setDefaultAddress(@PathVariable Long addressId) {
+        return objectResponse(addressService.setDefaultAddress(SecurityUtils.currentUserId(), addressId));
     }
 
     @Authenticated
     @DeleteMapping("/{addressId}")
     public ResponseEntity<Map<String, Object>> deleteAddress(@PathVariable Long addressId) {
-        addressService.deleteAddress(addressId);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("message", "Address deleted successfully");
-        return ResponseEntity.ok(response);
+        addressService.deleteAddress(SecurityUtils.currentUserId(), addressId);
+        return successResponse("Address deleted successfully");
     }
 }

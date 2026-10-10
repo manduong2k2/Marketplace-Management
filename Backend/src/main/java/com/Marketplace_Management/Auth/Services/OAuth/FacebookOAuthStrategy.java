@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
@@ -22,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.Marketplace_Management.Auth.Constants.Message;
 import com.Marketplace_Management.Auth.Constants.OAuthProvider;
+import com.Marketplace_Management.Shared.Utils.Http.RestClients;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -45,13 +45,9 @@ public class FacebookOAuthStrategy implements OAuthStrategy {
             @Value("${application.facebook.app-id}") String appId,
             @Value("${application.facebook.app-secret}") String appSecret,
             @Value("${application.facebook.graph-url:https://graph.facebook.com}") String graphUrl) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(Duration.ofSeconds(5));
-        requestFactory.setReadTimeout(Duration.ofSeconds(10));
-
         this.appId = appId;
         this.appSecret = appSecret;
-        this.restClient = builder.baseUrl(graphUrl).requestFactory(requestFactory).build();
+        this.restClient = RestClients.withTimeouts(builder, graphUrl, Duration.ofSeconds(5), Duration.ofSeconds(10)).build();
     }
 
     @Override

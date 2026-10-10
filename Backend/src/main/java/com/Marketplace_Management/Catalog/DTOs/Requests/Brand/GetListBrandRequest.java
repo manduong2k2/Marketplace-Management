@@ -1,21 +1,14 @@
 package com.Marketplace_Management.Catalog.DTOs.Requests.Brand;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
+import com.Marketplace_Management.Shared.DTOs.Requests.PageRequest;
+
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class GetListBrandRequest {
-    private int page = 0;
-    private int size = 10;
-    private String sortBy = "name";
-    private String sortOrder = "asc";
-
-    @Nullable
-    @Size(max = 100, message = "Search query must not exceed 100 characters")
-    private String search;
+@EqualsAndHashCode(callSuper = true)
+public class GetListBrandRequest extends PageRequest {
+    public GetListBrandRequest() {
+        super("name", "asc", 10);
+    }
 }

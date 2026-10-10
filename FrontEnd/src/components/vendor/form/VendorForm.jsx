@@ -1,9 +1,12 @@
 // src/components/vendor/VendorForm.jsx
 import React, { useState, useRef } from 'react';
+import SearchableUserSelect from '../../user/select/SearchableUserSelect';
 import './VendorForm.css';
 
 export default function VendorForm({ vendor, onSubmit, onCancel, loading = false }) {
+  const isCreate = !vendor;
   const [formData, setFormData] = useState({
+    userId: '',
     name: vendor?.name || '',
     email: vendor?.email || '',
     description: vendor?.description || '',
@@ -81,6 +84,8 @@ export default function VendorForm({ vendor, onSubmit, onCancel, loading = false
 
   const validateForm = () => {
     const newErrors = {};
+    // The owner is chosen when the vendor is created; it cannot be changed afterwards
+    if (isCreate && !formData.userId) newErrors.userId = 'Please choose the owner';
     if (!formData.name.trim()) newErrors.name = 'Vendor name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     if (!formData.logo) newErrors.logo = 'Please select a vendor logo';
@@ -102,7 +107,7 @@ export default function VendorForm({ vendor, onSubmit, onCancel, loading = false
   };
 
   const handleReset = () => {
-    setFormData({ name: '', email: '', description: '', phone: '', taxCode: '', logo: '', banner: '' });
+    setFormData({ userId: '', name: '', email: '', description: '', phone: '', taxCode: '', logo: '', banner: '' });
     setLogoPreview('');
     setBannerPreview('');
     setErrors({});
@@ -118,6 +123,19 @@ export default function VendorForm({ vendor, onSubmit, onCancel, loading = false
         <div className="form-columns">
           {/* Left Column - Basic Information */}
           <div className="form-column-left">
+            {isCreate && (
+              <div className="form-group">
+                <label>Owner *</label>
+                <SearchableUserSelect
+                  name="userId"
+                  value={formData.userId}
+                  onChange={handleChange}
+                  error={errors.userId}
+                  disabled={loading}
+                />
+              </div>
+            )}
+
             <div className="form-group">
               <label htmlFor="vendor-name">Vendor Name *</label>
               <input

@@ -75,6 +75,12 @@
     "description": "Facebook App Secret, used for the app access token and appsecret_proof when calling the Graph API"
   },
   {
+    "name": "app.debug",
+    "type": "java.lang.Boolean",
+    "description": "Include the exception class, cause and stack trace in 500 responses. Never enable in production",
+    "defaultValue": false
+  },
+  {
     "name": "application.facebook.graph-url",
     "type": "java.lang.String",
     "description": "Base URL of the Facebook Graph API",

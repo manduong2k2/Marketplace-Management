@@ -6,11 +6,15 @@ import com.Marketplace_Management.Shared.Models.AggregateRoot;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder
+@NoArgsConstructor
 public class Category extends AggregateRoot<UUID> {
     private String name;
     private String image;
@@ -18,12 +22,4 @@ public class Category extends AggregateRoot<UUID> {
     private Category parent;
     private List<Category> children;
 
-    public Category(UUID id, String name, String image, String description, Category parent, List<Category> children) {
-        super(id);
-        this.name = name;
-        this.image = image;
-        this.description = description;
-        this.parent = parent;
-        this.children = children;
-    }
 }

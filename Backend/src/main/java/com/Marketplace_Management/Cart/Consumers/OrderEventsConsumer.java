@@ -22,7 +22,6 @@ public class OrderEventsConsumer {
 
     @RabbitListener(queues = OrderQueueConfig.ORDER_PLACED_QUEUE)
     public void handleOrderPlacedEvent(OrderPlacedMessage message) {
-        System.out.println("OrderPlacedMessage received: " + message);
         try {
             UUID userId = message.getUserId();
             logger.info("Received OrderPlacedMessage for userId: {}", userId);

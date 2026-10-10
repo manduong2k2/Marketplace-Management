@@ -13,9 +13,10 @@ import com.Marketplace_Management.Shared.DTOs.Commands.BaseCommand;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Builder;
 
 @Data
-@AllArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = true)
 public class CreateProductCommand extends BaseCommand {
     private String name;
@@ -28,19 +29,20 @@ public class CreateProductCommand extends BaseCommand {
     private UUID vendorId;
 
     public static CreateProductCommand fromRequest(CreateProductRequest request) {
-        return new CreateProductCommand(
-                BaseCommand.safeTrim(request.getName()),
-                UUID.fromString(request.getBrandId()),
-                BaseCommand.safeTrim(request.getDescription()),
-                request.getCategoryIds().stream().map(UUID::fromString).toList(),
-                BaseCommand.safeTrim(request.getStatus()),
-                request.getVariants().stream().map(CreateProductVariantCommand::fromRequest).toList(),
-                request.getOptions() != null ? request.getOptions().stream().map(CreateProductOptionCommand::fromRequest).toList() : List.of(),
-                request.getVendorId() != null ? UUID.fromString(request.getVendorId()) : null);
+        return CreateProductCommand.builder()
+                .name(safeTrim(request.getName()))
+                .brandId(UUID.fromString(request.getBrandId()))
+                .description(safeTrim(request.getDescription()))
+                .categoryIds(request.getCategoryIds().stream().map(UUID::fromString).toList())
+                .status(safeTrim(request.getStatus()))
+                .variants(request.getVariants().stream().map(CreateProductVariantCommand::fromRequest).toList())
+                .options(request.getOptions() != null ? request.getOptions().stream().map(CreateProductOptionCommand::fromRequest).toList() : List.of())
+                .vendorId(uuidOrNull(request.getVendorId()))
+                .build();
     }
 
     @Data
-    @AllArgsConstructor
+    @Builder
     @EqualsAndHashCode(callSuper = true)
     public static class CreateProductVariantCommand extends BaseCommand {
         private String name;
@@ -52,13 +54,14 @@ public class CreateProductCommand extends BaseCommand {
         private List<Long> optionIds;
 
         public static CreateProductVariantCommand fromRequest(CreateProductVariantRequest request) {
-            return new CreateProductVariantCommand(
-                    BaseCommand.safeTrim(request.getName()),
-                    BaseCommand.safeTrim(request.getSku()),
-                    request.getPrice(),
-                    request.getStock(),
-                    request.getImages(),
-                    request.getOptionIds());
+            return CreateProductVariantCommand.builder()
+                    .name(safeTrim(request.getName()))
+                    .sku(safeTrim(request.getSku()))
+                    .price(request.getPrice())
+                    .stock(request.getStock())
+                    .images(request.getImages())
+                    .optionIds(request.getOptionIds())
+                    .build();
         }
     }
 

@@ -19,7 +19,6 @@ import com.Marketplace_Management.Shared.Utils.QueryBuilder.QueryBuilder;
 
 import tools.jackson.databind.ObjectMapper;
 
-import org.springframework.beans.factory.annotation.Value;
 
 @Repository
 public class ProductRepository implements IProductRepository {
@@ -32,8 +31,6 @@ public class ProductRepository implements IProductRepository {
     private final EntityMetadataRegistry metadataRegistry;
     private final ObjectMapper objectMapper;
 
-    @Value("${spring.application.base-url}")
-    private String baseUrl;
 
     public ProductRepository(ProductJpaRepository jpaRepository,
             EntityDomainMapper<Product, ProductEntity> productMapper,
@@ -102,7 +99,7 @@ public class ProductRepository implements IProductRepository {
                 .map(item -> queryBuilder.to(item, ProductShortResponse.class))
                 .collect(Collectors.toList());
 
-        return new PaginatedResponse<>(
+        return PaginatedResponse.of(
                 data,
                 command.getPage(),
                 command.getSize(),
@@ -124,7 +121,7 @@ public class ProductRepository implements IProductRepository {
                                     .map(option -> String.valueOf(option.getId())).collect(Collectors.joining(", ")));
                         }
                     });
-            jpaRepository.save(productEntity);
+            saved = jpaRepository.save(saved);
         }
 
         return productMapper.toDomain(saved);

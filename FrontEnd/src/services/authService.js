@@ -1,43 +1,5 @@
 // services/authService.js
-import { API_URL } from '../configs/constants';
-
-async function request(path, options = {}) {
-
-  const { method = 'GET', body , headers = {} } = options;
-
-  const isFormData = body instanceof FormData;
-
-  const res = await fetch(
-    `${API_URL}${path}`,
-    {
-      method,
-      headers: {
-        ...headers,
-        ...(isFormData ? {} : { 'Content-Type': 'application/json' })
-      },
-      credentials: 'include',
-      body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
-    }
-  );
-
-  const contentType =
-    res.headers.get('Content-Type') || '';
-
-  let data;
-
-  if (contentType.includes('application/json')) {
-    data = await res.json();
-  } else {
-    data = await res.text();
-  }
-
-  return {
-    ok: res.ok,
-    status: res.status,
-    headers: res.headers,
-    data
-  };
-}
+import { request } from './apiService';
 
 // ===== Auth APIs =====
 export const authService = {
@@ -52,6 +14,9 @@ export const authService = {
   forgotPassword: (email) => request('/api/auth/forgot-password', { method: 'POST', body: { email } }),
   resetPassword: (email, token, newPassword) =>
     request('/api/auth/reset-password', { method: 'POST', body: { email, token, newPassword } }),
+  // Signs out every other device; the response sets new session cookies for this browser
+  changePassword: (currentPassword, newPassword) =>
+    request('/api/auth/change-password', { method: 'PUT', body: { currentPassword, newPassword } }),
   profile: () => request('/api/auth/profile'),
   updateProfile: (formData) => request('/api/auth/profile', { method: 'PUT', body: formData }),
   logout: () => request('/api/auth/logout', { method: 'POST' }),

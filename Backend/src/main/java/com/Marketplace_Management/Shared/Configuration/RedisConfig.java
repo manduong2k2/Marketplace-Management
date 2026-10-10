@@ -1,5 +1,7 @@
 package com.Marketplace_Management.Shared.Configuration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,6 +23,8 @@ import java.time.Duration;
 @Configuration
 @EnableCaching
 public class RedisConfig implements CachingConfigurer {
+    private static final Logger logger = LoggerFactory.getLogger(RedisConfig.class);
+
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 
@@ -62,12 +66,7 @@ public class RedisConfig implements CachingConfigurer {
                     Object key
             ) {
                 // Redis down -> cache miss -> execute business logic
-                System.out.printf(
-                    "Cache GET failed. cache={}, key={}, exception=%s%n",
-                    cache.getName(),
-                    key,
-                    exception
-                );
+                logger.warn("Cache GET failed. cache={}, key={}: {}", cache.getName(), key, exception.toString());
             }
 
             @Override
@@ -78,12 +77,7 @@ public class RedisConfig implements CachingConfigurer {
                     Object value
             ) {
                 // Ignore cache write failure
-                System.out.printf(
-                    "Cache PUT failed. cache={}, key={}, exception=%s%n",
-                    cache.getName(),
-                    key,
-                    exception
-                );
+                logger.warn("Cache PUT failed. cache={}, key={}: {}", cache.getName(), key, exception.toString());
             }
 
             @Override
@@ -93,12 +87,7 @@ public class RedisConfig implements CachingConfigurer {
                     Object key
             ) {
                 // Ignore cache eviction failure
-                System.out.printf(
-                    "Cache EVICT failed. cache={}, key={}, exception=%s%n",
-                    cache.getName(),
-                    key,
-                    exception
-                );
+                logger.warn("Cache EVICT failed. cache={}, key={}: {}", cache.getName(), key, exception.toString());
             }
 
             @Override
@@ -106,11 +95,7 @@ public class RedisConfig implements CachingConfigurer {
                     RuntimeException exception,
                     Cache cache
             ) {
-                System.out.printf(
-                    "Cache CLEAR failed. cache={}, exception=%s%n",
-                    cache.getName(),
-                    exception
-                );
+                logger.warn("Cache CLEAR failed. cache={}: {}", cache.getName(), exception.toString());
             }
         };
     }

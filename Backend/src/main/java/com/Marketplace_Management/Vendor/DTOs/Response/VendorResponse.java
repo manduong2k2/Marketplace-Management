@@ -8,6 +8,7 @@ import com.Marketplace_Management.Vendor.Models.VendorStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.Marketplace_Management.Shared.Utils.Helpers.UrlHelper;
 
 @Data
 @AllArgsConstructor
@@ -43,12 +44,8 @@ public class VendorResponse {
     }
 
     public VendorResponse withUrl(String baseUrl) {
-        if (this.logo != null) {
-            this.logo = baseUrl + "/" + this.logo;
-        }
-        if (this.banner != null) {
-            this.banner = baseUrl + "/" + this.banner;
-        }
+        this.logo = UrlHelper.toPublicUrl(baseUrl, this.logo);
+        this.banner = UrlHelper.toPublicUrl(baseUrl, this.banner);
         return this;
     }
 }

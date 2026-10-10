@@ -4,23 +4,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.Marketplace_Management.Auth.DTOs.Request.UpdateProfileRequest;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class UpdateProfileCommand {
     private String name;
     private String phone;
     private MultipartFile avatar;
 
     public static UpdateProfileCommand fromRequest(UpdateProfileRequest request) {
-        return new UpdateProfileCommand(
-            request.getName(),
-            request.getPhone(),
-            request.getAvatar()
-        );
+        return UpdateProfileCommand.builder()
+            .name(request.getName())
+            .phone(request.getPhone())
+            .avatar(request.getAvatar())
+            .build();
     }
 }

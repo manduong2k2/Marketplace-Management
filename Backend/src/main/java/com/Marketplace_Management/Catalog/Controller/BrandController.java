@@ -1,7 +1,6 @@
 package com.Marketplace_Management.Catalog.Controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,10 +22,8 @@ import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.UpdateBrandCommand
 import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.CreateBrandRequest;
 import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.GetListBrandRequest;
 import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.UpdateBrandRequest;
-import com.Marketplace_Management.Catalog.DTOs.Response.BrandResponse;
 import com.Marketplace_Management.Shared.Constants.UserRole;
 import com.Marketplace_Management.Shared.Controllers.BaseController;
-import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 
 import jakarta.validation.Valid;
 
@@ -40,81 +37,33 @@ public class BrandController extends BaseController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String,Object>> getAll(@Valid @ModelAttribute GetListBrandRequest request) {
-        GetListBrandCommand command = GetListBrandCommand.fromRequest(request);
-        PaginatedResponse<BrandResponse> brands = brandService.getAllBrands(command);
-
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", brands.getData());
-        response.put("pagination", new HashMap<String, Object>() {{
-            put("currentPage", brands.getCurrentPage());
-            put("pageSize", brands.getPageSize());
-            put("totalElements", brands.getTotalElements());
-            put("totalPages", brands.getTotalPages());
-            put("hasNext", brands.isHasNext());
-            put("hasPrevious", brands.isHasPrevious());
-        }});
-        
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<Map<String, Object>> getAll(@Valid @ModelAttribute GetListBrandRequest request) {
+        return paginatedResponse(brandService.getAllBrands(GetListBrandCommand.fromRequest(request)));
     }
 
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PostMapping
-    public ResponseEntity<Map<String,Object>> create(@Valid @ModelAttribute CreateBrandRequest request) {
-        try {
-            CreateBrandCommand command = CreateBrandCommand.fromRequest(request);
-            BrandResponse brand = brandService.createBrand(command);
-            
-            HashMap<String,Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("data", brand);
-            
-            return ResponseEntity.ok().body(response);
-        } catch (IOException e) {
-            HashMap<String,Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Failed to upload image: " + e.getMessage());
-            
-            return ResponseEntity.internalServerError().body(response);
-        }
+    public ResponseEntity<Map<String, Object>> create(@Valid @ModelAttribute CreateBrandRequest request) throws IOException {
+        return createdResponse(brandService.createBrand(CreateBrandCommand.fromRequest(request)));
     }
 
     @GetMapping("/{brandId}")
-    public ResponseEntity<Map<String,Object>> details(@PathVariable UUID brandId) {
-        BrandResponse brand = brandService.getBrand(brandId);
-        
-        HashMap<String,Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", brand);
-        
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<Map<String, Object>> details(@PathVariable UUID brandId) {
+        return objectResponse(brandService.getBrand(brandId));
     }
-    
+
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @PutMapping("/{brandId}")
-    public ResponseEntity<Map<String,Object>> update(
-        @PathVariable UUID brandId, 
-        @Valid @ModelAttribute UpdateBrandRequest request
-    ) throws IOException {
-        UpdateBrandCommand command = UpdateBrandCommand.fromRequest(request);
-        BrandResponse brand = brandService.updateBrand(brandId, command);
-        
-        HashMap<String,Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", brand);
-        
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<Map<String, Object>> update(
+            @PathVariable UUID brandId,
+            @Valid @ModelAttribute UpdateBrandRequest request) throws IOException {
+        return objectResponse(brandService.updateBrand(brandId, UpdateBrandCommand.fromRequest(request)));
     }
-    
+
     @PreAuthorize("hasAuthority('" + UserRole.ADMIN + "')")
     @DeleteMapping("/{brandId}")
-    public ResponseEntity<Map<String,Object>> delete(@PathVariable UUID brandId) {
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable UUID brandId) {
         brandService.deleteBrand(brandId);
-        
-        HashMap<String,Object> response = new HashMap<>();
-        response.put("success", true);
-        
-        return ResponseEntity.ok().body(response);
+        return successResponse("Brand deleted successfully");
     }
 }

@@ -9,18 +9,34 @@ import com.Marketplace_Management.Vendor.Models.Vendor;
 @Component
 public class VendorMapper implements EntityDomainMapper<Vendor,VendorEntity> {
     public Vendor toDomain(VendorEntity entity) {
-        return new Vendor(
-            entity.getId(), entity.getUserId(), entity.getName(), entity.getStatus(),
-            entity.getDescription(), entity.getLogo(), entity.getBanner(),
-            entity.getTaxCode(), entity.getEmail(), entity.getAddressId(), entity.getPhone()
-        );
+        return Vendor.builder()
+            .id(entity.getId())
+            .userId(entity.getUserId())
+            .name(entity.getName())
+            .status(entity.getStatus())
+            .description(entity.getDescription())
+            .logo(entity.getLogo())
+            .banner(entity.getBanner())
+            .taxCode(entity.getTaxCode())
+            .email(entity.getEmail())
+            .addressId(entity.getAddressId())
+            .phone(entity.getPhone())
+            .build();
     }
 
     public VendorEntity toEntity(Vendor model) {
-        return new VendorEntity(
-            model.getId(), model.getUserId(), model.getName(), model.getStatus(),
-            model.getDescription(), model.getLogo(), model.getBanner(),
-            model.getTaxCode(), model.getEmail(), model.getAddressId(), model.getPhone()
-        );
+        return VendorEntity.builder()
+            .id(model.getId())
+            .userId(model.getUserId())
+            .name(model.getName())
+            .status(model.getStatus())
+            .description(model.getDescription())
+            .logo(model.getLogo())
+            .banner(model.getBanner())
+            .taxCode(model.getTaxCode())
+            .email(model.getEmail())
+            .addressId(model.getAddressId())
+            .phone(model.getPhone())
+            .build();
     }
 }

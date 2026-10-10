@@ -10,15 +10,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "product_options")
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
@@ -40,10 +40,4 @@ public class ProductOptionEntity extends NumericEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
-    public ProductOptionEntity(Long id, String name, String value, ProductEntity product) {
-        if(id != null) this.setId(id);
-        this.name = name;
-        this.value = value;
-        this.product = product;
-    }
 }

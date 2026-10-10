@@ -11,6 +11,7 @@ import com.Marketplace_Management.Catalog.Contracts.IBrandRepository;
 import com.Marketplace_Management.Catalog.DTOs.Commands.Brand.GetListBrandCommand;
 import com.Marketplace_Management.Catalog.DTOs.Response.BrandResponse;
 import com.Marketplace_Management.Catalog.Entities.BrandEntity;
+import com.Marketplace_Management.Catalog.Mappers.BrandMapper;
 import com.Marketplace_Management.Catalog.Models.Brand;
 import com.Marketplace_Management.Shared.DTOs.Responses.PaginatedResponse;
 import com.Marketplace_Management.Shared.Utils.QueryBuilder.EntityMetadataRegistry;
@@ -25,13 +26,15 @@ public class BrandRepository implements IBrandRepository {
     private final DSLContext dslContext;
     private final EntityMetadataRegistry metadataRegistry;
     private final ObjectMapper objectMapper;
+    private final BrandMapper brandMapper;
 
     public BrandRepository(BrandJpaRepository jpaRepository, DSLContext dslContext,
-            EntityMetadataRegistry metadataRegistry, ObjectMapper objectMapper) {
+            EntityMetadataRegistry metadataRegistry, ObjectMapper objectMapper, BrandMapper brandMapper) {
         this.jpaRepository = jpaRepository;
         this.dslContext = dslContext;
         this.metadataRegistry = metadataRegistry;
         this.objectMapper = objectMapper;
+        this.brandMapper = brandMapper;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class BrandRepository implements IBrandRepository {
                 .map(item -> queryBuilder.to(item, BrandResponse.class))
                 .collect(Collectors.toList());
 
-        return new PaginatedResponse<>(
+        return PaginatedResponse.of(
                 data,
                 command.getPage(),
                 command.getSize(),
@@ -63,28 +66,28 @@ public class BrandRepository implements IBrandRepository {
 
     @Override
     public Brand save(Brand brand) {
-        BrandEntity entity = toEntity(brand);
+        BrandEntity entity = brandMapper.toEntity(brand);
         BrandEntity saved = jpaRepository.save(entity);
-        return toDomain(saved);
+        return brandMapper.toDomain(saved);
     }
 
     @Override
     public Optional<Brand> findById(UUID id) {
         return jpaRepository.findById(id)
-                .map(this::toDomain);
+                .map(brandMapper::toDomain);
     }
 
     @Override
     public Optional<Brand> findByName(String name) {
         return jpaRepository.findByName(name)
-                .map(this::toDomain);
+                .map(brandMapper::toDomain);
     }
 
     @Override
     public Brand update(Brand brand) {
-        BrandEntity entity = toEntity(brand);
+        BrandEntity entity = brandMapper.toEntity(brand);
         BrandEntity updated = jpaRepository.save(entity);
-        return toDomain(updated);
+        return brandMapper.toDomain(updated);
     }
 
     @Override
@@ -92,21 +95,4 @@ public class BrandRepository implements IBrandRepository {
         jpaRepository.deleteById(id);
     }
 
-    // ===== mapping =====
-
-    private Brand toDomain(BrandEntity entity) {
-        return new Brand(
-                entity.getId(),
-                entity.getName(),
-                entity.getImage(),
-                entity.getDescription());
-    }
-
-    private BrandEntity toEntity(Brand brand) {
-        return new BrandEntity(
-                brand.getId(),
-                brand.getName(),
-                brand.getImage(),
-                brand.getDescription());
-    }
 }

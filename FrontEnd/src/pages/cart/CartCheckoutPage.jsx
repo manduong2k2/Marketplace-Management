@@ -1,323 +1,241 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { showSuccess, showError } from '../../components/master/popup';
 import { orderService } from '../../services/orderService';
 import { cartService } from '../../services/cartService';
 import { addressService } from '../../services/addressService';
+import { Page, PageHeader, Card, Field, EmptyState, Pill, SkeletonRows, Thumb } from '../../components/ui/Ui';
+import { formatMoney } from '../../components/ui/uiUtils';
 import './CartCheckoutPage.css';
 
+const OTHER = 'other';
+const PHONE_PATTERN = /^\+?[0-9\s.-]{8,20}$/;
+
 export default function CartCheckoutPage() {
+  useEffect(() => {
+    document.title = 'My Store - Checkout';
+  }, []);
+
   const navigate = useNavigate();
   const { cart, loading: cartLoading, setCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
 
-  const [shippingInfo, setShippingInfo] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    note: '',
-  });
+  const [contact, setContact] = useState({ name: user?.name || '', phone: user?.phone || '' });
+  const [note, setNote] = useState('');
+  const [addresses, setAddresses] = useState([]);
+  const [addressesLoading, setAddressesLoading] = useState(true);
+  // id of the chosen saved address, or OTHER for a typed one
+  const [selected, setSelected] = useState(OTHER);
+  const [otherAddress, setOtherAddress] = useState('');
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Saved addresses
-  const [addresses, setAddresses] = useState([]);
-  const [selectedAddressId, setSelectedAddressId] = useState('');
-
-  // Pre-fill from user context
   useEffect(() => {
-    if (user) {
-      setShippingInfo(prev => ({
-        ...prev,
-        name: user.name || '',
-        phone: user.phone || '',
-      }));
-    }
-  }, [user]);
-
-  // Fetch saved addresses and pre-select default
-  useEffect(() => {
-    const fetchAddresses = async () => {
+    (async () => {
       try {
         const res = await addressService.getMyAddresses();
         if (res.ok) {
           const list = res.data.data || [];
           setAddresses(list);
-          const defaultAddr = list.find(a => a.isDefault) || list[0] || null;
-          if (defaultAddr) {
-            setSelectedAddressId(String(defaultAddr.id));
-            setShippingInfo(prev => ({
-              ...prev,
-              address: formatAddress(defaultAddr),
-            }));
-          }
+          // The list comes default-first
+          if (list.length) setSelected(list[0].id);
         }
-      } catch {
-        // silently fail — user can still type manually
+      } finally {
+        setAddressesLoading(false);
       }
-    };
-    fetchAddresses();
+    })();
   }, []);
 
-  // Format address object into a readable string
-  const formatAddress = (addr) => {
-    const ward = typeof addr.ward === 'object'
-      ? (addr.ward?.fullName || addr.ward?.name || '')
-      : (addr.ward || '');
-    const province = typeof addr.province === 'object'
-      ? (addr.province?.name || addr.province?.fullName || '')
-      : (addr.province || '');
-    return [addr.houseNumber, addr.streetName, ward, province]
-      .filter(Boolean)
-      .join(', ');
-  };
+  const deliveryAddress = selected === OTHER
+    ? otherAddress.trim()
+    : addresses.find(a => a.id === selected)?.fullAddress || '';
 
-  const handleAddressSelect = (e) => {
-    const id = e.target.value;
-    setSelectedAddressId(id);
-    if (id === '') {
-      setShippingInfo(prev => ({ ...prev, address: '' }));
-    } else {
-      const addr = addresses.find(a => String(a.id) === id);
-      if (addr) {
-        setShippingInfo(prev => ({
-          ...prev,
-          address: formatAddress(addr),
-        }));
-        if (errors.address) setErrors(prev => ({ ...prev, address: '' }));
-      }
-    }
-  };
-
-  const handleChange = (e) => {
+  const handleContactChange = (e) => {
     const { name, value } = e.target;
-    setShippingInfo(prev => ({ ...prev, [name]: value }));
-    // Clear error on change
+    setContact(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const validate = () => {
-    const newErrors = {};
-    if (!shippingInfo.name.trim()) newErrors.name = 'Full name is required.';
-    if (!shippingInfo.phone.trim()) newErrors.phone = 'Phone number is required.';
-    if (!shippingInfo.address.trim()) newErrors.address = 'Delivery address is required.';
-    return newErrors;
+    const next = {};
+    if (!contact.name.trim()) next.name = 'Please enter the recipient name';
+    if (!contact.phone.trim()) next.phone = 'Please enter a phone number';
+    else if (!PHONE_PATTERN.test(contact.phone.trim())) next.phone = 'Please enter a valid phone number';
+    if (!deliveryAddress) next.address = 'Please choose or enter a delivery address';
+    setErrors(next);
+    return Object.keys(next).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const newErrors = validate();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    if (!validate()) return;
 
     setSubmitting(true);
     try {
-      const res = await orderService.create(shippingInfo);
+      const res = await orderService.create({
+        name: contact.name.trim(),
+        phone: contact.phone.trim(),
+        address: deliveryAddress,
+        note: note.trim(),
+      });
       if (res.ok) {
-        // Clear cart after successful order
-        const clearRes = await cartService.clearCart();
-        if (clearRes.ok) {
-          const cartData = await cartService.getCart();
-          if (cartData.data && cartData.data.cart) {
-            setCart(cartData.data.cart);
-          }
-        }
-        showSuccess('Order placed successfully!', 'Thank you');
-        navigate('/home');
+        await cartService.clearCart();
+        const cartRes = await cartService.getCart();
+        setCart(cartRes.ok ? cartRes.data?.cart ?? null : null);
+        showSuccess('Thank you! Your order has been placed.', 'Order placed');
+        const orderId = res.data?.data?.id;
+        navigate(orderId ? `/orders/${orderId}` : '/orders');
       } else {
-        showError(res.data.message || 'Failed to place order. Please try again.', 'Error');
+        showError(res.data?.message || 'Could not place your order. Please try again.', 'Checkout');
       }
-    } catch (err) {
-      showError('Failed to place order. Please try again.', 'Error');
+    } catch {
+      showError('Could not place your order. Please try again.', 'Connection Error');
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (cartLoading) {
-    return (
-      <div className="checkout-page">
-        <div className="checkout-loading">
-          <div className="spinner"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  const items = cart?.items || [];
 
-  if (!cart?.items || cart.items.length === 0) {
+  if (!cartLoading && items.length === 0) {
     return (
-      <div className="checkout-page">
-        <div className="checkout-empty">
-          <span className="empty-icon">🛒</span>
-          <h2>Your cart is empty</h2>
-          <p>Add some products before checking out.</p>
-          <button className="btn-back" onClick={() => navigate('/home')}>
-            Back to Shop
-          </button>
-        </div>
-      </div>
+      <Page>
+        <PageHeader back={{ to: '/cart', label: 'Back to cart' }} eyebrow="Shopping" eyebrowIcon="bi-bag" title="Checkout" />
+        <Card bodyless>
+          <EmptyState icon="bi-bag" title="Your cart is empty" text="Add some products before checking out.">
+            <Link to="/home" className="ui-btn ui-btn--primary"><i className="bi bi-shop"></i> Continue shopping</Link>
+          </EmptyState>
+        </Card>
+      </Page>
     );
   }
 
   return (
-    <div className="checkout-page">
-      <div className="checkout-header">
-        <button className="btn-back-link" onClick={() => navigate('/cart')}>
-          ← Back to Cart
-        </button>
-        <h1>Checkout</h1>
-      </div>
+    <Page>
+      <PageHeader
+        back={{ to: '/cart', label: 'Back to cart' }}
+        eyebrow="Shopping"
+        eyebrowIcon="bi-bag"
+        title="Checkout"
+        description="Check your delivery details, then place your order."
+      />
 
-      <div className="checkout-body">
+      <form className="ui-split" onSubmit={handleSubmit} noValidate>
+        <div className="ui-stack">
+          <Card icon="bi-person" title="Recipient">
+            <div className="ui-form ui-form--grid">
+              <Field label="Full name" required error={errors.name}>
+                <input name="name" value={contact.name} onChange={handleContactChange} autoComplete="name" />
+              </Field>
+              <Field label="Phone" required error={errors.phone}>
+                <input name="phone" type="tel" value={contact.phone} onChange={handleContactChange} autoComplete="tel" placeholder="e.g. 0901 234 567" />
+              </Field>
+            </div>
+          </Card>
 
-        {/* ── Left: Order summary (read-only) ── */}
-        <section className="checkout-summary">
-          <h2>Order Summary</h2>
+          <Card
+            icon="bi-geo-alt"
+            title="Delivery address"
+            actions={
+              <Link to="/profile/addresses/new?returnTo=/checkout" className="ui-btn ui-btn--ghost ui-btn--sm">
+                <i className="bi bi-plus-lg"></i> New address
+              </Link>
+            }
+            bodyless
+          >
+            {addressesLoading ? (
+              <SkeletonRows rows={2} />
+            ) : (
+              <div className="checkout-addresses" role="radiogroup" aria-label="Delivery address">
+                {addresses.map(address => (
+                  <label key={address.id} className={`checkout-address${selected === address.id ? ' is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="address"
+                      checked={selected === address.id}
+                      onChange={() => { setSelected(address.id); setErrors(prev => ({ ...prev, address: '' })); }}
+                    />
+                    <span className="checkout-address-text">
+                      <strong>
+                        {address.detail}
+                        {address.isDefault && <Pill tone="accent" icon="bi-star-fill">Default</Pill>}
+                      </strong>
+                      <span>{[address.ward?.fullName, address.province?.fullName].filter(Boolean).join(', ')}</span>
+                    </span>
+                  </label>
+                ))}
 
-          <div className="summary-items">
-            {cart.items.map(item => (
-              <div key={item.id} className="summary-item-row">
-                <div className="summary-item-image">
-                  {item.productImage && item.productImage.length > 0 ? (
-                    <img src={item.productImage[0]} alt={item.productName} />
-                  ) : (
-                    <div className="no-image">No Image</div>
-                  )}
-                </div>
+                <label className={`checkout-address${selected === OTHER ? ' is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="address"
+                    checked={selected === OTHER}
+                    onChange={() => setSelected(OTHER)}
+                  />
+                  <span className="checkout-address-text">
+                    <strong>{addresses.length ? 'Deliver to another address' : 'Enter a delivery address'}</strong>
+                    <span>Typed for this order only — not saved to your address book.</span>
+                  </span>
+                </label>
 
-                <div className="summary-item-info">
-                  <p className="summary-item-name">{item.productName}</p>
-                  <p className="summary-item-meta">
-                    ${item.productPrice.toFixed(2)} × {item.quantity}
-                  </p>
-                </div>
-
-                <p className="summary-item-subtotal">
-                  ${item.subTotal.toFixed(2)}
-                </p>
+                {selected === OTHER && (
+                  <div className="checkout-other">
+                    <Field label="Address" required error={errors.address}>
+                      <textarea
+                        value={otherAddress}
+                        onChange={(e) => { setOtherAddress(e.target.value); setErrors(prev => ({ ...prev, address: '' })); }}
+                        placeholder="House number, street, ward, province / city"
+                        rows={3}
+                        autoComplete="street-address"
+                      />
+                    </Field>
+                  </div>
+                )}
+                {selected !== OTHER && errors.address && <p className="ui-field-error checkout-other">{errors.address}</p>}
               </div>
-            ))}
-          </div>
+            )}
+          </Card>
 
-          <div className="summary-totals">
-            <div className="totals-row">
-              <span>Items</span>
-              <span>{cart.totalItemCount}</span>
+          <Card icon="bi-chat-left-text" title="Order note" subtitle="Optional — delivery instructions, preferred time…">
+            <Field>
+              <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} placeholder="e.g. Please call before delivering" />
+            </Field>
+          </Card>
+        </div>
+
+        <aside className="ui-sticky">
+          <Card icon="bi-receipt" title="Order summary" bodyless>
+            {cartLoading ? (
+              <SkeletonRows rows={2} thumb />
+            ) : (
+              <ul className="ui-list checkout-items">
+                {items.map(item => (
+                  <li key={item.id} className="ui-row">
+                    <Thumb src={item.productImages?.[0]} small />
+                    <div className="ui-row-main">
+                      <p className="ui-row-title checkout-item-name">{item.productName}</p>
+                      <p className="ui-row-sub">{formatMoney(item.productPrice)} × {item.quantity}</p>
+                    </div>
+                    <span className="ui-price">{formatMoney(item.subTotal)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="ui-card-body checkout-totals">
+              <dl className="ui-kv">
+                <div><dt>Subtotal</dt><dd>{formatMoney(cart?.total)}</dd></div>
+                <div><dt>Shipping</dt><dd className="ui-muted">Free</dd></div>
+                <div className="ui-kv-total"><dt>Total</dt><dd>{formatMoney(cart?.total)}</dd></div>
+              </dl>
+              <button type="submit" className="ui-btn ui-btn--primary ui-btn--lg ui-btn--block checkout-submit" disabled={submitting || cartLoading}>
+                <i className="bi bi-bag-check"></i> {submitting ? 'Placing order…' : `Place order · ${formatMoney(cart?.total)}`}
+              </button>
             </div>
-            <div className="totals-row totals-grand">
-              <span>Total</span>
-              <span>${cart.total.toFixed(2)}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Right: Shipping form ── */}
-        <section className="checkout-form-section">
-          <h2>Shipping Information</h2>
-
-          <form className="checkout-form" onSubmit={handleSubmit} noValidate>
-
-            <div className="form-group">
-              <label htmlFor="co-name">
-                Full Name <span className="required">*</span>
-              </label>
-              <input
-                id="co-name"
-                type="text"
-                name="name"
-                value={shippingInfo.name}
-                onChange={handleChange}
-                placeholder="Your full name"
-                className={errors.name ? 'input-error' : ''}
-              />
-              {errors.name && <span className="field-error">{errors.name}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="co-phone">
-                Phone <span className="required">*</span>
-              </label>
-              <input
-                id="co-phone"
-                type="tel"
-                name="phone"
-                value={shippingInfo.phone}
-                onChange={handleChange}
-                placeholder="e.g. 0901 234 567"
-                className={errors.phone ? 'input-error' : ''}
-              />
-              {errors.phone && <span className="field-error">{errors.phone}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="co-address">
-                Delivery Address <span className="required">*</span>
-              </label>
-
-              {/* Address select — shown when saved addresses exist */}
-              {addresses.length > 0 && (
-                <div className="address-select-wrap">
-                  <select
-                    id="co-address-select"
-                    value={selectedAddressId}
-                    onChange={handleAddressSelect}
-                    className="address-select"
-                  >
-                    <option value="">— Type address manually —</option>
-                    {addresses.map(addr => (
-                      <option key={addr.id} value={String(addr.id)}>
-                        {addr.isDefault ? '★ ' : ''}{addr.title ? `[${addr.title}] ` : ''}{formatAddress(addr)}
-                      </option>
-                    ))}
-                  </select>
-                  <Link to="/addresses" className="address-manage-link">
-                    Manage my addresses →
-                  </Link>
-                </div>
-              )}
-
-              <textarea
-                id="co-address"
-                name="address"
-                value={shippingInfo.address}
-                onChange={handleChange}
-                placeholder="Street, district, city..."
-                rows={3}
-                className={errors.address ? 'input-error' : ''}
-              />
-              {errors.address && <span className="field-error">{errors.address}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="co-note">Order Note (optional)</label>
-              <textarea
-                id="co-note"
-                name="note"
-                value={shippingInfo.note}
-                onChange={handleChange}
-                placeholder="Any special instructions..."
-                rows={2}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn-place-order"
-              disabled={submitting}
-            >
-              {submitting ? 'Placing Order...' : `Place Order · $${cart.total.toFixed(2)}`}
-            </button>
-
-          </form>
-        </section>
-
-      </div>
-    </div>
+          </Card>
+        </aside>
+      </form>
+    </Page>
   );
 }

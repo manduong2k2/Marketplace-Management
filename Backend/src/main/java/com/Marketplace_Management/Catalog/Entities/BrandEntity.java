@@ -1,7 +1,6 @@
 package com.Marketplace_Management.Catalog.Entities;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.hibernate.annotations.Nationalized;
 
@@ -11,11 +10,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "brands")
 @Data
 @EqualsAndHashCode(callSuper = false)
+@SuperBuilder
+@NoArgsConstructor
 public class BrandEntity extends UuidEntity {
     @Column(nullable = false)
     @Size(max = 100)
@@ -32,12 +35,5 @@ public class BrandEntity extends UuidEntity {
     @OneToMany(mappedBy = "brand")
     private List<ProductEntity> products;
 
-    public BrandEntity() {}
 
-    public BrandEntity(UUID id, String name, String image, String description) {
-        this.setId(id);
-        this.name = name;
-        this.image = image;
-        this.description = description;
-    }
 }

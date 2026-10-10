@@ -1,29 +1,19 @@
 package com.Marketplace_Management.Catalog.DTOs.Commands.Brand;
 
 import com.Marketplace_Management.Catalog.DTOs.Requests.Brand.GetListBrandRequest;
+import com.Marketplace_Management.Shared.DTOs.Commands.PageCommand;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-public class GetListBrandCommand {
-    private int page = 0;
-    private int size = 10;
-    private String sortBy = "name";
-    private String sortOrder = "asc";
-
-    private String search;
-
+@EqualsAndHashCode(callSuper = true)
+public class GetListBrandCommand extends PageCommand {
     public static GetListBrandCommand fromRequest(GetListBrandRequest request) {
-        return new GetListBrandCommand(
-            request.getPage(),
-            request.getSize(),
-            request.getSortBy(),
-            request.getSortOrder(),
-            request.getSearch()
-        );
+        return GetListBrandCommand.builder().paging(request).build();
     }
 }

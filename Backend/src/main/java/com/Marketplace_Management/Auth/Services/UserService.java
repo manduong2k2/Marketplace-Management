@@ -87,8 +87,7 @@ public class UserService implements IUserService {
     @Override
     @CacheEvict(value = "users", key = "#id")
     public UserResponse updateUser(UUID id, UpdateUserCommand command) {
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
+        User user = requireUser(id);
 
         ensurePhoneAvailable(command.getPhone(), id);
 
@@ -117,8 +116,7 @@ public class UserService implements IUserService {
         if (id.equals(currentUserId)) {
             throw new BadRequestException(Message.CANNOT_DELETE_SELF);
         }
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
+        User user = requireUser(id);
         // Sessions cascade with the user row, so revoke their tokens first (not via the AFTER_COMMIT event)
         sessionService.revokeAllBeforeDelete(id);
         userRepo.delete(user);
@@ -191,5 +189,10 @@ public class UserService implements IUserService {
             throw new ResourceNotFoundException(Message.SOME_USERS_NOT_FOUND);
         }
         return ids;
+    }
+
+    private User requireUser(UUID userId) {
+        return userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(Message.USER_NOT_FOUND));
     }
 }

@@ -6,13 +6,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.Marketplace_Management.Catalog.DTOs.Requests.Category.CreateCategoryRequest;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class CreateCategoryCommand {
     private String name;
     private UUID parentId;
@@ -20,11 +18,11 @@ public class CreateCategoryCommand {
     private String description;
 
     public static CreateCategoryCommand fromRequest(CreateCategoryRequest request) {
-        return new CreateCategoryCommand(
-            request.getName(),
-            request.getParentId(),
-            request.getImage(),
-            request.getDescription()
-        );
+        return CreateCategoryCommand.builder()
+            .name(request.getName())
+            .parentId(request.getParentId())
+            .image(request.getImage())
+            .description(request.getDescription())
+            .build();
     }
 }

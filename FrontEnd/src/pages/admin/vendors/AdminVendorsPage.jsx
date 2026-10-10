@@ -23,6 +23,7 @@ function VendorStatus({ status }) {
 
 const toFormData = (formData) => {
   const fd = new FormData();
+  if (formData.userId) fd.append('userId', formData.userId);   // create only: the owner
   fd.append('name', formData.name);
   fd.append('email', formData.email || '');
   fd.append('description', formData.description || '');

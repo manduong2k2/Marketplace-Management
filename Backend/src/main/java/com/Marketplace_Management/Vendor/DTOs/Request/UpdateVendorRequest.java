@@ -1,5 +1,6 @@
 package com.Marketplace_Management.Vendor.DTOs.Request;
 
+import com.Marketplace_Management.Shared.Annotation.Rules.Uuid;
 import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateVendorRequest {
+public class UpdateVendorRequest implements VendorProfileFields {
     @Nullable
     private UUID userId;
 
@@ -44,7 +45,7 @@ public class UpdateVendorRequest {
     private String email;
 
     @Nullable
-    @Pattern(regexp = "^[0-9a-fA-F\\-]{36}$", message = "Address ID must be a valid UUID")
+    @Uuid(message = "Address ID must be a valid id")
     private String addressId;
 
     @Nullable

@@ -11,37 +11,33 @@ import com.Marketplace_Management.Shared.Contracts.EntityDomainMapper;
 @Component
 public class OrderMapper implements EntityDomainMapper<Order, OrderEntity>{
     public OrderEntity toEntity(Order order) {
-        OrderEntity entity = new OrderEntity();
-        entity.setId(order.getId());
-        entity.setUserId(order.getUserId());
-        entity.setStatus(order.getStatus());
-        entity.setName(order.getName());
-        entity.setPhone(order.getPhone());
-        entity.setAddress(order.getAddress());
-        entity.setNote(order.getNote());
+        OrderEntity entity = OrderEntity.builder()
+            .id(order.getId())
+            .userId(order.getUserId())
+            .status(order.getStatus())
+            .name(order.getName())
+            .phone(order.getPhone())
+            .address(order.getAddress())
+            .note(order.getNote())
+            .total(order.getTotal())
+            .build();
         entity.setItems(order.getItems().stream().map(item -> toOrderItemEntity(item, entity)).toList());
-        entity.setTotal(order.getTotal());
-
         return entity;
     }
 
     private OrderItemEntity toOrderItemEntity(OrderItem item, OrderEntity entity) {
-        OrderItemEntity itemEntity = new OrderItemEntity(
-            item.getId(),
-            item.getProductId(),
-            item.getQuantity(),
-            item.getProductName(),
-            item.getProductSku(),
-            item.getProductPrice(),
-            item.getProductImages(),
-            item.getProductDescription()
-        );
-
-        itemEntity.setTotal(item.calculateTotal());
-
-        itemEntity.setOrder(entity);
-
-        return itemEntity;
+        return OrderItemEntity.builder()
+            .id(item.getId())
+            .productId(item.getProductId())
+            .quantity(item.getQuantity())
+            .total(item.calculateTotal())
+            .productName(item.getProductName())
+            .productSku(item.getProductSku())
+            .productPrice(item.getProductPrice())
+            .productImages(item.getProductImages())
+            .productDescription(item.getProductDescription())
+            .order(entity)
+            .build();
     }
 
     public Order toDomain(OrderEntity entity) {
@@ -55,6 +51,8 @@ public class OrderMapper implements EntityDomainMapper<Order, OrderEntity>{
             .address(entity.getAddress())
             .note(entity.getNote())
             .total(entity.getTotal())
+            .createdAt(entity.getCreatedAt())
+            .updatedAt(entity.getUpdatedAt())
             .build();
     }
 

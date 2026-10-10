@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import com.Marketplace_Management.Catalog.Models.Brand;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.Marketplace_Management.Shared.Utils.Helpers.UrlHelper;
 
 @Data
 @AllArgsConstructor
@@ -28,9 +29,7 @@ public class BrandResponse {
     }
 
     public BrandResponse withUrl(String url) {
-        if (this.image != null) {
-            this.image = url + "/" + this.image;
-        }
+        this.image = UrlHelper.toPublicUrl(url, this.image);
         return this;
     }
 }

@@ -30,6 +30,9 @@ public class EmailVerificationTokenService {
     @Value("${spring.application.base-url}")
     private String baseUrl;
 
+    @Value("${application.frontend.base-url}")
+    private String frontendBaseUrl;
+
     @Transactional
     public void createToken(String email, String token) {
         EmailVerifyToken entity = repo.findByEmail(email);
@@ -66,37 +69,32 @@ public class EmailVerificationTokenService {
 
     @Async
     public void sendVerifyEmail(String toEmail, String token) throws MessagingException {
-        String link = baseUrl + "/api/auth/verify-email?email=" + toEmail + "&token=" + token;
-
-        Context context = new Context();
-        context.setVariable("link", link);
-
-        String htmlContent = templateEngine.process("mails/activate_account.html", context);
-        
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-        helper.setTo(toEmail);
-        helper.setSubject("Activate your account");
-        helper.setText(htmlContent, true);
-
-        mailSender.send(mimeMessage);
+        String link = baseUrl + "/api/auth/verify-email?email=" + urlEncode(toEmail) + "&token=" + urlEncode(token);
+        sendLinkEmail(toEmail, "Activate your account", "mails/activate_account.html", link);
     }
 
     @Async
     public void sendResetPasswordEmail(String toEmail, String token) throws MessagingException {
-        String link = baseUrl + "/api/auth/reset-password?email=" + toEmail + "&token=" + token;
+        // The web app's forgot-password page shows the "new password" form when it has email + token
+        String link = frontendBaseUrl + "/forgot?email=" + urlEncode(toEmail) + "&token=" + urlEncode(token);
+        sendLinkEmail(toEmail, "Reset your password", "mails/reset_password.html", link);
+    }
 
+    /** Renders a mail template that has a link variable and sends it as HTML. */
+    private void sendLinkEmail(String toEmail, String subject, String template, String link) throws MessagingException {
         Context context = new Context();
         context.setVariable("link", link);
 
-        String htmlContent = templateEngine.process("mails/reset_password.html", context);
-        
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         helper.setTo(toEmail);
-        helper.setSubject("Reset your password");
-        helper.setText(htmlContent, true);
+        helper.setSubject(subject);
+        helper.setText(templateEngine.process(template, context), true);
 
         mailSender.send(mimeMessage);
+    }
+
+    private static String urlEncode(String value) {
+        return java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8);
     }
 }

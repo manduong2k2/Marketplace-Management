@@ -6,12 +6,12 @@ import java.util.UUID;
 import com.Marketplace_Management.Catalog.DTOs.Requests.Product.UpdateProductRequest;
 import com.Marketplace_Management.Shared.DTOs.Commands.BaseCommand;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@AllArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = true)
 public class UpdateProductCommand extends BaseCommand {
     private String name;
@@ -21,13 +21,14 @@ public class UpdateProductCommand extends BaseCommand {
     private String status;
 
     public static UpdateProductCommand fromRequest(UpdateProductRequest request) {
-        return new UpdateProductCommand(
-            BaseCommand.safeTrim(request.getName()),
-            UUID.fromString(request.getBrandId()),
-            BaseCommand.safeTrim(request.getDescription()),
-            request.getCategoryIds().stream().map(UUID::fromString).toList(),
-            BaseCommand.safeTrim(request.getStatus())
-        );
+        // Every field is optional: null means "keep the current value"
+        return UpdateProductCommand.builder()
+            .name(safeTrim(request.getName()))
+            .brandId(uuidOrNull(request.getBrandId()))
+            .description(safeTrim(request.getDescription()))
+            .categoryIds(request.getCategoryIds() != null ? request.getCategoryIds().stream().map(UUID::fromString).toList() : null)
+            .status(safeTrim(request.getStatus()))
+            .build();
     }
 }
 

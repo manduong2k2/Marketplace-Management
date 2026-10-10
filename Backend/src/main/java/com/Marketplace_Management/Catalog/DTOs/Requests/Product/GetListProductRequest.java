@@ -3,44 +3,38 @@ package com.Marketplace_Management.Catalog.DTOs.Requests.Product;
 import java.util.List;
 import java.util.UUID;
 
+import com.Marketplace_Management.Shared.Annotation.Rules.Uuid;
 import com.Marketplace_Management.Shared.Annotation.Rules.Distinct;
 import com.Marketplace_Management.Shared.Annotation.Rules.Exist;
+import com.Marketplace_Management.Shared.DTOs.Requests.PageRequest;
 
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class GetListProductRequest {
-    private int page = 0;
-    private int size = 10;
-    private String sortBy = "name";
-    private String sortOrder = "asc";
-
+@EqualsAndHashCode(callSuper = true)
+public class GetListProductRequest extends PageRequest {
     @Nullable
     @Distinct(message = "Each category ID must be unique")
     private List<
-    @Exist(table = "categories", column = "id", message = "Category not found", type = UUID.class) 
-    @org.hibernate.validator.constraints.UUID 
+    @Exist(table = "categories", column = "id", message = "Category not found", type = UUID.class)
+    @Uuid
     String> categoryIds;
 
     @Nullable
-    @Size(max = 100, message = "Search query must not exceed 100 characters")
-    private String search;
-
-    @Nullable
     @Exist(table = "brands", column = "id", message = "Brand not found", type = UUID.class)
-    @org.hibernate.validator.constraints.UUID
+    @Uuid
     private String brandId;
 
     @Nullable
     @Exist(table = "vendors", column = "id", message = "Vendor not found", type = UUID.class)
-    @org.hibernate.validator.constraints.UUID
+    @Uuid
     private String vendorId;
 
     private String status;
+
+    public GetListProductRequest() {
+        super("name", "asc", 10);
+    }
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.Marketplace_Management.Shared.Utils.Helpers.UrlHelper;
 
 @Data
 @NoArgsConstructor // For Jackson deserialization
@@ -41,7 +42,7 @@ public class ProductVariantResponse {
     }
 
     public ProductVariantResponse withUrl(String url) {
-        this.images = this.images != null ? this.images.stream().map(image -> url + "/" + image).toList() : null;
+        this.images = this.images != null ? this.images.stream().map(image -> UrlHelper.toPublicUrl(url, image)).toList() : null;
         return this;
     }
 }

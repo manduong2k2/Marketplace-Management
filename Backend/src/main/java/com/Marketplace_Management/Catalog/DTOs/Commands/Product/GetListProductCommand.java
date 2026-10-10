@@ -4,35 +4,28 @@ import java.util.List;
 import java.util.UUID;
 
 import com.Marketplace_Management.Catalog.DTOs.Requests.Product.GetListProductRequest;
-import com.Marketplace_Management.Shared.DTOs.Commands.BaseCommand;
+import com.Marketplace_Management.Shared.DTOs.Commands.PageCommand;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-    
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 @Data
-@AllArgsConstructor
+@SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class GetListProductCommand extends BaseCommand {
-    private int page = 0;
-    private int size = 10;
-    private String sortBy = "name";
-    private String sortOrder = "asc";
-    private String search;
+public class GetListProductCommand extends PageCommand {
     private List<UUID> categoryIds;
     private UUID brandId;
     private UUID vendorId;
 
     public static GetListProductCommand fromRequest(GetListProductRequest request) {
-        return new GetListProductCommand(
-            request.getPage(),
-            request.getSize(),
-            BaseCommand.safeTrim(request.getSortBy()),
-            BaseCommand.safeTrim(request.getSortOrder()),
-            BaseCommand.safeTrim(request.getSearch()),
-            request.getCategoryIds() != null ? request.getCategoryIds().stream().map(UUID::fromString).toList() : List.of(),
-            request.getBrandId() != null ? UUID.fromString(request.getBrandId()) : null,
-            request.getVendorId() != null ? UUID.fromString(request.getVendorId()) : null
-        );
+        return GetListProductCommand.builder()
+                .paging(request)
+                .categoryIds(request.getCategoryIds() != null ? request.getCategoryIds().stream().map(UUID::fromString).toList() : List.of())
+                .brandId(uuidOrNull(request.getBrandId()))
+                .vendorId(uuidOrNull(request.getVendorId()))
+                .build();
     }
 }
